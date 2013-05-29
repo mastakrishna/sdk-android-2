@@ -1,0 +1,106 @@
+Basic Quickstart
+==========================
+
+This quickstart will walk you through creating a basic Android application that will launch an [Interstitial Ad] from PlayHaven.
+
+Pre-requisites
+--------------
+
+You must have the following setup and configured (environment variables, path, etc):
+
+* [Java JDK 1.6](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* [Maven 3](http://maven.apache.org)
+* [Android](http://developer.android.com/sdk/index.html)
+
+You can verify that everything is setup properly by running `mvn --version` from a command line.  Ie:
+
+```
+malachi@beast:~/work$ mvn --version
+Apache Maven 3.0.4 (r1232337; 2012-01-17 00:44:56-0800)
+Maven home: /usr/local/maven
+Java version: 1.6.0_45, vendor: Sun Microsystems Inc.
+Java home: /usr/lib/jvm/java-6-oracle/jre
+Default locale: en_US, platform encoding: UTF-8
+OS name: "linux", version: "3.5.0-27-generic", arch: "amd64", family: "unix"
+```
+
+The Dashboard
+-------------
+
+First, we need to setup your game in the [PlayHaven Dashboard].  If you do not already have a PlayHaven account, you will need to [Signup].
+
+* [Add a new Android game](http://help.playhaven.com/customer/portal/articles/585190-how-to-add-a-game)
+* [Create a new Placement](http://help.playhaven.com/customer/portal/articles/585198-how-to-add-placements) in the game. For this quickstart, we'll assume you called it `game_launch`.
+* [Create an Interstitial Ad](http://help.playhaven.com/customer/portal/articles/585250-how-to-create-an-interstitial-ad). Make sure you target the placement you just created.
+
+Creating the Application
+-------------------------
+
+From the command line:
+
+```bash
+mvn archetype:generate -DarchetypeRepository=${config.distrepo.value}/nexus/content/groups/public/ -DarchetypeGroupId=com.playhaven.android.archetypes -DarchetypeArtifactId=basic -DarchetypeVersion=${project.version}
+```
+
+You will be prompted for:
+
+|Property Name|Notes|
+|-------------|-----|
+|[groupId](http://maven.apache.org/pom.html#Maven_Coordinates)|Convention is to use a reverse DNS name that you own. For example, `com.mycompany.mygame`.|
+|[artifactId](http://maven.apache.org/pom.html#Maven_Coordinates)|A unique identifier for your game. This will also be the basis of your games' Activity. Ie: `MyGame`.|
+|[version](http://maven.apache.org/pom.html#Maven_Coordinates)|Defaults to 1.0-SNAPSHOT.|
+|[package](http://en.wikipedia.org/wiki/Java_package#Package_naming_conventions)|Your Java package. Defaults to your groupId.|
+|placement|The placement you created in the [#The_Dashboard] step. Ie: `game_launch`.|
+|secret|On the Game Settings page in the [PlayHaven Dashboard]. See example below.|
+|token|On the Game Settings page in [PlayHaven Dashboard]. See example below.|
+
+![Dashboard Game Settings](${config.siterepo.value}/com.playhaven.android/examples/${project.version}/examples/images/dashboard_gamesettings.png "Dashboard Game Settings")
+
+Example run:
+
+```
+Define value for property 'groupId': : com.mycompany.mygame
+Define value for property 'artifactId': : MyGame
+Define value for property 'version':  1.0-SNAPSHOT: :
+Define value for property 'package':  com.mycompany.mygame: :
+Define value for property 'placement': : game_launch
+Define value for property 'secret': : 8750450c0c414a20976110a82d1efac1
+Define value for property 'token': : 71dd5d607c4b421c8f8bdc4f24cbfa40
+Confirm properties configuration:
+groupId: com.mycompany.mygame
+artifactId: MyGame
+version: 1.0-SNAPSHOT
+package: com.mycompany.mygame
+placement: game_launch
+secret: 8750450c0c414a20976110a82d1efac1
+token: 71dd5d607c4b421c8f8bdc4f24cbfa40
+ Y: :
+```
+
+After you accept (`Y` or `Enter`), it will create a project structure for you:
+
+![Tree](images/basic_tree.png "Tree")
+
+Building/Installing the Application
+-----------------------------------
+
+Make sure you have an Android device connected (or an Emulator running). You can validate that it can be accessed with `adb devices`.
+
+Assuming you called your artifactId `MyGame`:
+
+```bash
+cd MyGame
+mvn clean install
+```
+
+That will build and install your game.  When you launch it from the device, it will connect to PlayHaven and show your placement.
+
+Now What?
+---------
+
+Now that you have a working application, proceed to [Examples] to see what else you can do.
+
+[Interstitial Ad]: http://www.playhaven.com/tour#interstitial
+[PlayHaven Dashboard]: http://dashboard.playhaven.com/
+[Signup]: http://www.playhaven.com/developers
+[Examples]: ${config.siterepo.value}/com.playhaven.android/examples/${project.version}/examples/index.html

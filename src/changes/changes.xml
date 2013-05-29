@@ -1,0 +1,173 @@
+<!--
+Copyright 2013 Medium Entertainment, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/changes/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd">
+
+    <properties>
+        <title>PlayHaven Android SDK Changes Report</title>
+        <author email="scott@playhaven.com">Scott Worley</author>
+    </properties>
+
+    <body>
+
+<release version="2.0.5" description="[skyrunner] M6: Update for SDK 22" date="2013-05-23">
+  <action type="add" dev="Malachi de AElfweald">[gannon] Update maven android plugin to handle new Android SDK</action>
+  <action type="fix" dev="Malachi de AElfweald">[waynesfield] NPE in contentDismissed</action>
+  <action type="fix" dev="Malachi de AElfweald">[trapper-creek-wilderness] "More Games" button overlaps "Animation" Text , when in portrait mode on PH Diagnostic application.</action>
+  <action type="fix" dev="Christa Mabee">[mossy-dell] opt-in crash</action>
+</release>
+
+<release version="2.0.4" description="[commander-clash] M5: Documentation fixes" date="2013-05-10">
+  <action type="update" dev="Malachi de AElfweald">[duenweg] Update documentation to have links to APKs</action>
+  <action type="update" dev="Malachi de AElfweald">[grizzly-flat] Update default page</action>
+  <action type="fix" dev="Malachi de AElfweald">[flamingo] Some documentation links did not get updated to the new repo names</action>
+</release>
+
+<release version="2.0.3" description="[looten-plunder] M4: Last Minute Touchups" date="2013-05-09">
+  <action type="update" dev="Malachi de AElfweald">[slate-valley] Add PlayHaven copyright to all reasonable files</action>
+  <action type="update" dev="Malachi de AElfweald">[bruington] Customize skin to look more PlayHaven-ish</action>
+  <action type="update" dev="Malachi de AElfweald">[bryantsburg] Customize documented modules</action>
+  <action type="update" dev="Malachi de AElfweald">[brush-creek-rs] Adjust reports</action>
+  <action type="update" dev="Malachi de AElfweald">[sveadahl] Get rid of empty box on new documentation theme</action>
+  <action type="update" dev="Malachi de AElfweald">[http-res] New documentation theme is not compatible with http resources for some users</action>
+  <action type="update" dev="Malachi de AElfweald">[east-quogue] New theme uses an image from PlayHaven CDN that breaks some users</action>
+  <action type="update" dev="Malachi de AElfweald">[covey-hill] Update NoContent verbage and example</action>
+  <action type="update" dev="Malachi de AElfweald">[suwannee-valley] Need to handle JSON error handling better</action>
+  <action type="update" dev="Malachi de AElfweald">[crystal-falls] Remove duplicate copyright</action>
+  <action type="update" dev="Malachi de AElfweald">[whitney] Update Maven doc link</action>
+  <action type="update" dev="Malachi de AElfweald">[cannon-ball] Update Open Example</action>
+  <action type="update" dev="Malachi de AElfweald">[oaky] Come up with a new Android Code Challenge</action>
+  <action type="update" dev="Malachi de AElfweald">[cassandra] Update Google Play integration documentation</action>
+  <action type="update" dev="Malachi de AElfweald">[props] ${dist.repo} in url</action>
+  <action type="update" dev="Malachi de AElfweald">[identity] Determine correct logic for device id</action>
+  <action type="update" dev="Malachi de AElfweald">[ware-neck] Simplify IDE Integration links</action>
+  <action type="update" dev="Malachi de AElfweald">[pryse] Get rid of build WARNINGs</action>
+  <action type="update" dev="Malachi de AElfweald">[jamestown-west] Clean up @TODOs</action>
+  <action type="update" dev="Malachi de AElfweald">[jacksboro] More Javadocs</action>
+  <action type="update" dev="Malachi de AElfweald">[gambier] More tests</action>
+  <action type="update" dev="Malachi de AElfweald">[gap-springs] More documentation</action>
+  <action type="update" dev="Christa Mabee">[camden-point] Update Eclipse integration docs</action>
+  <action type="update" dev="Malachi de AElfweald">[thorsby] Update Tutorials based on Johns' walkthrough</action>
+  <action type="add" dev="Christa Mabee">[coles] Push Notifications via Google Cloud Messaging</action>
+  <action type="add" dev="Christa Mabee">[jamba-juice] Mock Config load should populate Token,  Secret and target API sites in the UI</action>
+  <action type="fix" dev="Malachi de AElfweald">[bangs] PreloadExample needs to move toast to UI thread</action>
+  <action type="add" dev="Christa Mabee">[index] PHUrlRequest stumbles on market:// urls </action>
+  <action type="add" dev="Malachi de AElfweald">[bigben] Start sending timezone on open</action>
+  <action type="add" dev="Christa Mabee">[whitlash] Mock Config includes GCM project id</action>
+  <action type="fix" dev="Christa Mabee">[cave-city] Diagnostic App crashed on VGP-&gt;BUY  </action>
+  <action type="add" dev="Malachi de AElfweald">[maverick] Maven integration tutorial</action>
+  <action type="add" dev="Malachi de AElfweald">[jets-n-brains] IntelliJ tutorial</action>
+  <action type="add" dev="Malachi de AElfweald">[braddock-hills2] Update PlayHavenRequest to accept additional IAP 'resolution's</action>
+  <action type="add" dev="Malachi de AElfweald">[sumpter-township] Update Google Play example to show all possible iap resolutions</action>
+  <action type="add" dev="Malachi de AElfweald">[nellie] onPause handling</action>
+  <action type="add" dev="Malachi de AElfweald">[corey-lake] Document how to do IAP without VGP</action>
+  <action type="add" dev="Malachi de AElfweald">[hickox] Preloading content units by placement, including passing the preload=1 param</action>
+  <action type="add" dev="Malachi de AElfweald">[winstonville] Basic content request archetype</action>
+  <action type="add" dev="Malachi de AElfweald">[princeton] Document SDK Plugin for 3rd party integrators</action>
+  <action type="fix" dev="Malachi de AElfweald">[stacked] Stacked ads</action>
+  <action type="add" dev="Malachi de AElfweald">[tribbey] image-only announcement has no close button</action>
+  <action type="add" dev="Malachi de AElfweald">[west-albany] Update tz param</action>
+  <action type="add" dev="Christa Mabee">[mt-prosper] user_agent for requests</action>
+  <action type="add" dev="Christa Mabee">[amnityville] HTMLView should use cached content template for the placement</action>
+  <action type="add" dev="Malachi de AElfweald">[default] Default Integration</action>
+  <action type="fix" dev="Malachi de AElfweald">[newbury] no-content preload should be discarded </action>
+  <action type="add" dev="Malachi de AElfweald">[lizzielane] Update pivotal-2-changes handling</action>
+  <action type="fix" dev="Malachi de AElfweald">[tunerville] Window leaked when hitting home</action>
+  <action type="add" dev="Malachi de AElfweald">[vancouver-mall] Change Logging Example to delay resetting loglevel</action>
+  <action type="fix" dev="Malachi de AElfweald">[villboro] Update apiwithdeps PlayHaven.iml</action>
+  <action type="fix" dev="Malachi de AElfweald">[sun-city-west] MemoryReporter.report(tag) ignores the tag</action>
+  <action type="add" dev="Malachi de AElfweald">[southdown] Add configChanges to quickstart generated manifest</action>
+  <action type="add" dev="Malachi de AElfweald">[stillwell] Remove PlayHavenView.NO_DISPLAY_OPTIONS from quickstart example</action>
+</release>
+
+<release version="2.0.2" description="[doctor-blight] M3: Google Play Support" date="2013-04-04">
+  <action type="update" dev="Malachi de AElfweald">[yuba] Research: Google Play In-App Billing</action>
+  <action type="update" dev="Malachi de AElfweald">Research Amazon App Store integration</action>
+  <action type="update" dev="Malachi de AElfweald">[barron] Research Samsung App Store Integration</action>
+  <action type="update" dev="Malachi de AElfweald">[bristol] Simplify content dismissed data</action>
+  <action type="update" dev="Malachi de AElfweald">[pena-pobre] Logging update</action>
+  <action type="update" dev="Malachi de AElfweald">[strangelove] Rename sample app to diagnostic app</action>
+  <action type="update" dev="Malachi de AElfweald">[quintana] Change sdk_platform to plugin</action>
+  <action type="update" dev="Malachi de AElfweald">[santa-fe] Update repository config in docs</action>
+  <action type="add" dev="Malachi de AElfweald">[impact] Android developers can display a dark overlay effect for user-initiated placements</action>
+  <action type="add" dev="Malachi de AElfweald">[patrick-henry-fiel] Document example for Reward</action>
+  <action type="add" dev="Malachi de AElfweald">[pawhuska] Document sample for Opt-In</action>
+  <action type="add" dev="Malachi de AElfweald">[strangedoc] Document the Diagnostic App usage</action>
+  <action type="fix" dev="Malachi de AElfweald">[carlin] Content request URL has singular languages parameter instead of plural. </action>
+  <action type="add" dev="Christa Mabee">[cortland] Opt-In DC support for webview</action>
+  <action type="add" dev="Malachi de AElfweald">[mantorville] Rename Activity/Dialog in Diagnostic app to FullScreen/Windowed</action>
+  <action type="fix" dev="Christa Mabee">[gulf-pines] Eclipse doesn't import apklib correctly</action>
+  <action type="update" dev="Malachi de AElfweald">[keyser] Add list of log levels to the documentation</action>
+  <action type="add" dev="Malachi de AElfweald">[silver-plume] Add some memory reporting utility to simplify QA</action>
+  <action type="update" dev="Christa Mabee">[church-buttes] IAP/VGP support in webview</action>
+  <action type="fix" dev="Christa Mabee">[coyote-wells] Dismiss callback being called twice</action>
+  <action type="add" dev="Malachi de AElfweald">[topeka] Google Play integration</action>
+  <action type="add" dev="Malachi de AElfweald">[clarks-mill] IAP/VGP support in framework</action>
+</release>
+
+<release version="2.0.1" description="[Captain-Pollution] M2: Parity minus Google Play" date="2013-02-21">
+  <action type="add" dev="Malachi de AElfweald">[johnsons-corner] Add ACCESS_NETWORK_STATE</action>
+  <action type="add" dev="Malachi de AElfweald">[dobbs-ferry] Add emergency close button to PHActivity</action>
+  <action type="update" dev="Malachi de AElfweald">[foresthill] Refactor out PH prefix</action>
+  <action type="add" dev="Christa Mabee">[coatsburg] Child Lock support in webview</action>
+  <action type="add" dev="Christa Mabee">[sdk-clearwater] Sub-Content Request</action>
+  <action type="add" dev="Malachi de AElfweald">[sdk-metaville] Metadata Request</action>
+  <action type="add" dev="Malachi de AElfweald">[cyclone] Notification Badge</action>
+  <action type="fix" dev="Malachi de AElfweald">[sadie] 403 Forbidden not passed back to caller</action>
+  <action type="add" dev="Malachi de AElfweald">[sadie2] Modal Dialog</action>
+  <action type="update" dev="Malachi de AElfweald">[gans] Change PlacementId to PlacementTag everywhere</action>
+  <action type="add" dev="Malachi de AElfweald">[cortland2] Add repository configuration to docs</action>
+  <action type="add" dev="Malachi de AElfweald">[fort-bliss] Prevent Ad-loops</action>
+  <action type="fix" dev="Christa Mabee">[springbrook] PHSubcontentRequestTest is broken</action>
+  <action type="add" dev="Malachi de AElfweald">[sdk-slug] Loglevels</action>
+  <action type="add" dev="Malachi de AElfweald">[waterbed] Embedded View</action>
+  <action type="add" dev="Malachi de AElfweald">[nespelem] Document More Games button</action>
+  <action type="add" dev="Malachi de AElfweald">[stetson] Dialog should also use DISPLAY_OPTIONS</action>
+  <action type="add" dev="Malachi de AElfweald">[noble] Wants to know how the dialog was closed (dismiss, x, etc)</action>
+  <action type="update" dev="Malachi de AElfweald">[south-paris] add Changes report</action>
+  <action type="fix" dev="Malachi de AElfweald">[black-springs] Dialog size</action>
+  <action type="add" dev="Martin Peck">[couch] Reward Support in Framework</action>
+  <action type="add" dev="Malachi de AElfweald">[ponderay] Need to update the value of token in the SampleApp 2.0  after it gets input file via Mock Config</action>
+  <action type="add" dev="Malachi de AElfweald">[quanah] Need better error handling on Server URL input under Setting</action>
+  <action type="add" dev="Malachi de AElfweald">[newtonia] Ability to check whether the returned content was empty, and why</action>
+  <action type="add" dev="Christa Mabee">[strawberry-lake] Reward Support in the WebView</action>
+  <action type="add" dev="Malachi de AElfweald">[diggins] Session Tracking</action>
+  <action type="add" dev="Christa Mabee">[cubero] basic opt-in dc support for webview </action>
+  <action type="add" dev="Martin Peck">[pellston] Overlay not shown</action>
+</release>
+
+        <release version="2.0.0" description="[Captain-Planet] M1: Basic WebView interstitial" date="2013-02-05">
+            <action type="add" dev="Malachi de AElfweald">[garrochales] Make SampleApp actually do something</action>
+            <action type="add" dev="Malachi de AElfweald">[malbis] Implement PlayHavenView loading animation</action>
+            <action type="add" dev="Malachi de AElfweald">[sdk-clackamas] Framework for displaying full screen ad [activity]</action>
+            <action type="add" dev="Malachi de AElfweald">Content request</action>
+            <action type="add" dev="Malachi de AElfweald">[sdk-gladstone] Create base framework for server interaction</action>
+            <action type="add" dev="Malachi de AElfweald">[sdk-beaverton] Create basic disk cache</action>
+            <action type="add" dev="Malachi de AElfweald">[round-butte] Add Bulk caching option to Cache</action>
+            <action type="add" dev="Malachi de AElfweald">[sdk-aloha] Add LRU-ish support to Cache</action>
+            <action type="add" dev="Malachi de AElfweald">Open request</action>
+            <action type="add" dev="Christa Mabee">[sdk-whitman] Create basic webview support</action>
+            <action type="add" dev="Malachi de AElfweald">[nokesville] nix showOverlayImmediately</action>
+            <action type="fix" dev="Malachi de AElfweald">[marblemount] mergeManifests fails when upstream apklib changes</action>
+            <action type="add" dev="Christa Mabee">[montara] Change server model to be autogenerated from JSON Schema</action>
+            <action type="add" dev="Malachi de AElfweald">[camas-valley] Move documentation from ghPages to nexus</action>
+            <action type="add" dev="Malachi de AElfweald">[madison-run] Implement PlayHavenView overlay</action>
+            <action type="add" dev="Malachi de AElfweald">[west-albany] Full-page ad example</action>
+        </release>
+
+    </body>
+</document>

@@ -1,0 +1,60 @@
+OnResume
+======================================
+
+This example builds on our previous example [Display Options](dispopts.html) and shows how to prevent ad looping in onResume.
+
+Preparation
+-----------
+
+Please see The Dashboard configuration on our previous example [Display Options](dispopts.html),
+
+We'll start by copying what we did in the previous example [Display Options](dispopts.html),
+
+Java
+----
+
+The only change to the code is to move our startActivity into the onResume, while wrapping it with a timing check.
+
+```java
+@Override
+protected void onResume() {
+    super.onResume();
+    if(FullScreen.timeElapsed(this, 5000))
+    {
+        /**
+        * Now we start the new Activity using the same logic as in the ContentExample.
+        *
+        * This time, we will specify Display Options.  The Display Options provide the
+        * developer with a way to show feedback to the user while the content template
+        * and images are being downloaded.
+        *
+        * DISPLAY_OVERLAY is used to display a partially transparent overlay.
+        * DISPLAY_ANIMATION is used to display an indeterminate progress indicator.
+        *
+        * By specifying (DISPLAY_OVERLAY | DISPLAY_ANIMATION) we are telling the
+        * system that we want to enable both options.
+        */
+        startActivity(FullScreen.createIntent(this, "content_example", PlayHavenView.DISPLAY_OVERLAY | PlayHavenView.DISPLAY_ANIMATION));
+    }
+}
+```
+
+FullScreen.timeElapsed will return true if the specified time (in milliseconds) )has passed since another FullScreen has been dismissed.
+In this particular case, we are choosing to only show a content unit if one wasn't recently shown.
+When resuming from a content unit, enough time hasn't elapsed, so the startActivity is ignored.
+When resuming from starting the application back up, a content unit is displayed.
+
+
+References
+----------
+
+Source code: [OnResumeExample.java](xref/com/playhaven/android/examples/OnResumeExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

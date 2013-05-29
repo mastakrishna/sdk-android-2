@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Copyright 2013 Medium Entertainment, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<manifest android:installLocation="auto" android:versionName="2.0.1-SNAPSHOT" package="com.playhaven.android.diagnostic"
+          xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="2">
+
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17"/>
+
+    <supports-screens android:smallScreens="true"
+                      android:normalScreens="true"
+                      android:largeScreens="true"
+                      android:anyDensity="true"/>
+    
+    <!-- These are needed for GCM, but not needed for all publishers. -->
+	<permission android:name="com.playhaven.android.diagnostic.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+	<uses-permission android:name="com.playhaven.android.diagnostic.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+	
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true">
+        <activity android:name=".Launcher" android:label="@string/app_name"
+                  android:configChanges="orientation|keyboardHidden|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".DiagnosticPreferences" />
+        <!-- This is needed to receive Google Cloud Messaging intents from the system. -->
+        <receiver
+            android:name="com.playhaven.android.push.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="com.playhaven.android.diagnostic" />
+            </intent-filter>
+        </receiver>
+    </application>
+    
+</manifest>

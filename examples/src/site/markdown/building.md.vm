@@ -1,0 +1,178 @@
+Building and Running the SDK Examples
+========================================================
+
+This document explains how the SDK Examples are built and run.  This is not needed if you are just [Integrating the SDK] or want to use the [Quickstart].
+
+
+Android and Maven
+-----------------
+
+The PlayHaven Android SDK Examples build using [Maven](http://maven.apache.org/).  Specifically, we use the [Android Maven Plugin](http://code.google.com/p/maven-android-plugin/).
+
+Maven was designed to prefer Convention over Configuration.  If you are used to using Ant, you can think of Maven as removing some of the boilerplate code.
+For their own description of what it is, you can look at [What is Maven?](http://maven.apache.org/what-is-maven.html).
+
+Maven is a plugin-based build system (much like Ant).  One such plugin is the [android-maven-plugin](http://code.google.com/p/maven-android-plugin/).  It provides a wrapper around the Android SDK tools.
+
+Directory Layout
+----------------
+
+We have chosen to use the standard Maven directory layout for these example.
+
+![Directory Layout](images/directory_layout.png "Directory Layout")
+
+You will find files in the following locations:
+
+|Path                                                                                                                        |Purpose            |
+|----------------------------------------------------------------------------------------------------------------------------|-------------------|
+|[./pom.xml](http://maven.apache.org/pom.html)                                                                               |Build configuration|
+|[./src/AndroidManifest.xml](http://developer.android.com/guide/topics/manifest/manifest-intro.html)                         |Manifest file      |
+|[./src/main/android/res/*](http://developer.android.com/guide/topics/resources/providing-resources.html)                    |Resource files     |
+|[./src/main/android/res/drawable/icon.png](http://developer.android.com/guide/topics/manifest/application-element.html#icon)|Application icon   |
+|[./src/main/android/res/layout/*.xml](http://developer.android.com/guide/topics/resources/layout-resource.html)             |Layout files       |
+|[./src/main/android/res/values/strings.xml](http://developer.android.com/guide/topics/resources/string-resource.html)       |String resources   |
+|[./src/main/java/*](xref/index.html)                                                                                        |Java source        |
+|[./src/main/java/com/playhaven/android/examples/*.java](xref/com/playhaven/android/examples/)                               |Example source code|
+
+The POM
+-------
+
+The [pom.xml](http://maven.apache.org/pom.html) is the build configuration file for Maven.
+
+Repositories
+------------
+
+We must specify where to locate our dependencies.
+
+```xml
+<repositories>
+    <repository>
+        <id>playhaven-public</id>
+        <name>PlayHaven Public Repository</name>
+        <url>${config.distrepo.value}/nexus/content/groups/public/</url>
+        <releases>
+            <enabled>true</enabled>
+            <checksumPolicy>warn</checksumPolicy>
+            <updatePolicy>daily</updatePolicy>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+
+
+
+Dependencies
+------------
+
+We must specify our dependency on the PlayHaven API as well as specify which version of Android we wish to compile against:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.playhaven.android</groupId>
+        <artifactId>playhaven-api</artifactId>
+        <version>${project.version}</version>
+        <type>apklib</type>
+    </dependency>
+    <dependency>
+        <groupId>com.google.android</groupId>
+        <artifactId>android</artifactId>
+        <version>4.1.1.4</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+```
+
+We have specified that we are loading the PlayHaven API as an Android Library (apklib) which means that the source will get compiled into our APK.  We have also specified that Android is provided by the platform, and thus we do not include the Android source in our APK.
+
+android-maven-plugin
+--------------------
+
+For creating an installable APK, we have to tell Maven that we want to generate an APK (instead of the default JAR):
+
+```xml
+<packaging>apk</packaging>
+```
+
+We also need to specify how to create an APK:
+
+```xml
+<plugin>
+    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+    <artifactId>android-maven-plugin</artifactId>
+    <version>${config.andrmvn.value}</version>
+    <configuration>
+        <extractDuplicates>true</extractDuplicates>
+        <androidManifestFile>\${project.basedir}/src/AndroidManifest.xml</androidManifestFile>
+        <assetsDirectory>\${project.basedir}/src/main/assets</assetsDirectory>
+        <resourceDirectory>\${project.basedir}/src/main/android/res</resourceDirectory>
+        <nativeLibrariesDirectory>\${project.basedir}/src/main/native</nativeLibrariesDirectory>
+        <sdk>
+            <platform>17</platform>
+        </sdk>
+        <undeployBeforeDeploy>true</undeployBeforeDeploy>
+        <mergeManifests>true</mergeManifests>
+        <proguard>
+            <skip>true</skip>
+        </proguard>
+    </configuration>
+    <executions>
+        <execution>
+            <id>android-undeploy</id>
+            <phase>pre-clean</phase>
+            <goals>
+                <goal>undeploy</goal>
+            </goals>
+        </execution>
+        <execution>
+            <id>alignApk</id>
+            <phase>install</phase>
+            <goals>
+                <goal>zipalign</goal>
+            </goals>
+        </execution>
+        <execution>
+            <id>android-deploy</id>
+            <phase>install</phase>
+            <goals>
+                <goal>deploy</goal>
+            </goals>
+        </execution>
+    </executions>
+    <extensions>true</extensions>
+</plugin>
+```
+
+While it may appear complex, this snippet actually does quite a bit.  First, it configures the plugin to know where we put the Android files in our source tree.
+Second, it will merge the AndroidManifest from the PlayHaven API with the one we have generated for the Examples.  Third, it will automatically handle installing
+(and uninstalling) the APK to the connected device.  If you do not want to have the device connected during the build, you can remove the deploy and undeploy
+sections, then put the APK on the device yourself.
+
+Building and Running
+--------------------
+
+If the device is connected (ie: you can run 'adb logcat') and the pom.xml is configured as above, you can install a clean copy of the examples like this:
+
+```bash
+mvn clean install
+```
+
+Once the build has finished, you should see any LAUNCHER Activities in your application drawer.  An example of specifying a launcher Activity in your AndroidManifest.xml would look something like this:
+
+```xml
+<!-- Hello World, aka The Open Request -->
+<activity android:name=".OpenExample" android:label="Open Example"
+          android:configChanges="orientation|keyboardHidden|screenSize">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+    </intent-filter>
+</activity>
+```
+
+
+[Integrating the SDK]: ${config.siterepo.value}/com.playhaven.android/playhaven-api/${project.version}/playhaven-api/ide.html
+[Quickstart]: ${config.siterepo.value}/com.playhaven.android/archetypes/${project.version}/archetypes/index.html

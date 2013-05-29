@@ -1,0 +1,80 @@
+Opt-In Data Collection
+==========================================
+
+This example builds on our previous examples [The Content Result](content2.html) and shows how to obtain information submitted by the user.
+
+Preparation
+-----------
+
+Please see The Dashboard configuration on our previous example [The Content Request](content.html),
+
+We'll start by copying what we did in the previous example [The Content Request](content.html),
+
+Java
+----
+
+There are only two real changes.
+
+The first is to replace the placement tag with "optin", which points to a Opt-In Data Collections placement in the PlayHaven Dashboard.
+
+The second it to add some logic to the `onActivityResult`:
+
+```java
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode != EXAMPLE2_REQUEST_CODE)
+            return;
+
+        String placementTag = data.getStringExtra(PlayHavenView.BUNDLE_PLACEMENT_TAG);
+        PlayHavenView.DismissType dismissType = (PlayHavenView.DismissType) data.getSerializableExtra(PlayHavenView.BUNDLE_DISMISS_TYPE);
+        if(dismissType != PlayHavenView.DismissType.OptIn) return;
+
+        Bundle adData = data.getBundleExtra(PlayHavenView.BUNDLE_DATA);
+        if(adData == null) return;
+
+        for(DataCollectionField field : adData.<DataCollectionField>getParcelableArrayList(PlayHavenView.BUNDLE_DATA_OPTIN))
+            Log.d(TAG, "Field Submitted:  " + field.getName() + " = " + field.getValue());
+
+        // Data Collection can have optional rewards (specified in the Dashboard)
+        for(Reward reward : adData.<Reward>getParcelableArrayList(PlayHavenView.BUNDLE_DATA_REWARD))
+            Log.d(TAG, String.format("Reward Collected: %d %s\n", reward.getQuantity().intValue(), reward.getTag() ));
+    }
+```
+
+We grab the BUNDLE_DATA from the Intent, then extract any granted BUNDLE_DATA_OPTIN fields and BUNDLE_DATA_REWARDs from it.
+
+If you aren't familiar with Generics, the syntax of this line might look odd:
+
+```java
+        for(DataCollectionField field : adData.<DataCollectionField>getParcelableArrayList(PlayHavenView.BUNDLE_DATA_OPTIN))
+```
+
+This returns an `ArrayList<Parcelable>` from the `adData` Bundle (using the `BUNDLE_DATA_OPTIN` key) and cast it to
+an `ArrayList<DataCollectionField>`.  You could, alternatively, do:
+
+```java
+        for(Parcelable parcel : adData.getParcelableArrayList(PlayHavenView.BUNDLE_DATA_OPTIN))
+        {
+            DataCollectionField field = (DataCollectionField) parcel;
+            Log.d(TAG, "Field Submitted:  " + field.getName() + " = " + field.getValue());
+        }
+```
+
+But the generics version is a bit more convenient.
+
+
+
+
+References
+----------
+
+Source code: [OptInExample.java](xref/com/playhaven/android/examples/OptInExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

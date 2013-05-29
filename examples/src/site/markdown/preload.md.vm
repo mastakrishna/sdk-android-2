@@ -1,0 +1,184 @@
+The Content Request
+==========================================
+
+This example builds on our previous example [The Content Request](content.html),
+allowing the user to initiate the preloading and showing steps..
+
+Preparation
+-----------
+
+Please see The Dashboard configuration on our previous example [The Content Request](content.html),
+
+We'll start by copying what we did in the previous example [The Content Request](content.html),
+
+XML
+---
+
+In this example, we added a couple buttons to the layout.  You'll notice the second button is disabled by default.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+
+    <TextView android:text="Preload Example"
+              android:layout_width="fill_parent" android:layout_height="wrap_content" />
+
+    <Button android:onClick="startPreloadingClicked" android:text="Start Preloading..."
+            android:layout_width="fill_parent" android:layout_height="wrap_content" />
+
+    <Button android:onClick="displayAdClicked" android:text="Display Ad..."
+            android:enabled="false" android:id="@+id/displayAd"
+            android:layout_width="fill_parent" android:layout_height="wrap_content" />
+</LinearLayout>
+```
+
+Java
+----
+
+On the Java side, we now implement a listener:
+
+```java
+implements PlacementListener
+
+...
+
+@Override
+public void contentLoaded(Placement placement){ }
+
+@Override
+public void contentFailed(Placement placement, Exception e){ }
+```
+
+This listener provides a means for us to do something after the content has been downloaded, but before anything has been displayed.
+The implementation of these methods will be shown below.
+
+We also introduce a couple new variables:
+
+```java
+/**
+ * Placement as defined in the Dashboard
+ */
+private Placement placement;
+
+/**
+ * Handler to post to UI thread
+ */
+private Handler handler;
+
+...
+
+/**
+ * Instantiate our UI Handler
+ */
+handler = new Handler();
+
+/**
+ * Pass in the placement tag as defined in the Dashboard
+ */
+placement = new Placement("content_example");
+```
+
+The Handler is the standard Android mechanism for passing requests to the UI thread.
+
+The Placement wraps the logic of talking to the PlayHaven server for the specified placement tag.
+
+You'll notice that our onCreate() method no longer shows the content unit.  That is to allow us to intercept as mentioned earlier.
+
+The sequence of events will be something like this:
+
+1. Activity starts with the onCreate
+2. User clicks the "Start Preloading..." button; causing startPreloadingClicked to be executed
+3. We tell the Placement to contact PlayHaven and start caching content
+4. When the caching is completed, contentLoaded will be called
+5. Now that the content is cached, we enable the "Display Ad..." button
+6. The user clicks the "Display Ad..." button; causing displayAdClicked to be executed
+7. We make one final determination of whether to display the ad, and then show it.
+
+In order:
+
+```java
+public void startPreloadingClicked(View target)
+{
+    /**
+     * Give it a listener.  This step is optional, but will let us ad logic to the contentLoaded.
+     */
+    placement.setListener(this);
+
+    /**
+     * Start preloading the content.  This will initiate network traffic but will not pause the game.
+     */
+    placement.preload(this);
+}
+```
+
+```java
+@Override
+public void contentLoaded(Placement placement)
+{
+    /**
+     * Since the content was loaded successfully, enable the 'displayAd' button.
+     */
+    handler.post(new Runnable() {
+        @Override
+        public void run() {
+            ((Button) findViewById(R.id.displayAd)).setEnabled(true);
+        }
+    });
+}
+```
+
+```java
+public void displayAdClicked(View target)
+{
+    if(placement.isLoaded())
+    {
+        /**
+         * Now we start the new Activity.
+         *
+         * We'll use PlayHaven's convenience method to create the appropriate intent.
+         * The first parameter is our Context (ie: this Activity)
+         * The second parameter is our placement as defined in the Dashboard
+         * The last parameter is some display options (to be explained in a later tutorial).
+         *
+         * Once the ad is closed, this Activity will be resumed.
+         */
+        startActivity(FullScreen.createIntent(this, placement));
+    }
+}
+```
+
+You will notice the Display Options are set to NO_DISPLAY_OPTIONS.  Since the content has already been downloaded and cached, this will provide the best user experience.
+
+If, for any reason, it fails to download and cache the content, there is also a failure callback.  In this case, we aren't doing anything interesting with it.
+
+```java
+@Override
+public void contentFailed(Placement placement, PlayHavenException e) {
+    /** Do something on failure... */
+    final String msg = e.getMessage();
+    handler.post(new Runnable(){
+        public void run(){
+            Toast.makeText(PreloadExample.this, msg, Toast.LENGTH_LONG).show();
+        }
+    });
+}
+```
+
+
+References
+----------
+
+Source code: [PreloadExample.java](xref/com/playhaven/android/examples/PreloadExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

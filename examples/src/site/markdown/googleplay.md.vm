@@ -1,0 +1,394 @@
+Google Play Integration
+======================
+
+
+What is it?
+-----------
+
+In the [PlayHaven Dashboard], you specify a Virtual Good Promotion.  If the user chooses to buy the
+product once displayed, the product sku is then sent to your code so that you may initiate the purchase.
+Once the In-App Purchase has been resolved (bought, cancelled, error, etc.), you notify PlayHaven via a
+`PurchaseTrackingRequest`. You are then able to further refine your User Segmentation in the [PlayHaven Dashboard]
+based on the Amount Spent.
+
+Note about Accounts
+-------------------
+
+* Google's documentation doesn't mention it right away, but you must use two different Google accounts to do an IAP test.
+* The first account, your DEV account, is the one that uploads the APK and defines the In-App Products.
+* The second account, your TEST account, is the one that tries to make the purchase of your In-App Products.
+* Your DEV account must list your TEST account in the Google Dashboard under `Settings | Account Details | License Testing`.
+* You will also need to set `License Test Response` to `LICENSED` on the same page.
+
+For consistency, we will assume your DEV account (email) is the one being used for the [PlayHaven Dashboard].
+
+
+Trivial Drive
+-------------
+
+To get us started, we will use the [Trivial Drive] example provided by Google.
+
+Googles documentation says: *The sample files will be installed to `/your/sdk/location/extras/google/play_billing/in-app-billing-v03`.*
+It should be: *The sample files will be installed to `/your/sdk/location/extras/google/play_billing/samples/TrivialDrive`.*
+
+Follow the instructions in Googles' `README` to get started.
+
+* It will tell you to create the In-App Products before uploading the APK, but you will have to upload the APK before Google Play will let you define in-app products.
+* It doesn't mention it, but you will have to mark the products as Active in their dashboard. Otherwise, the product will always be listed as not available.
+* Their library is not thread-safe. Make sure to not make any calls to the server before the previous one has completed.
+
+Make sure the application is working as expected before moving on.  Google may take a few hours before purchases are allowed.
+
+![Trivial Drive](images/trivial_google.png)
+
+
+Adding the VGP to the Dashboard
+-------------------------------
+
+Log into the [PlayHaven Dashboard] using your DEV account.  If you do not have a PlayHaven
+account yet, create a new one.
+
+* Add a new Android game:
+
+![Add Game](images/vgp_addgame.png)
+
+* Since we have not release the game yet on Google Play, specify an Unreleased Game name:
+
+![Name Game](images/vgp_namegame.png)
+
+* Trivial Drive only supports Portrait Mode, so select Portrait:
+
+![Orientation](images/vgp_orient.png)
+
+* Copy down the Token/Secret on the right side of the page. You'll need those later.
+
+![Token and Secret](images/vgp_token.png)
+
+* Add a placement:
+
+![Add Placement](images/vgp_addplacement.png)
+
+* Choose to create your own:
+
+![Create Own](images/vgp_createown.png)
+
+* Name your placement:
+
+![Name Placement](images/vgp_nameplacement.png)
+
+* Back on the main page, Add IAP Products:
+
+![Add IAP](images/vgp_addiap.png)
+
+* Define the same products you specified in the Google Play Dashboard
+
+![Define IAP](images/vgp_defineiap.png)
+
+* Back on the main screen, choose Finish:
+
+![Finish](images/vgp_finished.png)
+
+* We're not going live just yet.  In the navigation bar, click the name of your game.
+
+![Navigation](images/vgp_nav.png)
+
+* Next to Virtual Good Promotion, click Add New (it only shows up during mouse over)
+
+![Add New](images/vgp_addnew.png)
+
+* Edit the settings to promote one of your virtual goods. For example, the settings for the subscription:
+
+![IAP Subscription](images/vgp_iapsub.png)
+
+* Go ahead and create content units for the other two virtual goods as well
+
+![IAP Products](images/vgp_iaps.png)
+
+* Go back to the main game page (from the navigation bar as before)
+
+* Go to the Priority View
+
+![Priority View](images/vgp_priview.png)
+
+* Choose your placement on the left
+
+![Placement](images/vgp_priplace.png)
+
+* Since we are not defining any targetting or caps, only the first one in the list will be seen for now.  Put the one you want promoted to the top of the list.
+
+![Priorities](images/vgp_priority.png)
+
+
+
+Adding PlayHaven to your Build
+------------------------------
+
+Please reference [IDE Integration] to add the PlayHaven Android SDK to your build.  If you are using a build system that handles dependency management, you can also reference [PlayHaven API Dependency Information].
+
+
+Configuring PlayHaven and Sending the Open Request
+--------------------------------------------------
+
+In the `onCreate` method, before the `loadData()`, add the following:
+
+```java
+try{
+   /**
+    * Here, we configure PlayHaven to use the Token and Secret specified in the Dashboard
+    * @see <a href="https://dashboard.playhaven.com/">https://dashboard.playhaven.com/</a>
+    */
+    PlayHaven.configure(this, "5907d03b881b4129994345d69b3dad59", "58d6136ed1c2412f9f8e2efc5c4714e7");
+
+   /**
+    * Send an Open Request.
+    */
+    (new OpenRequest()).send(this);
+} catch (PlayHavenException e) {
+    Log.e(TAG, "Error configuring PlayHaven", e);
+}
+```
+
+Make sure to replace the two strings with your Token and Secret from earlier.
+
+
+Requesting the VGP Placement
+----------------------------
+
+To be notified when the advertisement has been closed, let's implement a `PlayHavenListener`:
+
+```java
+public class MainActivity extends Activity implements PlayHavenListener
+```
+
+and
+
+```java
+@Override
+public void viewFailed(PlayHavenView view, PlayHavenException exception) {
+    Log.e(TAG, view.getPlacementTag() + " failed to display");
+}
+
+@Override
+public void viewDismissed(PlayHavenView view, PlayHavenView.DismissType dismissType, Bundle data) {
+    Log.i(TAG, view.getPlacementTag() + " was dismissed: " + dismissType);
+}
+```
+
+Now, in the `onDriveButtonClicked` method, look for:
+
+```java
+if (!mSubscribedToInfiniteGas && mTank <= 0) alert("Oh, no! You are out of gas! Try buying some!");
+```
+
+We're going to replace the alert.
+
+```java
+if (!mSubscribedToInfiniteGas && mTank <= 0)
+{
+   /**
+    * Now we create our popup Dialog
+    */
+    Windowed dialog = new Windowed(this);
+    dialog.setDisplayOptions(PlayHavenView.DISPLAY_OVERLAY | PlayHavenView.DISPLAY_ANIMATION);
+    dialog.setPlacementTag("out_of_gas");
+    dialog.setPlayHavenListener(this);
+    dialog.show();
+}
+```
+
+You'll notice that we are specifying the placement tag we created in the [PlayHaven Dashboard].
+
+
+
+Caching Inventory Prices
+------------------------
+
+Let's add this to `MainActivity`:
+
+```java
+// Store inventory prices
+HashMap<String,String> prices = new HashMap<String,String>(3);
+```
+
+In `onIabSetupFinished`, change:
+
+```java
+mHelper.queryInventoryAsync(mGotInventoryListener);
+```
+
+to:
+
+```java
+mHelper.queryInventoryAsync(true, Arrays.asList(SKU_GAS, SKU_PREMIUM, SKU_INFINITE_GAS), mGotInventoryListener);
+```
+
+Then, in `onQueryInventoryFinished`, just after
+
+```java
+Log.d(TAG, "Query inventory was successful.");
+```
+
+add the following:
+
+```java
+prices.put(SKU_GAS, inventory.getSkuDetails(SKU_GAS).getPrice());
+prices.put(SKU_PREMIUM, inventory.getSkuDetails(SKU_PREMIUM).getPrice());
+prices.put(SKU_INFINITE_GAS, inventory.getSkuDetails(SKU_INFINITE_GAS).getPrice());
+```
+
+Responding to a VGP Buy Request
+-------------------------------
+
+Add this to `MainActivity`:
+
+```java
+// IAP for tracking
+com.playhaven.android.data.Purchase iap;
+```
+
+Note: The package is fully qualified to not conflict with the `util.Purchase` class.
+
+And update our `viewDismissed` callback:
+
+```java
+@Override
+public void viewDismissed(PlayHavenView view, PlayHavenView.DismissType dismissType, Bundle data) {
+    Log.i(TAG, view.getPlacementTag() + " was dismissed: " + dismissType);
+
+    if(dismissType != PlayHavenView.DismissType.Purchase) return;
+    if(data == null) return;
+
+    ArrayList<com.playhaven.android.data.Purchase> purchases = data.<com.playhaven.android.data.Purchase>getParcelableArrayList(PlayHavenView.BUNDLE_DATA_PURCHASE);
+    if(purchases == null || purchases.size() == 0) return;
+
+    iap = purchases.get(0);
+    iap.setStore(com.playhaven.android.data.Purchase.Store.Google);
+    String sku = iap.getSKU();
+    iap.setPrice(prices.get(sku));
+
+    if(SKU_GAS.equals(sku))
+    {
+        onBuyGasButtonClicked(view);
+    }else if(SKU_PREMIUM.equals(sku)){
+        onUpgradeAppButtonClicked(view);
+    }else if(SKU_INFINITE_GAS.equals(sku)){
+        onInfiniteGasButtonClicked(view);
+    }// else ignore
+}
+```
+
+Sending the Tracking Request
+----------------------------
+
+Add the following convenience method:
+
+```java
+protected void track(com.playhaven.android.data.Purchase.Result purchaseResult)
+{
+    if(iap == null || purchaseResult == null) return;
+    iap.setResult(purchaseResult);
+    (new PurchaseTrackingRequest(iap)).send(this);
+}
+```
+
+Let's modify our `onIabPurchaseFinished` method to use the new track method:
+
+```java
+    // Callback for when a purchase is finished
+    IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
+        public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
+            Log.d(TAG, "Purchase finished: " + result + ", purchase: " + purchase);
+            if (result.isFailure()) {
+                complain("Error purchasing: " + result);
+                switch(result.getResponse())
+                {
+                    case IabHelper.BILLING_RESPONSE_RESULT_USER_CANCELED:
+                    case IabHelper.IABHELPER_USER_CANCELLED:
+                        track(com.playhaven.android.data.Purchase.Result.Cancelled);
+                        break;
+                    case IabHelper.BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE:
+                        track(com.playhaven.android.data.Purchase.Result.Invalid);
+                        break;
+                    case IabHelper.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED:
+                        track(com.playhaven.android.data.Purchase.Result.Owned);
+                        break;
+                    default:
+                        track(com.playhaven.android.data.Purchase.Result.Error);
+                        break;
+                }
+                setWaitScreen(false);
+                return;
+            }
+
+            if (!verifyDeveloperPayload(purchase)) {
+                complain("Error purchasing. Authenticity verification failed.");
+                track(com.playhaven.android.data.Purchase.Result.Error);
+                setWaitScreen(false);
+                return;
+            }
+
+            Log.d(TAG, "Purchase successful.");
+            iap.setOrderId(purchase.getOrderId());
+            iap.setPayload(purchase.getDeveloperPayload());
+            track(com.playhaven.android.data.Purchase.Result.Bought);
+
+            if (purchase.getSku().equals(SKU_GAS)) {
+                // bought 1/4 tank of gas. So consume it.
+                Log.d(TAG, "Purchase is gas. Starting gas consumption.");
+                mHelper.consumeAsync(purchase, mConsumeFinishedListener);
+            }
+            else if (purchase.getSku().equals(SKU_PREMIUM)) {
+                // bought the premium upgrade!
+                Log.d(TAG, "Purchase is premium upgrade. Congratulating user.");
+                alert("Thank you for upgrading to premium!");
+                mIsPremium = true;
+                updateUi();
+                setWaitScreen(false);
+            }
+            else if (purchase.getSku().equals(SKU_INFINITE_GAS)) {
+                // bought the infinite gas subscription
+                Log.d(TAG, "Infinite gas subscription purchased.");
+                alert("Thank you for subscribing to infinite gas!");
+                mSubscribedToInfiniteGas = true;
+                mTank = TANK_MAX;
+                updateUi();
+                setWaitScreen(false);
+            }
+        }
+    };
+```
+
+Most of the method remains the same; but we have a rather complicated error handler at the beginning.  We have also added multiple tracking requests (depending on Googles' response).
+
+Updating Google Play
+--------------------
+
+You're almost done!  Before you update the APK in Google Play, you'll need to increment the `android:versionCode` and
+`android:versionName` in your `AndroidManifest.xml`.  Google Play requires these to be incremented before uploading new
+versions.
+
+Once you've done so, upload your new APK to Google Play and wait a few hours.  Google says 3-4 hours before the store
+is updated.  Until then, you will get an error when trying to purchase from Google Play.
+
+
+Running the Modified Example
+----------------------------
+
+Drive around a bit.  After the gas is out, if you try to drive again, you will see the content unit you placed at the
+top of your Priority View in the [PlayHaven Dashboard].  If you click Buy (or whatever you named that button), you will be
+taken to the Google Play store and offered the chance to buy the gas you need to continue driving.
+
+
+References
+----------
+
+
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+
+[PlayHaven Dashboard]: https://dashboard.playhaven.com/
+[Trivial Drive]: http://developer.android.com/training/in-app-billing/preparing-iab-app.html#GetSample
+[PlayHaven API Dependency Information]: ${config.siterepo.value}/com.playhaven.android/playhaven-api/${project.version}/playhaven-api/dependency-info.html
+[IDE Integration]: ${config.siterepo.value}/com.playhaven.android/playhaven-api/${project.version}/playhaven-api/ide.html

@@ -1,0 +1,87 @@
+Display Options
+======================================
+
+This example builds on our previous example [The Content Request](content.html),
+and adds display options to the request.
+
+Preparation
+-----------
+
+Please see The Dashboard configuration on our previous example [The Content Request](content.html),
+
+We'll start by copying what we did in the previous example [The Content Request](content.html),
+
+Java
+----
+
+The only change to the code is in the last parameter.
+
+```java
+/**
+ * Now we start the new Activity using the same logic as in the ContentExample.
+ *
+ * This time, we will specify Display Options.  The Display Options provide the
+ * developer with a way to show feedback to the user while the content template
+ * and images are being downloaded.
+ *
+ * DISPLAY_OVERLAY is used to display a partially transparent overlay.
+ * DISPLAY_ANIMATION is used to display an indeterminate progress indicator.
+ *
+ * By specifying (DISPLAY_OVERLAY | DISPLAY_ANIMATION) we are telling the
+ * system that we want to enable both options.
+ */
+startActivity(FullScreen.createIntent(this, "content_example", PlayHavenView.DISPLAY_OVERLAY | PlayHavenView.DISPLAY_ANIMATION));
+```
+
+Display Options
+---------------
+
+|NO_DISPLAY_OPTIONS|
+|------------------|
+
+If you specify NO_DISPLAY_OPTIONS, no additional indicators will be added.
+
+|DISPLAY_OVERLAY|
+|---------------|
+
+If you specify DISPLAY_OVERLAY only, a partially transparent overlay will be added until the content is ready to be displayed.
+
+![DISPLAY_OVERLAY](images/overlay_only.png "DISPLAY_OVERLAY")
+
+|DISPLAY_ANIMATION|
+|-----------------|
+
+If you specify DISPLAY_ANIMATION only, an indeterminate progress indicator will be shown until the content is ready to be displayed.
+
+![DISPLAY_ANIMATION](images/animation_only.png "DISPLAY_ANIMATION")
+
+|DISPLAY_OVERLAY &#124; DISPLAY_ANIMATION|
+|----------------------------------------|
+
+If you "or" the DISPLAY_OVERLAY and DISPLAY_ANIMATION flags together, both the overlay and progress indicator will be displayed.
+
+![DISPLAY_OVERLAY &#124; DISPLAY_ANIMATION](images/overlay_and_animation.png "DISPLAY_OVERLAY &#124; DISPLAY_ANIMATION")
+
+|AUTO_DISPLAY_OPTIONS|
+|------------------|
+
+If you specify AUTO_DISPLAY_OPTIONS, the system will intelligently determine what is best for viewing.
+
+Specifically, it content has to be downloaded, it will display the animation and overlay.
+
+If the content has already been downloaded, no animation or overlay will be displayed.
+
+
+References
+----------
+
+Source code: [DisplayOptExample.java](xref/com/playhaven/android/examples/DisplayOptExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

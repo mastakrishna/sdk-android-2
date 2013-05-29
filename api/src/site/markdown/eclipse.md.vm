@@ -1,0 +1,64 @@
+Eclipse Integration: Without Maven
+====================
+
+The PlayHaven SDK is distributed as an [Android Library Project], or apklib. Unlike a library distributed as a jar, an apklib allows you as an app developer to use Android resources (such as images and strings) from our SDK.
+Importing an Android Library Project into Eclipse is fairly straightforward.
+
+NOTE: If you are using Maven, Buildr, Ant, Grape, Grails, Leiningen or SBT; please see the [Dependency Info] page instead. Those build tools simplify the integration process.
+
+Introduction
+------------
+
+If you are still reading, we assume you are not using one of the above build tools.  This page will deal with using Eclipse without a build tool.
+
+To make the integration step easier, PlayHaven distributes .zip and .tar.gz files that contain all of the dependencies and Eclipse files you'll need to link the library to your application project.
+
+Setting up the Library Project
+-----------
+
+First, download the latest API w/ Dependencies ([zip]|[tar.gz]) archive.
+
+* In Eclipse, select File > Import > Existing Projects into Workspace. Hit "Next"
+
+![Import Existing Project](images/eclipse_existing_project.png)
+
+* Select the zip file you just downloaded. 
+
+![Select Zip](images/eclipse_select_zip.png)
+
+* Under "Projects" it should list the PlayHaven SDK.
+* Hit Finish. You can now see the library in your workspace. 
+
+![The Imported Library](images/eclipse_package_explorer.png)
+
+Integrating the Library with Your Application
+---------------------------------------------
+
+* Open the Properties dialog for your application's project.
+* Select the Android pane.
+* Under "Library" click "Add"
+
+![Add Library](images/eclipse_add_lib.png)
+
+* Select PlayHaven. Hit "Ok" and then "Ok" to close the dialog. 
+
+The PlayHaven library is now linked to your application. 
+
+One of the things the SDK does is make sure your manifest has the Activities and permissions needed to use the PlayHaven service.
+In order to allow it to do this, open the `project.properties` file for your application and add the following line:
+
+```
+manifestmerger.enabled=true
+```
+
+Now do Project > Clean to rebuild your project. 
+
+Signing Your Apk
+-----------
+Eclipse sometimes doesn't handle manifestmerger correctly when you're exporting a signed apk. If you run into problems where a signed apk lacks permissions, or cannot locate a PlayHaven Activity, you'll need to add the contents of the SDK's AndroidManifest.xml into your own manifest manually. Make sure that the contents of the ```<application>``` element get added to your own, so that there are not two ```<application>``` elements. 
+
+
+[Android Library Project]: http://developer.android.com/tools/projects/index.html#LibraryProjects
+[Dependency Info]: dependency-info.html
+[zip]: ${config.publicrepo.value}/com/playhaven/android/apiwithdeps/${project.version}/apiwithdeps-${project.version}.zip
+[tar.gz]: ${config.publicrepo.value}/com/playhaven/android/apiwithdeps/${project.version}/apiwithdeps-${project.version}.tar.gz

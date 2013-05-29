@@ -1,3 +1,6 @@
+PlayHaven SDK Agreement
+====================
+
 You agree to use the PlayHaven SDK only for lawful purposes, and in strict accordance with the PlayHaven Terms of Service and any other agreements you have entered into with PlayHaven.  You further agree that:
 
 * PlayHaven device identifiers may not be shared with any third party without the express permission of PlayHaven;

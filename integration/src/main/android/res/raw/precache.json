@@ -1,0 +1,12 @@
+{
+    "errobj": null,
+    "response": {
+        "precache": [
+            "http://media.playhaven.com/content-templates/c1ca6d06ba1447b097fc088543daf4b633655097/html/announcement.html.gz",
+            "http://media.playhaven.com/content-templates/c1ca6d06ba1447b097fc088543daf4b633655097/html/more-games.html.gz",
+            "http://media.playhaven.com/content-templates/c1ca6d06ba1447b097fc088543daf4b633655097/html/gow.html.gz",
+            "http://media.playhaven.com/content-templates/c1ca6d06ba1447b097fc088543daf4b633655097/html/promo.html.gz"
+        ]
+    },
+    "error": null
+}

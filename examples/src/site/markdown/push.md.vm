@@ -1,0 +1,41 @@
+PlayHaven Android SDK: Push Notification
+========================================
+
+There is very little you need to do to enable most of the push notification features available through PlayHaven. First, add the appropriate permissions to your Android manifest. 
+
+```
+	<permission android:name="com.lastminutedevice.dualtestapp.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+	<uses-permission android:name="com.lastminutedevice.dualtestapp.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+```
+
+Now add this receiver (be sure to substitute your application's package name)
+
+```
+        <!-- This is needed to receive Google Cloud Messaging intents from the system. -->
+        <receiver
+            android:name="com.playhaven.android.push.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="<your application's package name here>" />
+            </intent-filter>
+        </receiver>
+```
+
+When you go to do PlayHaven.configure(), you'll need to provide your Google Cloud Messaging project id. 
+
+```java
+PlayHaven.configure(this, token, secret, projectId);
+```
+
+That's it! Now your app is ready to receive push notifications. Go to your PlayHaven dashboard to do the rest. If you want to enable deep linking or custom push notification events, see the advanced topics examples. 
+
+Tips: 
+-----
+
+An application which has been installed but never launched is in a "stopped" state. It is also in a stopped state if it has been force-stopped but never re-launched. Applications will not receive broadcasts (and therefore push notifications) while in a stopped state. Your application will only receive notifcations again after a call to PlayHaven.configure() where you provide a Google Cloud Messaging project id. 
+
+Only devices with a valid Google account associated will receive push notifications from Google Cloud Messaging, and they must have Google Play installed. 

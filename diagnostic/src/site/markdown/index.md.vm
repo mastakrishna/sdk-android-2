@@ -1,0 +1,109 @@
+Introduction
+------------
+
+PlayHaven provides a Diagnostic Application to assist you in validating your placements and [PlayHaven Dashboard] configuration.
+
+![Main Screen](images/diagnostic-main.png)
+
+Installation
+---------
+
+[Download] the APK, then:
+
+```bash
+adb install -r diagnostic-${project.version}.apk
+```
+
+On the device, you will now have a `PlayHaven Diagnostic` application.
+
+Edit Preferences
+-------------
+
+* If you have a `MENU` button on your device, clicking it will bring up the menu.
+
+* If your device is a newer device without a `MENU` button, you should see the Action Bar overflow indicator as seen below.  Clicking on the overflow indicator
+will bring up the menu.
+
+![Overflow](images/ic_menu_moreoverflow_normal_holo_light.png)
+
+* Once you have opened the menu, select `Edit Settings`:
+
+![Menu](images/diagnostic-menu.png)
+
+* The Preferences screen will be shown.
+
+There are two options:
+
+1. Specify the Token/Secret
+2. Specify a Configuration file
+
+
+Specifying Token/Secret
+-----------------------
+
+* As shown in the [Hello World] example, copy your Token and Secret from the [PlayHaven Dashboard].
+
+![Game Settings](images/dashboard_gamesettings.png)
+
+* In our Preferences screen, click on `Token` and enter your Token in the popup. Then click OK.
+
+![Token](images/diagnostic-token.png)
+
+* Click on `Secret`, enter your value and OK.
+
+![Secret](images/diagnostic-secret.png)
+
+Note: The Secret is only editable if a Token has been entered.
+
+
+Configuration File
+-----------
+
+An alternative to manually typing in your Token and Secret is to use a Configuration file.  This can be really useful if
+you are testing against multiple devices.
+
+* First, prepare your Java properties file.  In this example, we create a text file named `sdk2.properties`.
+
+```
+Token=71dd5d607c4b421c8f8bdc4f24cbfa40
+Secret=8750450c0c414a20976110a82d1efac1
+```
+
+* Put the file onto your device
+
+```bash
+adb push sdk2.properties /sdcard/
+```
+
+* In our Preferences screen, click on `Configuration File` and enter the path to your file.  Click OK.
+
+![Configuration File](images/diagnostic-file.png)
+
+
+Additional Settings
+-------------------
+
+* Log Level determines the amount of logs that are output.  Values near the top output the most. Values near the bottom output the least.
+`INFO` is the default log level and produces minimal logs.  For additional information on setting log levels, please refer to the [Logging Tutorial].
+
+![Log Levels](images/diagnostic-logs.png)
+
+* `Android ID` is informative only and is the value you would need to specify a Test Device in the [PlayHaven Dashboard].
+
+* `SDK Version` specifies the version of the PlayHaven SDK this Diagnostic Application was built against.  It is highly recommended to use one that
+matches the version you are integrating into your code.
+
+* `OS Version` and API Level specify the current version of Android running on your device.
+
+![Information](images/diagnostic-info.png)
+
+And then...
+-----------
+
+Hit the back button, then continue with the [Open Request].
+
+[PlayHaven Dashboard]: https://dashboard.playhaven.com/
+[Logging Tutorial]: ${config.siterepo.value}/com.playhaven.android/examples/${project.version}/examples/logging.html
+[Hello World]: ${config.siterepo.value}/com.playhaven.android/examples/${project.version}/examples/open.html
+[Open Request]: open.html
+[Download]: ${config.publicrepo.value}/com/playhaven/android/diagnostic/${project.version}/diagnostic-${project.version}.apk

@@ -1,0 +1,286 @@
+<!--
+Copyright 2013 Medium Entertainment, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.playhaven.android</groupId>
+        <artifactId>sdk</artifactId>
+        <version>2.0.6-SNAPSHOT</version>
+    </parent>
+    <artifactId>examples</artifactId>
+    <packaging>apk</packaging>
+    <name>Examples</name>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                        <artifactId>android-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>android-undeploy</id>
+                                <phase>pre-clean</phase>
+                                <goals>
+                                    <goal>undeploy</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- Due to our copy workaround for http://code.google.com/p/maven-android-plugin/issues/detail?id=343
+                                    the copy may not yet exist at this stage...  -->
+                                    <androidManifestFile>${project.basedir}/src/AndroidManifest.xml</androidManifestFile>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>update-manifest</id>
+                                <goals>
+                                    <goal>manifest-update</goal>
+                                </goals>
+                                <configuration>
+                                    <manifest>
+                                        <versionName>${project.version}</versionName>
+                                        <versionCodeUpdateFromVersion>true</versionCodeUpdateFromVersion>
+                                    </manifest>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>alignApk</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>zipalign</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>android-deploy</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jenkins</id>
+            <activation><activeByDefault>false</activeByDefault></activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                        <artifactId>android-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>alignApk</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>zipalign</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>update-manifest</id>
+                                <goals>
+                                    <goal>manifest-update</goal>
+                                </goals>
+                                <configuration>
+                                    <manifest>
+                                        <versionName>${project.version}</versionName>
+                                        <versionCodeUpdateFromVersion>true</versionCodeUpdateFromVersion>
+                                    </manifest>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.playhaven.android</groupId>
+            <artifactId>playhaven-api</artifactId>
+            <version>${project.version}</version>
+            <type>apklib</type>
+        </dependency>
+        <dependency>
+            <groupId>android</groupId>
+            <artifactId>android</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Make module-specific reports
+            It would be nice if we could specify these in the pluginManagement section of the parent...
+             -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <configuration>
+                    <reportPlugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <reportSets>
+                                <reportSet>
+                                    <id>project-reports</id>
+                                    <reports>
+                                        <report>dependencies</report>
+                                        <report>dependency-convergence</report>
+                                        <report>dependency-info</report>
+                                        <report>dependency-management</report>
+                                        <report>modules</report>
+                                        <report>plugin-management</report>
+                                        <report>plugins</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-jxr-plugin</artifactId>
+                            <version>2.3</version>
+                            <reportSets><reportSet><reports><report>jxr</report></reports></reportSet></reportSets>
+                            <configuration>
+                                <includes>
+                                    <include>**/examples/*.java</include>
+                                </includes>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-changelog-plugin</artifactId>
+                            <version>2.2</version>
+                            <reportSets><reportSet><reports>
+                                <report>changelog</report>
+                                <report>dev-activity</report>
+                                <report>file-activity</report>
+                            </reports></reportSet></reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>findbugs-maven-plugin</artifactId>
+                            <version>2.5.2</version>
+                            <reportSets><reportSet><reports><report>findbugs</report></reports></reportSet></reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>versions-maven-plugin</artifactId>
+                            <version>2.0</version>
+                            <reportSets><reportSet><reports>
+                                <report>dependency-updates-report</report>
+                                <report>plugin-updates-report</report>
+                                <report>property-updates-report</report>
+                            </reports></reportSet></reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>taglist-maven-plugin</artifactId>
+                            <version>2.4</version>
+                            <reportSets><reportSet><reports><report>taglist</report></reports></reportSet></reportSets>
+                            <configuration>
+                                <tagListOptions>
+                                    <tagClasses>
+                                        <tagClass>
+                                            <displayName>TODO</displayName>
+                                            <tags>
+                                                <tag>
+                                                    <matchString>@TODO</matchString>
+                                                    <matchType>ignoreCase</matchType>
+                                                </tag>
+                                            </tags>
+                                        </tagClass>
+                                        <tagClass>
+                                            <displayName>API Workarounds</displayName>
+                                            <tags>
+                                                <tag>
+                                                    <matchString>@playhaven.apihack</matchString>
+                                                    <matchType>exact</matchType>
+                                                </tag>
+                                            </tags>
+                                        </tagClass>
+                                        <tagClass>
+                                            <displayName>Deprecated</displayName>
+                                            <tags>
+                                                <tag>
+                                                    <matchString>@deprecated</matchString>
+                                                    <matchType>exact</matchType>
+                                                </tag>
+                                            </tags>
+                                        </tagClass>
+                                    </tagClasses>
+                                </tagListOptions>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-pmd-plugin</artifactId>
+                            <version>2.7.1</version>
+                            <configuration>
+                                <linkXref>true</linkXref>
+                                <sourceEncoding>UTF-8</sourceEncoding>
+                                <minimumTokens>100</minimumTokens>
+                                <targetJdk>1.6</targetJdk>
+                            </configuration>
+                            <reportSets><reportSet><reports>
+                                <report>pmd</report>
+                                <report>cpd</report>
+                            </reports></reportSet></reportSets>
+                        </plugin>
+                        <!--<plugin>-->
+                            <!--<groupId>org.apache.maven.plugins</groupId>-->
+                            <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+                            <!--<version>2.9</version>-->
+                            <!--<reportSets><reportSet><reports>-->
+                                <!--<report>javadoc</report>-->
+                                <!--<report>test-javadoc</report>-->
+                            <!--</reports></reportSet></reportSets>-->
+                            <!--<configuration>-->
+                                <!--&lt;!&ndash; Default configuration for all reports &ndash;&gt;-->
+                                <!--<offlineLinks>-->
+                                    <!--<offlineLink>-->
+                                        <!--<url>http://d.android.com/reference</url>-->
+                                        <!--<location>${android.sdk.path}/docs/reference</location>-->
+                                    <!--</offlineLink>-->
+                                <!--</offlineLinks>-->
+                                <!--&lt;!&ndash;<includeDependencySources>true</includeDependencySources>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<detectLinks>true</detectLinks>&ndash;&gt;-->
+                                <!--<detectOfflineLinks>true</detectOfflineLinks>-->
+                                <!--<detectJavaApiLink>false</detectJavaApiLink>-->
+                                <!--<doclet>gr.spinellis.umlgraph.doclet.UmlGraphDoc</doclet>-->
+                                <!--<docletArtifact>-->
+                                    <!--<groupId>gr.spinellis</groupId>-->
+                                    <!--<artifactId>UmlGraph</artifactId>-->
+                                    <!--<version>4.4</version>-->
+                                <!--</docletArtifact>-->
+                                <!--<additionalparam>${javadoc.additionalparam}</additionalparam>-->
+                            <!--</configuration>-->
+                        <!--</plugin>-->
+                    </reportPlugins>
+                </configuration>
+            </plugin>
+
+
+        </plugins>
+    </build>
+</project>

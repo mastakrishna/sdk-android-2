@@ -1,0 +1,120 @@
+Dialogs
+==========================================
+
+This example shows how to do a Content Request using a Dialog instead of a full-screen Activity.
+
+The Dashboard
+-------------
+
+First, you will need to setup a placement in the [Dashboard](https://dashboard.playhaven.com/).
+Go to the Game Settings section for your game, select Placements and add a new one.
+
+![Dashboard Placements](images/content_example_placement.png "Dashboard Placements")
+
+You then need to create an Advertisement, and specify that your new placement is to be used.
+
+![Dashboard Ad](images/content_example_ad1.png "Dashboard Ad")
+
+It may take up to 5 minutes for changes to take effect.
+
+Java
+----
+
+In our previous example, we had used startActivity to create a full-screen Activity.  Due to the way Android works, that
+will pause your game while showing the advertisement.  In some cases, that may not be desirable.  For those instances,
+we have Windowed.
+
+Windowed is a standard Android Dialog that happens to be aware of the PlayHaven placements.  Setting one up very similar
+to setting up an Activity:
+
+```java
+Windowed dialog = new Windowed(this, "content_example");
+dialog.show();
+```
+
+Dismissal Listener
+------------------
+
+What if you want to know how/when the dialog was dismissed?
+
+First, implement PlayHavenListener:
+
+```java
+@Override
+public void viewFailed(PlayHavenView view, PlayHavenException exception) {
+    Log.e(TAG, view.getPlacementTag() + " failed to display");
+}
+
+@Override
+public void viewDismissed(PlayHavenView view, PlayHavenView.DismissTypes dismissType, Bundle data) {
+    Log.i(TAG, view.getPlacementTag() + " was dismissed: " + dismissType);
+}
+```
+
+Then tell the Windowed you'd like to be notified:
+
+```java
+dialog.setPlayHavenListener(this);
+```
+
+It can also be set in the constructor:
+
+```java
+Windowed dialog = new Windowed(this, "content_example", this);
+```
+
+That's it. Now you'll be notified of both errors and dismissals.
+
+Avoiding "Activity ... has leaked window"
+-----------------------------------------
+
+If your Activity is dismissed (Home button, incoming phone call, etc) while a dialog is showing, logcat will show an "Activity ... has leaked window" message. This
+is not visible to the end-user; but is a little ugly.  The way to resolve that is to ensure that any open dialogs are dismissed
+when the Activity goes away.
+
+First, create a class-level variable:
+
+```java
+private Windowed dialog;
+```
+
+Next, change:
+
+```java
+Windowed dialog = new Windowed(this);
+```
+
+to:
+
+```java
+dialog = new Windowed(this);
+```
+
+Lastly, implement an `onPause` method:
+
+```java
+@Override
+protected void onPause() {
+    super.onPause();
+    if(dialog != null && dialog.isShowing())
+        dialog.dismiss();
+}
+```
+
+That's it. Now the dialog will automatically be dismissed if it is still showing when your application goes away.
+
+References
+----------
+
+Source code: [DialogExample.java](xref/com/playhaven/android/examples/DialogExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+For more information on Display Options: [Display Options Example](dispopts.html)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

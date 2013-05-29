@@ -1,0 +1,29 @@
+IntelliJ IDEA Integration: With Maven
+====================
+
+The PlayHaven SDK is distributed as an [Android Library Project], or apklib. Unlike a library distributed as a jar, an apklib allows you as an app developer to use Android resources (such as images and strings) from our SDK.
+
+Introduction
+------------
+
+The latest version of [IntelliJ IDEA] has built-in support for android-maven-plugin.
+
+If you have already have a working android-maven-plugin project, as outlined in [Maven Integration], using it within IntelliJ is extremely simple.
+
+Preparation
+-----------
+
+We recommend doing a command-line build once first.  That will setup the ```target``` directory with generated sources.
+
+Open the Project
+----------------
+
+In IntelliJ, click ```File | Open``` and choose your pom.xml.
+
+See [Creating and importing Maven projects] for instructions on how to build/run your project from within the IDE.
+
+
+[Android Library Project]: http://developer.android.com/tools/projects/index.html#LibraryProjects
+[IntelliJ IDEA]: http://www.jetbrains.com/idea/download/
+[Maven Integration]: maven.html
+[Creating and importing Maven projects]: http://wiki.jetbrains.net/intellij/Creating_and_importing_Maven_projects#Running_goals

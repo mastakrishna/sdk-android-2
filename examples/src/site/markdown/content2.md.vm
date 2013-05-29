@@ -1,0 +1,73 @@
+Content Result
+==========================================
+
+This example builds on our previous example [The Content Request](content.html),
+displaying a Toast after it makes a Content Request and shows a full-screen content unit.
+
+Preparation
+-----------
+
+Please see The Dashboard configuration on our previous example [The Content Request](content.html),
+
+We'll start by copying what we did in the previous example [The Content Request](content.html),
+
+Java
+----
+
+We're only going to make slight changes to the last example.
+
+When using startActivityForResult, you pass in a unique id.  This id is returned in the onActivityResult callback,
+allowing the same method to be used for multiple requests.  The id you chose is arbitrary, as long as it is unique.
+
+```java
+/**
+* A unique ID to correlate request with response
+*/
+private static final int EXAMPLE2_REQUEST_CODE = 12345;
+```
+
+Where before we had:
+
+```java
+startActivity(Intent)
+```
+
+We now have:
+
+```java
+startActivityForResult(Intent, EXAMPLE2_REQUEST_CODE);
+```
+
+Thus, our request now looks like:
+
+```java
+startActivityForResult(FullScreen.createIntent(this, "content_example"), EXAMPLE2_REQUEST_CODE);
+```
+
+Now that we will get our callback, we implement it.  Note how we ignore anything coming from an unexpected id.
+
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if(requestCode != EXAMPLE2_REQUEST_CODE)
+        return;
+
+    String placementTag = data.getStringExtra(PlayHavenView.BUNDLE_PLACEMENT_TAG);
+    PlayHavenView.DismissType dismissType = (PlayHavenView.DismissType) data.getSerializableExtra(PlayHavenView.BUNDLE_DISMISS_TYPE);
+    Toast.makeText(this, placementTag + " was dismissed: " + dismissType, Toast.LENGTH_LONG).show();
+}
+```
+
+References
+----------
+
+Source code: [ContentExample2.java](xref/com/playhaven/android/examples/ContentExample2.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

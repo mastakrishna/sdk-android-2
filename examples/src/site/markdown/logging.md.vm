@@ -1,0 +1,86 @@
+Logging Example
+==========================================
+
+This example builds on our previous example [The Content Request](content.html), doing [DEBUG] logging just during the
+Open Request.
+
+Preparation
+-----------
+
+Please see The Dashboard configuration on our previous example [The Content Request](content.html),
+
+We'll start by copying what we did in the previous example [The Content Request](content.html),
+
+Java
+----
+
+We're only going to make a slight change to the last example.  We will wrap our open request with log setup.
+
+```java
+/**
+ * Turn on DEBUG logging while we send an Open Request.
+ */
+PlayHaven.setLogLevel(Log.VERBOSE);
+OpenRequest request = new OpenRequest();
+request.setResponseHandler(new RequestListener() {
+    @Override
+    public void handleResponse(ClientApiResponseModel model) {
+        PlayHaven.setLogLevel(Log.INFO);
+    }
+
+    @Override
+    public void handleResponse(PlayHavenException e) {
+        Log.e(TAG, "There was an error!", e);
+        PlayHaven.setLogLevel(Log.INFO);
+    }
+});
+request.send(this);
+```
+
+And that's it.  [DEBUG] logging will be enabled, we will send our Open request, then change the logging back to [INFO].
+
+Shell
+----
+
+The code above shows how to enable programmatic changes to the log levels.  But what if you want to grab additional
+logs without changing the source code.  This might be the case when your Support team is trying to replicate bugs.
+
+Assuming that you have adb setup (ie: you can successfully run 'adb logcat') you can do the following from a command
+line:
+
+```bash
+adb shell setprop log.tag.PlayHaven DEBUG
+```
+
+The log level will be set to the most permissive option specified.  If you set the shell to [DEBUG] and programmatic to
+[INFO], it will display [DEBUG] logs.  If you swap them, setting the shell to [INFO] and the programmatic to [DEBUG], it will
+still display [DEBUG] logs.  This allows the developer to specify areas that need more logging while still allowing
+Support to get additional details.
+
+List of Log Levels
+------------------
+
+* [VERBOSE]
+* [DEBUG]
+* [INFO]
+* [WARN]
+* [ERROR]
+
+References
+----------
+
+Source code: [LoggingExample.java](xref/com/playhaven/android/examples/LoggingExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+
+[VERBOSE]: http://developer.android.com/reference/android/util/Log.html#VERBOSE
+[DEBUG]: http://developer.android.com/reference/android/util/Log.html#DEBUG
+[INFO]: http://developer.android.com/reference/android/util/Log.html#INFO
+[WARN]: http://developer.android.com/reference/android/util/Log.html#WARN
+[ERROR]: http://developer.android.com/reference/android/util/Log.html#ERROR

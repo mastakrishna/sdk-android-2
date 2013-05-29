@@ -1,0 +1,66 @@
+PlayHaven Android SDK: Push Notification Advanced Features
+==========================================================
+
+Launch an Activity Directly 
+--------------------------
+By default, a push notification's Notification will launch your application when the user selects it. Sometimes you may want to take them to a specific Activity, and provide that Activity with information from the Notification. For example, to take them to your in-game store in order to show them a promotion. 
+
+In your push notification, you must provide a url of the following format: 
+
+```
+playhaven://com.playhaven.android/?activity=<activity_package_name>
+```
+
+The activity package name is the fully qualified package name of the Activity. This is the Activity that will be launched. Any further parameters on the Uri string will be passed in as Extras. For example: 
+
+```
+playhaven://com.playhaven.android/?activity=com.yourcompany.yourapp.FancyActivity&extraInformation=4849384 
+```
+
+```java
+public class FancyActivity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        ...
+        String extraInformation = getIntent().getStringExtra("extraInformation");
+    }
+}
+```
+
+Handle In The Background 
+---------------------------
+
+You can also create custom Intents by providing a Uri of the following format: 
+
+```
+playhaven://<your Application package name>/?<query string> 
+```
+
+The package name must match the package name provided in your Android manifest. The PlayHaven SDK will broadcast an Intent with this Uri when it receives the push notification. To receive it, create a BroadcastReceiver. In your manifest, provide that receiver with the appropriate intent filter. For example, for an Application package name of com.company.app and a receiver named ExampleReceiver: 
+
+```
+playhaven://com.company.app/?extraInformation=394857 
+```
+
+```
+        <receiver android:name="com.company.app.ExampleReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="playhaven" android:host="com.company.app"/>
+            </intent-filter>
+        </receiver>
+```
+
+```java
+public class ExampleReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String extraInformation = getIntent().getStringExtra("extraInformation");
+        // Create a Service or otherwise set up background activity here. 
+    }
+}
+```
+
+Keep in mind that code that runs in a BroadcastReceiver by default runs on the UI thread, and can cause ANR errors if it runs for too long. Use appropriate thread handling for any network or database activity. See the official [Process and Threads Guide](http://developer.android.com/guide/components/processes-and-threads.html) for more information. 
+

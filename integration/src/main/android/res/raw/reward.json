@@ -1,0 +1,99 @@
+{
+ "errobj": null,
+ "response": {
+  "url": "http://media.playhaven.com/content-templates/a3c18d2fd1c59640126b436139504c56322ddd7f/html/announcement.html.gz",
+  "frame": {
+   "PH_LANDSCAPE": {
+    "y": 73,
+    "h": 653,
+    "w": 1084,
+    "x": 60
+   },
+   "PH_PORTRAIT": {
+    "y": 60,
+    "h": 1084,
+    "w": 653,
+    "x": 73
+   }
+  },
+  "transition": "PH_DIALOG",
+  "close_ping": "http://api2.playhaven.com/v3/publisher/dismiss?ordinal=0&nonce=1511151889&hardware=Nexus+7&placement_tag=reward&game_id=38923&app_os=android&ct=3&content_id=1168178&resolution=dismiss&device_token=a15d44a1f21a725c&sdk_version=2.0.1.20130219&ts=1361297318.57&languages=en&connection=wifi&signature=82a6fdc556c8812b2d04f7e181f40d85813e642b&td=0&app_version=2.0.1-SNAPSHOT&os=17",
+  "context": {
+   "content": {
+    "open_dispatch": {
+     "type": "reward",
+     "parameters": {
+      "rewards": [
+       {
+        "signature": "9135dfc172311d0d695e4bd63a04dce562ae68bd",
+        "reward": "coins",
+        "receipt": 121009448,
+        "quantity": 50
+       }
+      ]
+     }
+    },
+    "title": "You've won 50 coins!",
+    "image": {
+     "PH_PORTRAIT": {
+      "url": "http://media.playhaven.com/content-images/38923/130211234853/coins600.png",
+      "h": 450,
+      "w": 450
+     }
+    },
+    "button_text": "Collect Coins",
+    "dismiss_dispatch": {
+     "type": "dismiss",
+     "parameters": {
+      "ping": "http://api2.playhaven.com/v3/publisher/dismiss?ordinal=0&nonce=3056474581&hardware=Nexus+7&placement_tag=reward&game_id=38923&app_os=android&ct=3&content_id=1168178&resolution=dismiss&device_token=a15d44a1f21a725c&sdk_version=2.0.1.20130219&ts=1361297318.57&languages=en&connection=wifi&signature=1f5259dfbc8dfd8f910be1be89d6ca9409e27518&td=0&app_version=2.0.1-SNAPSHOT&os=17"
+     }
+    },
+    "button_dispatch": {
+     "type": "dismiss",
+     "parameters": {
+      "ping": "http://api2.playhaven.com/v3/publisher/dismiss?ordinal=0&nonce=4272413177&hardware=Nexus+7&placement_tag=reward&game_id=38923&app_os=android&ct=3&content_id=1168178&resolution=click&device_token=a15d44a1f21a725c&sdk_version=2.0.1.20130219&ts=1361297318.57&languages=en&connection=wifi&signature=fc2d3302d594ce48d761726d01c8069627570719&td=0&app_version=2.0.1-SNAPSHOT&os=17"
+     }
+    },
+    "message": "Congratulations! You've won yourself some coins!",
+    "complete_dispatch": {
+     "type": "track",
+     "parameters": {
+      "url": "http://api2.playhaven.com/v3/impression?ordinal=0&nonce=2193919224&hardware=Nexus+7&placement_tag=reward&game_id=38923&app_os=android&ct=3&content_id=1168178&ads=%5B%5D&resolution=client_impression&device_token=a15d44a1f21a725c&sdk_version=2.0.1.20130219&ts=1361297318.57&languages=en&connection=wifi&signature=75604a2f2262103df530b7a56c988c4095e6a284&td=0&app_version=2.0.1-SNAPSHOT&os=17"
+     }
+    },
+    "type": "announcement"
+   },
+   "style": {
+    "header_theme": "#700270",
+    "background_theme": "dark-gray"
+   },
+   "localization": {
+    "fine_print_link_text": "Privacy Policy",
+    "fine_print_text2": ".",
+    "fine_print_text1": "By submitting this information, you confirm that you are over the age of 13 and agree to the",
+    "free_text": "FREE",
+    "text_8": "eight",
+    "text_9": "nine",
+    "text_6": "six",
+    "text_7": "seven",
+    "text_4": "four",
+    "text_5": "five",
+    "text_2": "two",
+    "text_3": "three",
+    "text_0": "zero",
+    "text_1": "one",
+    "lock_error": "Incorrect, please retry",
+    "buy_button_text": "GET IT",
+    "list_header_text": "Players of this game also like\u2026",
+    "lock_instructions": "To access, enter the numbers:",
+    "back_button_text": "Back",
+    "dismiss_button_text": "Done",
+    "currency_symbol": "$",
+    "lock_text": "PARENTS-ONLY AREA",
+    "skip_button_text": "No Thanks"
+   }
+  },
+  "close_delay": 5
+ },
+ "error": null
+}

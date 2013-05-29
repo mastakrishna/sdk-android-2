@@ -1,0 +1,102 @@
+More Games
+==========================================
+
+This example builds on our previous example [The Content Request](content.html),
+showing how to display the More Games button.
+
+The Dashboard
+-------------
+
+First, you will need to setup a placement in the [Dashboard](https://dashboard.playhaven.com/).
+Go to the Game Settings section for your game, select Placements and add a new one.
+
+![Dashboard Placements](images/content_example_placement.png "Dashboard Placements")
+
+You then need to create an Advertisement, and specify that your new placement is to be used.
+
+![Dashboard Ad](images/content_example_ad1.png "Dashboard Ad")
+
+It may take up to 5 minutes for changes to take effect.
+
+
+XML
+----
+In this example, we'll focus on specifying the MoreGames button in XML.  As it is a standard Android Button, it could also be specified in Java.
+
+```xml
+<com.playhaven.android.view.MoreGames
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="2sp"
+        android:id="@+id/more"
+        android:text="@string/moregames.text"
+        android:onClick="moreGamesClicked"
+        playhaven:placementTag="@string/moregames.tag"
+        playhaven:textColor="@color/cornsilk"
+        />
+```
+
+Other than the standard Button parameters, we are also specifying a textColor for the number on the badge as well as the placement tag defined in the Dashboard.
+
+
+Java
+----
+
+We're going to modify our previous code a bit.
+
+First, we want to know when the Open request is finished.  We'll implement the RequestListener:
+
+
+```java
+implements RequestListener
+...
+@Override
+public void handleResponse(ClientApiResponseModel model) {
+}
+
+@Override
+public void handleResponse(PlayHavenException e) {
+}
+```
+
+And add it to our Open request:
+
+```java
+OpenRequest open = new OpenRequest();
+open.setResponseHandler(this);
+open.send(this);
+```
+
+Then, we will want to implement that handleResponse method to update the More Games badge.  We do it this way because the Open request must be completely before making this request.
+
+```java
+/**
+ * Now that the Open is complete, tell the Badge to update
+ */
+ ((MoreGames) findViewById(R.id.more)).load(this);
+```
+
+Lastly, we'll want our button to actually do something.  Per our earlier XML, we'll implement a moreGamesClicked method.  This is really just the startActivity from our old example, moved into a new method.
+
+```java
+/**
+ * Now we start the new Activity.
+ * Once the ad is closed, this Activity will be resumed.
+ */
+ startActivity(FullScreen.createIntent(this, getResources().getString(R.string.moregames_tag)));
+```
+
+
+References
+----------
+
+Source code: [MoreGamesExample.java](xref/com/playhaven/android/examples/MoreGamesExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

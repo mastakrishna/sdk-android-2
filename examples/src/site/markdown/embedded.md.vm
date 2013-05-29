@@ -1,0 +1,78 @@
+Embedded Ads
+==========================================
+
+This example builds on our previous example [The Content Request](content.html), but embeds the ad into your game menu.
+
+The Dashboard
+-------------
+
+Look at the [The Content Request](content.html) example for instructions on adding a placement to the [Dashboard](https://dashboard.playhaven.com/).
+In this example, we are using the placement "main_menu".
+
+It may take up to 5 minutes for changes to take effect.
+
+XML
+----
+
+We add the PlayHavenView into our XML layout.  Here we are specifying the placement tag as well as the display options.
+
+```xml
+<com.playhaven.android.view.PlayHavenView
+    android:id="@+id/ad"
+    playhaven:placementTag="main_menu"
+    playhaven:displayOptions="overlay|animation"
+    android:layout_width="300px"
+    android:layout_height="300px"
+    android:layout_margin="30dp"
+    android:layout_centerVertical="true"
+    android:layout_alignParentRight="true"/>
+```
+
+To use the playhaven:* tags, make sure to add the namespace to your top-most layout:
+
+```xml
+xmlns:playhaven="http://schemas.android.com/apk/res-auto"
+```
+
+Java
+----
+
+We'll start by copying what we did in the previous example.
+
+To make the ad automatically refresh when dismissed, we will add a listener to the PlayHavenView:
+
+```java
+implements PlayHavenListener
+...
+((PlayHavenView)findViewById(R.id.ad)).setPlayHavenListener(this);
+...
+@Override
+public void viewFailed(PlayHavenView view, PlayHavenException exception) {
+}
+
+@Override
+public void viewDismissed(PlayHavenView view, PlayHavenView.DismissType dismissType, Bundle data) {
+}
+```
+
+Then in our viewDimissed, we ask the PlayHavenView to reload the placement:
+
+```java
+((PlayHavenView)findViewById(R.id.ad)).reload();
+```
+
+
+
+References
+----------
+
+Source code: [EmbeddedExample.java](xref/com/playhaven/android/examples/EmbeddedExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

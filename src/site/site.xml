@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright 2013 Medium Entertainment, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<project name="PlayHaven Android SDK" xmlns="http://maven.apache.org/DECORATION/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
+    <bannerLeft>
+        <name>PlayHaven</name>
+        <src>images/playhaven-horizontal-small_blue.png</src>
+        <!--<src>http://www.playhaven.com/images/page_elements/ph-logo-combined.png</src>-->
+        <href>http://www.playhaven.com/</href>
+    </bannerLeft>
+
+    <skin>
+        <groupId>lt.velykis.maven.skins</groupId>
+        <artifactId>reflow-maven-skin</artifactId>
+        <version>1.0.0</version>
+    </skin>
+    <custom>
+        <reflowSkin>
+            <!-- Themes http://bootswatch.com/#gallery -->
+            <theme>bootswatch-spacelab</theme>
+            <highlightJs>true</highlightJs>
+            <!-- Themes http://softwaremaniacs.org/media/soft/highlight/test.html#styleswitcher -->
+            <highlightJsTheme>default</highlightJsTheme>
+            <imgLightbox>true</imgLightbox>
+            <smoothScroll>true</smoothScroll>
+            <protocolRelativeURLs>true</protocolRelativeURLs>
+            <!--<absoluteResourceURL>${config.siterepo.value}/com.playhaven.android/sdk/${project.version}</absoluteResourceURL>-->
+            <brand>
+                <name>PlayHaven Android SDK</name>
+                <href>${dist.repo}/nexus/content/sites/android-site/com.playhaven.android/sdk/${project.version}/</href>
+            </brand>
+            <slogan>Maximize Your Game's Lifetime Value</slogan>
+            <titleTemplate>%2$s | %1$s</titleTemplate>
+            <toc>top</toc>
+            <topNav>Overview|reports|Modules</topNav>
+            <tocTopMax>6</tocTopMax>
+            <breadcrumbs>true</breadcrumbs>
+
+            <bottomNav maxSpan="9" >
+                <column>Company|Learn More</column>
+                <column>Resources</column>
+                <column>Legal</column>
+            </bottomNav>
+            <bottomDescription quote="false">
+<![CDATA[
+<img src="./images/footer_bar.png" />
+]]>
+            </bottomDescription>
+
+            <!--<topNav>Download|reports</topNav>-->
+            <!--<bottomNav>-->
+                <!--<column>Main|Download</column>-->
+                <!--<column>Documentation</column>-->
+                <!--<column>reports|modules</column>-->
+            <!--</bottomNav>-->
+            <!--<bottomDescription>-->
+                <!--Copyright 2013 Medium Entertainment, Inc.-->
+            <!--</bottomDescription>-->
+            <!--<pages>-->
+                <!--<index project="project-id">-->
+                    <!--<shortTitle>generate</shortTitle>-->
+                    <!--<breadcrumbs>true</breadcrumbs>-->
+                    <!--<toc>false</toc>-->
+                    <!--<sections>-->
+                        <!--<carousel />-->
+                        <!--<body />-->
+                        <!--<sidebar />-->
+                        <!--<thumbs>2</thumbs>-->
+                        <!--<columns>3</columns>-->
+                    <!--</sections>-->
+                <!--</index>-->
+                <!--<developer-info>-->
+                    <!--<toc>sidebar</toc>-->
+                <!--</developer-info>-->
+            <!--</pages>-->
+
+            <pages>
+                <index project="sdk" combine.self="override">
+                    <toc>none</toc>
+                </index>
+            </pages>
+
+            <distrepo>${dist.repo}</distrepo>
+            <publicrepo>${dist.repo}/nexus/content/groups/public</publicrepo>
+            <siterepo>${dist.site}</siterepo>
+            <githubrepo>https://github.com/playhaven/${github.deploy.repo}</githubrepo>
+            <githubtag>https://github.com/playhaven/${github.deploy.repo}/blob/${project.version}</githubtag>
+            <andrmvn>${android.maven.version}</andrmvn>
+        </reflowSkin>
+    </custom>
+
+
+    <body>
+
+        <breadcrumbs>
+            <item name="SDK" href="./" />
+        </breadcrumbs>
+
+        <!--<links>-->
+            <!--&lt;!&ndash;<item name="playhaven" href="http://www.playhaven.com"/>&ndash;&gt;-->
+            <!--<item name="Dashboard" href="https://dashboard.playhaven.com/"/>-->
+            <!--<item name="Github" href="https://github.com/playhaven/sdk-android-2"/>-->
+        <!--</links>-->
+
+        <menu name="Overview">
+            <item name="Introduction" href="index.html"/>
+        </menu>
+
+        <!-- We want (a subset of) the list of Modules to be on each page -->
+        <!--<menu ref="parent" inherit="top"/>-->
+        <!--<menu ref="modules" inherit="bottom"/>-->
+
+        <menu name="Modules" inherit="bottom">
+            <item name="API" href="../../playhaven-api/${project.version}/playhaven-api/index.html"/>
+            <item name="Examples" href="../../examples/${project.version}/examples/index.html"/>
+            <item name="Quickstart Archetypes" href="../../archetypes/${project.version}/archetypes/index.html"/>
+            <item name="IDE Integration" href="../../playhaven-api/${project.version}/playhaven-api/ide.html"/>
+            <item name="Diagnostic Application" href="../../diagnostic/${project.version}/diagnostic/index.html"/>
+        </menu>
+
+        <!--<menu name="Examples"/>-->
+
+        <menu ref="reports"/>
+
+
+        <menu name="Company" inherit="bottom">
+            <item name="Careers" href="http://www.playhaven.com/team" />
+            <item name="Blog" href="http://blog.playhaven.com/" />
+            <item name="Press" href="http://press.blog.playhaven.com/" />
+            <item name="Contact" href="http://www.playhaven.com/contact" />
+        </menu>
+
+        <menu name="Learn More" inherit="bottom">
+            <item name="Tour" href="http://www.playhaven.com/tour" />
+            <item name="How It Works" href="http://www.playhaven.com/how-it-works" />
+            <item name="Partnerships" href="http://www.playhaven.com/partners" />
+        </menu>
+
+        <menu name="Resources" inherit="bottom">
+            <item name="Help Center" href="http://help.playhaven.com/"/>
+            <item name="SDK" href="http://www.playhaven.com/sdk"/>
+            <item name="SDK Agreement" href="PlayHaven_SDK_Agreement.html"/>
+            <item name="Developer Dashboard" href="https://dashboard.playhaven.com/"/>
+            <item name="Github" href="https://github.com/playhaven/sdk-android-2"/>
+            <item name="Repository" href="https://nexus.playhaven.com/nexus/index.html#nexus-search;quick~playhaven" />
+            <!--<item name="FAQ" href="faq.html"/>-->
+        </menu>
+
+        <menu name="Legal" inherit="bottom">
+            <item name="Privacy" href="http://www.playhaven.com/privacy"/>
+            <item name="Terms" href="http://www.playhaven.com/terms"/>
+            <item name="Ad Guidelines" href="http://www.playhaven.com/advertising-content-guidelines"/>
+        </menu>
+    </body>
+</project>
+

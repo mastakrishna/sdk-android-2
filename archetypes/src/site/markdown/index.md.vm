@@ -1,0 +1,10 @@
+Quickstart
+===============
+
+To make getting started easier, PlayHaven is providing the following [Maven] Archetypes to autogenerate a working project from scratch.
+
+|Maven Quickstart Archetypes|
+|------------|
+|[Basic Content Request](basic.html)|
+
+[Maven]: http://maven.apache.org/

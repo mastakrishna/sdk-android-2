@@ -1,0 +1,18 @@
+Introduction
+------------
+
+PlayHaven provides standalone example applications to assist you in learning how to use the PlayHaven Android SDK.
+
+Installation
+---------
+
+[Download] the APK, then:
+
+```bash
+adb install -r examples-${project.version}.apk
+```
+
+On the device, you will now have multiple applications with the PlayHaven icon.  These correlate to the examples on the menu above.
+
+
+[Download]: ${config.publicrepo.value}/com/playhaven/android/examples/${project.version}/examples-${project.version}.apk

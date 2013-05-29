@@ -1,0 +1,847 @@
+{
+    "copyright":"Copyright 2013 Medium Entertainment, Inc.",
+    "type":"object",
+    "$schema": "http://json-schema.org/draft-03/schema",
+    "id": "#",
+    "required":false,
+    "properties":{
+        "errobj": {
+            "type":"null",
+            "id": "errobj",
+            "required":false
+        },
+        "error": {
+            "type":"null",
+            "id": "error",
+            "required":false
+        },
+        "response": {
+            "type":"object",
+            "id": "response",
+            "required":false,
+            "properties":{
+                "close_delay": {
+                    "type":"number",
+                    "id": "close_delay",
+                    "required":false
+                },
+                "close_ping": {
+                    "type":"string",
+                    "id": "close_ping",
+                    "required":false
+                },
+                "content": {
+                    "type":"string",
+                    "id": "content",
+                    "required":false
+                },
+                "context": {
+                    "type":"object",
+                    "id": "context",
+                    "required":false,
+                    "properties":{
+                        "content": {
+                            "type":"object",
+                            "id": "content",
+                            "required":false,
+                            "properties":{
+                                "append_data": {
+                                    "type":"object",
+                                    "id": "append_data",
+                                    "required":false,
+                                    "properties":{
+                                        "cookie": {
+                                            "type":"string",
+                                            "id": "cookie",
+                                            "required":false
+                                        }
+                                    }
+                                },
+                                "button_dispatch": {
+                                    "type":"object",
+                                    "id": "button_dispatch",
+                                    "required":false,
+                                    "properties":{
+                                        "parameters": {
+                                            "type":"object",
+                                            "id": "PPUParams",
+                                            "required":false,
+                                            "properties":{
+                                                "ping": {
+                                                    "type":"string",
+                                                    "id": "ping",
+                                                    "required":false
+                                                },
+                                                "purchases": {
+                                                    "type":"array",
+                                                    "id": "purchases",
+                                                    "required":false,
+                                                    "items":
+                                                        {
+                                                            "type":"object",
+                                                            "id": "0",
+                                                            "required":false,
+                                                            "properties":{
+                                                                "cookie": {
+                                                                    "type":"string",
+                                                                    "id": "cookie",
+                                                                    "required":false
+                                                                },
+                                                                "name": {
+                                                                    "type":"string",
+                                                                    "id": "name",
+                                                                    "required":false
+                                                                },
+                                                                "product": {
+                                                                    "type":"string",
+                                                                    "id": "product",
+                                                                    "required":false
+                                                                },
+                                                                "quantity": {
+                                                                    "type":"number",
+                                                                    "id": "quantity",
+                                                                    "required":false
+                                                                },
+                                                                "receipt": {
+                                                                    "type":"number",
+                                                                    "id": "receipt",
+                                                                    "required":false
+                                                                },
+                                                                "signature": {
+                                                                    "type":"string",
+                                                                    "id": "signature",
+                                                                    "required":false
+                                                                }
+                                                            }
+                                                        }
+                                                    
+
+                                                },
+                                                "url": {
+                                                    "type":"string",
+                                                    "id": "url",
+                                                    "required":false
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type":"string",
+                                            "id": "type",
+                                            "required":false
+                                        }
+                                    }
+                                },
+                                "button_text": {
+                                    "type":"string",
+                                    "id": "button_text",
+                                    "required":false
+                                },
+                                "complete_dispatch": {
+                                    "type":"object",
+                                    "id": "complete_dispatch",
+                                    "required":false,
+                                    "properties":{
+                                        "parameters": {
+                                            "type":"object",
+                                            "id": "URLParam",
+                                            "required":false,
+                                            "properties":{
+                                                "url": {
+                                                    "type":"string",
+                                                    "id": "url",
+                                                    "required":false
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type":"string",
+                                            "id": "type",
+                                            "required":false
+                                        }
+                                    }
+                                },
+                                "dismiss_dispatch": {
+                                    "type":"object",
+                                    "id": "dismiss_dispatch",
+                                    "required":false,
+                                    "properties":{
+                                        "parameters": {
+                                            "type":"object",
+                                            "id": "PingParam",
+                                            "required":false,
+                                            "properties":{
+                                                "ping": {
+                                                    "type":"string",
+                                                    "id": "ping",
+                                                    "required":false
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type":"string",
+                                            "id": "type",
+                                            "required":false
+                                        }
+                                    }
+                                },
+                                "fields": {
+                                    "type":"array",
+                                    "id": "fields",
+                                    "required":false,
+                                    "items":
+                                        {
+                                            "type":"object",
+                                            "id": "0",
+                                            "required":false,
+                                            "properties":{
+                                                "id": {
+                                                    "type":"string",
+                                                    "id": "id",
+                                                    "required":false
+                                                },
+                                                "name": {
+                                                    "type":"string",
+                                                    "id": "name",
+                                                    "required":false
+                                                },
+                                                "required": {
+                                                    "type":"boolean",
+                                                    "id": "required",
+                                                    "required":false
+                                                }
+                                            }
+                                        }
+                                    
+
+                                },
+                                "image": {
+                                    "type":"object",
+                                    "id": "image",
+                                    "required":false,
+                                    "properties":{
+                                        "PH_LANDSCAPE": {
+                                            "type":"object",
+                                            "id": "PH_LANDSCAPE",
+                                            "required":false,
+                                            "properties":{
+                                                "h": {
+                                                    "type":"number",
+                                                    "id": "h",
+                                                    "required":false
+                                                },
+                                                "url": {
+                                                    "type":"string",
+                                                    "id": "url",
+                                                    "required":false
+                                                },
+                                                "w": {
+                                                    "type":"number",
+                                                    "id": "w",
+                                                    "required":false
+                                                }
+                                            }
+                                        },
+                                        "PH_PORTRAIT": {
+                                            "type":"object",
+                                            "id": "PH_PORTRAIT",
+                                            "required":false,
+                                            "properties":{
+                                                "h": {
+                                                    "type":"number",
+                                                    "id": "h",
+                                                    "required":false
+                                                },
+                                                "url": {
+                                                    "type":"string",
+                                                    "id": "url",
+                                                    "required":false
+                                                },
+                                                "w": {
+                                                    "type":"number",
+                                                    "id": "w",
+                                                    "required":false
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "items": {
+                                    "type":"array",
+                                    "id": "items",
+                                    "required":false,
+                                    "items":
+                                        {
+                                            "type":"object",
+                                            "id": "0",
+                                            "required":false,
+                                            "properties":{
+                                                "buy_dispatch": {
+                                                    "type":"object",
+                                                    "id": "buy_dispatch",
+                                                    "required":false,
+                                                    "properties":{
+                                                        "parameters": {
+                                                            "type":"object",
+                                                            "id": "URLParam",
+                                                            "required":false,
+                                                            "properties":{
+                                                                "url": {
+                                                                    "type":"string",
+                                                                    "id": "url",
+                                                                    "required":false
+                                                                }
+                                                            }
+                                                        },
+                                                        "type": {
+                                                            "type":"string",
+                                                            "id": "type",
+                                                            "required":false
+                                                        }
+                                                    }
+                                                },
+                                                "buy_url": {
+                                                    "type":"string",
+                                                    "id": "buy_url",
+                                                    "required":false
+                                                },
+                                                "campaign_text": {
+                                                    "type":"string",
+                                                    "id": "campaign_text",
+                                                    "required":false
+                                                },
+                                                "image": {
+                                                    "type":"object",
+                                                    "id": "image",
+                                                    "required":false,
+                                                    "properties":{
+                                                        "PH_PORTRAIT": {
+                                                            "type":"object",
+                                                            "id": "PH_PORTRAIT",
+                                                            "required":false,
+                                                            "properties":{
+                                                                "h": {
+                                                                    "type":"number",
+                                                                    "id": "h",
+                                                                    "required":false
+                                                                },
+                                                                "url": {
+                                                                    "type":"string",
+                                                                    "id": "url",
+                                                                    "required":false
+                                                                },
+                                                                "w": {
+                                                                    "type":"number",
+                                                                    "id": "w",
+                                                                    "required":false
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "price_range": {
+                                                    "type":"string",
+                                                    "id": "price_range",
+                                                    "required":false
+                                                },
+                                                "price": {
+                                                    "type":"string",
+                                                    "id": "price",
+                                                    "required":false
+                                                },
+                                                "tag_line": {
+                                                    "type":"string",
+                                                    "id": "tag_line",
+                                                    "required":false
+                                                },
+                                                "title": {
+                                                    "type":"string",
+                                                    "id": "title",
+                                                    "required":false
+                                                },
+                                                "type": {
+                                                    "type":"string",
+                                                    "id": "type",
+                                                    "required":false
+                                                }
+                                            }
+                                        }
+                                    
+
+                                },
+                                "message": {
+                                    "type":"string",
+                                    "id": "message",
+                                    "required":false
+                                },
+                                "open_dispatch": {
+                                    "type":"object",
+                                    "id": "open_dispatch",
+                                    "required":false,
+                                    "properties":{
+                                        "parameters": {
+                                            "type":"object",
+                                            "id": "RewardParam",
+                                            "required":false,
+                                            "properties":{
+                                                "rewards": {
+                                                    "type":"array",
+                                                    "id": "rewards",
+                                                    "required":false,
+                                                    "items":
+                                                        {
+                                                            "type":"object",
+                                                            "id": "0",
+                                                            "required":false,
+                                                            "properties":{
+                                                                "quantity": {
+                                                                    "type":"number",
+                                                                    "id": "quantity",
+                                                                    "required":false
+                                                                },
+                                                                "receipt": {
+                                                                    "type":"number",
+                                                                    "id": "receipt",
+                                                                    "required":false
+                                                                },
+                                                                "reward": {
+                                                                    "type":"string",
+                                                                    "id": "reward",
+                                                                    "required":false
+                                                                },
+                                                                "signature": {
+                                                                    "type":"string",
+                                                                    "id": "signature",
+                                                                    "required":false
+                                                                }
+                                                            }
+                                                        }
+                                                    
+
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type":"string",
+                                            "id": "type",
+                                            "required":false
+                                        }
+                                    }
+                                },
+                                "policies": {
+                                    "type":"array",
+                                    "id": "policies",
+                                    "required":false,
+                                    "items":
+                                        {
+                                            "type":"object",
+                                            "id": "0",
+                                            "required":false,
+                                            "properties":{
+                                                "title": {
+                                                    "type":"string",
+                                                    "id": "title",
+                                                    "required":false
+                                                },
+                                                "url": {
+                                                    "type":"string",
+                                                    "id": "url",
+                                                    "required":false
+                                                }
+                                            }
+                                        }
+                                    
+
+                                },
+                                "skip_dispatch": {
+                                    "type":"object",
+                                    "id": "skip_dispatch",
+                                    "required":false,
+                                    "properties":{
+                                        "parameters": {
+                                            "type":"object",
+                                            "id": "URLParam",
+                                            "required":false,
+                                            "properties":{
+                                                "url": {
+                                                    "type":"string",
+                                                    "id": "url",
+                                                    "required":false
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type":"string",
+                                            "id": "type",
+                                            "required":false
+                                        }
+                                    }
+                                },
+                                "submit_button_text": {
+                                    "type":"string",
+                                    "id": "submit_button_text",
+                                    "required":false
+                                },
+                                "submit": {
+                                    "type":"string",
+                                    "id": "submit",
+                                    "required":false
+                                },
+                                "success_button_text": {
+                                    "type":"string",
+                                    "id": "success_button_text",
+                                    "required":false
+                                },
+                                "success_dispatch": {
+                                    "type":"object",
+                                    "id": "success_dispatch",
+                                    "required":false,
+                                    "properties":{
+                                        "parameters": {
+                                            "type":"object",
+                                            "id": "RewardParam",
+                                            "required":false,
+                                            "properties":{
+                                                "rewards": {
+                                                    "type":"array",
+                                                    "id": "rewards",
+                                                    "required":false
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type":"string",
+                                            "id": "type",
+                                            "required":false
+                                        }
+                                    }
+                                },
+                                "title": {
+                                    "type":"string",
+                                    "id": "title",
+                                    "required":false
+                                },
+                                "touch_dispatch": {
+                                    "type":"object",
+                                    "id": "touch_dispatch",
+                                    "required":false,
+                                    "properties":{
+                                        "parameters": {
+                                            "type":"object",
+                                            "id": "PingParam",
+                                            "required":false,
+                                            "properties":{
+                                                "ping": {
+                                                    "type":"string",
+                                                    "id": "ping",
+                                                    "required":false
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type":"string",
+                                            "id": "type",
+                                            "required":false
+                                        }
+                                    }
+                                },
+                                "type": {
+                                    "type":"string",
+                                    "id": "type",
+                                    "required":false
+                                }
+                            }
+                        },
+                        "localization": {
+                            "type":"object",
+                            "id": "localization",
+                            "required":false,
+                            "properties":{
+                                "back_button_text": {
+                                    "type":"string",
+                                    "id": "back_button_text",
+                                    "required":false
+                                },
+                                "buy_button_text": {
+                                    "type":"string",
+                                    "id": "buy_button_text",
+                                    "required":false
+                                },
+                                "currency_symbol": {
+                                    "type":"string",
+                                    "id": "currency_symbol",
+                                    "required":false
+                                },
+                                "dismiss_button_text": {
+                                    "type":"string",
+                                    "id": "dismiss_button_text",
+                                    "required":false
+                                },
+                                "fine_print_link_text": {
+                                    "type":"string",
+                                    "id": "fine_print_link_text",
+                                    "required":false
+                                },
+                                "fine_print_text1": {
+                                    "type":"string",
+                                    "id": "fine_print_text1",
+                                    "required":false
+                                },
+                                "fine_print_text2": {
+                                    "type":"string",
+                                    "id": "fine_print_text2",
+                                    "required":false
+                                },
+                                "free_text": {
+                                    "type":"string",
+                                    "id": "free_text",
+                                    "required":false
+                                },
+                                "list_header_text": {
+                                    "type":"string",
+                                    "id": "list_header_text",
+                                    "required":false
+                                },
+                                "lock_error": {
+                                    "type":"string",
+                                    "id": "lock_error",
+                                    "required":false
+                                },
+                                "lock_instructions": {
+                                    "type":"string",
+                                    "id": "lock_instructions",
+                                    "required":false
+                                },
+                                "lock_text": {
+                                    "type":"string",
+                                    "id": "lock_text",
+                                    "required":false
+                                },
+                                "skip_button_text": {
+                                    "type":"string",
+                                    "id": "skip_button_text",
+                                    "required":false
+                                },
+                                "text_0": {
+                                    "type":"string",
+                                    "id": "text_0",
+                                    "required":false
+                                },
+                                "text_1": {
+                                    "type":"string",
+                                    "id": "text_1",
+                                    "required":false
+                                },
+                                "text_2": {
+                                    "type":"string",
+                                    "id": "text_2",
+                                    "required":false
+                                },
+                                "text_3": {
+                                    "type":"string",
+                                    "id": "text_3",
+                                    "required":false
+                                },
+                                "text_4": {
+                                    "type":"string",
+                                    "id": "text_4",
+                                    "required":false
+                                },
+                                "text_5": {
+                                    "type":"string",
+                                    "id": "text_5",
+                                    "required":false
+                                },
+                                "text_6": {
+                                    "type":"string",
+                                    "id": "text_6",
+                                    "required":false
+                                },
+                                "text_7": {
+                                    "type":"string",
+                                    "id": "text_7",
+                                    "required":false
+                                },
+                                "text_8": {
+                                    "type":"string",
+                                    "id": "text_8",
+                                    "required":false
+                                },
+                                "text_9": {
+                                    "type":"string",
+                                    "id": "text_9",
+                                    "required":false
+                                }
+                            }
+                        },
+                        "style": {
+                            "type":"object",
+                            "id": "style",
+                            "required":false,
+                            "properties":{
+                                "background_theme": {
+                                    "type":"string",
+                                    "id": "background_theme",
+                                    "required":false
+                                },
+                                "button_theme": {
+                                    "type":"string",
+                                    "id": "button_theme",
+                                    "required":false
+                                },
+                                "header_image": {
+                                    "type": ["object", "number"],
+                                    "id": "header_image",
+                                    "required":false,
+                                    "properties":{
+                                        "PH_LANDSCAPE": {
+                                            "type":"object",
+                                            "id": "PH_LANDSCAPE",
+                                            "required":false,
+                                            "properties":{
+                                                "h": {
+                                                    "type":"number",
+                                                    "id": "h",
+                                                    "required":false
+                                                },
+                                                "url": {
+                                                    "type":"string",
+                                                    "id": "url",
+                                                    "required":false
+                                                },
+                                                "w": {
+                                                    "type":"number",
+                                                    "id": "w",
+                                                    "required":false
+                                                }
+                                            }
+                                        },
+                                        "PH_PORTRAIT": {
+                                            "type":"object",
+                                            "id": "PH_PORTRAIT",
+                                            "required":false,
+                                            "properties":{
+                                                "h": {
+                                                    "type":"number",
+                                                    "id": "h",
+                                                    "required":false
+                                                },
+                                                "url": {
+                                                    "type":"string",
+                                                    "id": "url",
+                                                    "required":false
+                                                },
+                                                "w": {
+                                                    "type":"number",
+                                                    "id": "w",
+                                                    "required":false
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "header_theme": {
+                                    "type":"string",
+                                    "id": "header_theme",
+                                    "required":false
+                                }
+                            }
+                        }
+                    }
+                },
+                "frame": {
+                    "type":["object", "string"],
+                    "id": "frame",
+                    "required":false,
+                    "properties":{
+                        "PH_LANDSCAPE": {
+                            "type":"object",
+                            "id": "PH_LANDSCAPE",
+                            "required":false,
+                            "properties":{
+                                "h": {
+                                    "type":"number",
+                                    "id": "h",
+                                    "required":false
+                                },
+                                "w": {
+                                    "type":"number",
+                                    "id": "w",
+                                    "required":false
+                                },
+                                "x": {
+                                    "type":"number",
+                                    "id": "x",
+                                    "required":false
+                                },
+                                "y": {
+                                    "type":"number",
+                                    "id": "y",
+                                    "required":false
+                                }
+                            }
+                        },
+                        "PH_PORTRAIT": {
+                            "type":"object",
+                            "id": "PH_PORTRAIT",
+                            "required":false,
+                            "properties":{
+                                "h": {
+                                    "type":"number",
+                                    "id": "h",
+                                    "required":false
+                                },
+                                "w": {
+                                    "type":"number",
+                                    "id": "w",
+                                    "required":false
+                                },
+                                "x": {
+                                    "type":"number",
+                                    "id": "x",
+                                    "required":false
+                                },
+                                "y": {
+                                    "type":"number",
+                                    "id": "y",
+                                    "required":false
+                                }
+                            }
+                        }
+                    }
+                },
+                "notification": {
+                    "type":"object",
+                    "id": "notification",
+                    "required":false,
+                    "properties":{
+                        "type": {
+                            "type":"string",
+                            "id": "type",
+                            "required":false
+                        },
+                        "value": {
+                            "type":"string",
+                            "id": "value",
+                            "required":false
+                        }
+                    }
+                },
+                "precache": {
+                    "type":"array",
+                    "id": "precache",
+                    "required":false
+                },
+                "transition": {
+                    "type":"string",
+                    "id": "transition",
+                    "required":false
+                },
+                "url": {
+                    "type":"string",
+                    "id": "url",
+                    "required":false
+                }
+            }
+        }
+    }
+}

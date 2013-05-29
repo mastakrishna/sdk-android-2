@@ -1,0 +1,72 @@
+IntelliJ IDEA Integration: Without Maven
+====================
+
+The PlayHaven SDK is distributed as an [Android Library Project], or apklib. Unlike a library distributed as a jar, an apklib allows you as an app developer to use Android resources (such as images and strings) from our SDK.
+Importing an Android Library Project into any of the major IDEs is fairly straightforward.
+
+NOTE: If you are using Maven, Buildr, Ant, Grape, Grails, Leiningen or SBT; please see the [Dependency Info] page instead. Those build tools simplify the integration process.
+
+Introduction
+------------
+
+If you are still reading, we assume you are not using one of the above build tools.  This page will deal with using IntelliJ IDEA without a build tool.
+
+To make the integration step easier, PlayHaven distributes .zip and .tar.gz files that contain all of the dependencies and IDEA files you'll need to link the library to your application project.
+
+Extracting the Library Project
+-----------
+
+First, download the latest API w/ Dependencies ([zip]|[tar.gz]) archive and extract it into a work directory.
+
+Integrating the Library with Your Application
+---------------------------------------------
+
+* Open your application's project
+* Go to `File > Import Module`
+
+![Import Module](images/intellij1.png)
+
+* Select the `PlayHaven/PlayHaven.iml` file
+
+![Select Module](images/intellij2.png)
+
+One of the things the SDK does is make sure your manifest has the Activities and permissions needed to use the PlayHaven service.
+In order to allow it to do this, open the `project.properties` file for your application (not the Playhaven module) and add the following line:
+
+```
+manifestmerger.enabled=true
+```
+
+![Update project.properties](images/intellij3.png)
+
+* Open your `Project Structure` and add choose to add a new `Module Dependency`
+
+![Add Module Dependency](images/intellij4.png)
+
+* Select the `PlayHaven` module
+
+![Select Module](images/intellij5.png)
+
+* Apply the changes
+
+* From your `Build` menu, choose `Rebuild Project`
+
+![Rebuild Project](images/intellij6.png)
+
+* From your `Build` menu, choose Generate Signed APK
+
+![Generate APK](images/intellij7.png)
+
+* Install your new APK and test!
+
+Troubleshooting
+---------------
+
+* If you see a message: `Manifest merging is not supported. Please, reconfigure your manifest files`, you will need to copy the content from the `PlayHaven/AndroidManifest.xml` into your `AndroidManifest.xml`.  See [IDEA-91916] for more information.
+
+
+[Android Library Project]: http://developer.android.com/tools/projects/index.html#LibraryProjects
+[Dependency Info]: dependency-info.html
+[zip]: ${config.publicrepo.value}/com/playhaven/android/apiwithdeps/${project.version}/apiwithdeps-${project.version}.zip
+[tar.gz]: ${config.publicrepo.value}/com/playhaven/android/apiwithdeps/${project.version}/apiwithdeps-${project.version}.tar.gz
+[IDEA-91916]: http://youtrack.jetbrains.com/issue/IDEA-91916

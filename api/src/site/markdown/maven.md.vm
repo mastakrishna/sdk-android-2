@@ -1,0 +1,77 @@
+Maven Integration
+====================
+
+The PlayHaven SDK is distributed as an [Android Library Project], or apklib. Unlike a library distributed as a jar, an apklib allows you as an app developer to use Android resources (such as images and strings) from our SDK.
+
+Introduction
+------------
+
+If you are reading this, we assume that you are already building your Android project using Maven.  If you are not yet using Maven to build your Android project, please refer to [Maven: The Complete Reference, Chapter 14].
+
+This document will focus on updating your existing android-maven-plugin project to use PlayHaven.
+
+Repositories
+------------
+
+We must specify where to locate our dependencies.
+
+```xml
+<repositories>
+    <repository>
+        <id>playhaven-public</id>
+        <name>PlayHaven Public Repository</name>
+        <url>${config.distrepo.value}/nexus/content/groups/public/</url>
+        <releases>
+            <enabled>true</enabled>
+            <checksumPolicy>warn</checksumPolicy>
+            <updatePolicy>daily</updatePolicy>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+
+
+Dependencies
+------------
+
+We must specify our dependency on the PlayHaven API.
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.playhaven.android</groupId>
+        <artifactId>playhaven-api</artifactId>
+        <version>${project.version}</version>
+        <type>apklib</type>
+    </dependency>
+</dependencies>
+```
+
+We have specified that we are loading the PlayHaven API as an Android Library (apklib) which means that the source will get compiled into our APK.
+
+NOTES
+-----
+
+Make sure your android-maven-plugin configuration has ```<mergeManifests>true</mergeManifests>```
+
+Building
+--------------------
+
+```bash
+mvn clean install
+```
+
+Installing
+---------
+
+Make sure the device is connected (ie: you can run 'adb logcat') and run:
+
+```bash
+mvn android:deploy
+```
+
+[Android Library Project]: http://developer.android.com/tools/projects/index.html#LibraryProjects
+[Maven: The Complete Reference, Chapter 14]: http://www.sonatype.com/books/mvnref-book/reference/android-dev.html

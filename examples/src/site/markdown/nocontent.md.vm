@@ -1,0 +1,61 @@
+Detecting NoContent
+==========================================
+
+This example builds on our previous examples [The Content Result](content2.html) and [Dialogs](dialogs.html).
+
+Preparation
+-----------
+
+Please see The Dashboard configuration on our previous example [The Content Request](content.html),
+
+We'll start by copying what we did in the previous example [The Content Request](content.html),
+
+
+NoContent detection in FullScreen mode
+--------------------------------------
+
+With just a slight change to the onActivityResult, we can handle "No Content" differently.
+
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if(requestCode != EXAMPLE2_REQUEST_CODE)
+        return;
+
+    String placementTag = data.getStringExtra(PlayHavenView.BUNDLE_PLACEMENT_TAG);
+    PlayHavenException exception = (PlayHavenException)data.getSerializableExtra(PlayHavenView.BUNDLE_EXCEPTION);
+    if(NoContentException.class.isInstance(exception))
+        Log.d(TAG, placementTag + " failed: " + exception.getMessage());
+}
+```
+
+NoContent detection in Windowed mode
+--------------------------------------
+
+With just a slight change to the viewFailed, we can handle "No Content" differently:
+
+```java
+@Override
+public void viewFailed(PlayHavenView view, Exception exception) {
+    if(NoContentException.class.isInstance(exception))
+        Log.d(TAG, view.getPlacementTag() + " had no content!");
+    else
+        Log.e(TAG, "Error showing " + view.getPlacementTag(), exception);
+}
+```
+
+References
+----------
+
+Source code: [NoContent1Example.java](xref/com/playhaven/android/examples/NoContent1Example.html)
+
+Source code: [NoContent2Example.java](xref/com/playhaven/android/examples/NoContent2Example.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

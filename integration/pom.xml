@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2013 Medium Entertainment, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>sdk</artifactId>
+        <groupId>com.playhaven.android</groupId>
+        <version>2.0.6-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>integration</artifactId>
+    <packaging>apk</packaging>
+    <name>Instrumentation Tests</name>
+
+    <dependencies>
+        <!-- Installable APK -->
+        <dependency>
+            <groupId>com.playhaven.android</groupId>
+            <artifactId>diagnostic</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <type>apk</type>
+        </dependency>
+        <!-- Enable access to R -->
+        <dependency>
+            <groupId>com.playhaven.android</groupId>
+            <artifactId>diagnostic</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Unit tests -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <!-- Screenshots during testing -->
+        <dependency>
+            <groupId>com.github.rtyley</groupId>
+            <artifactId>android-screenshot-celebrity</artifactId>
+            <version>1.8</version>
+        </dependency>
+        <!-- Android -->
+        <dependency>
+            <groupId>android</groupId>
+            <artifactId>android</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.google.android</groupId>-->
+            <!--<artifactId>android-test</artifactId>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+                <configuration>
+                    <test>
+                        <!--<skip>true|false|auto</skip>-->
+                        <!--<instrumentationPackage>packageName</instrumentationPackage>--> `
+                        <!--<instrumentationRunner>className</instrumentationRunner>-->
+                        <!--<debug>true|false</debug>-->
+                        <!--<coverage>true|false</coverage>-->
+                        <!--<logonly>true|false</logonly> avd-->
+                        <!--<testsize>small|medium|large</testsize>-->
+                        <createReport>true</createReport>
+                        <!--<classes>-->
+                        <!--<class>your.package.name.YourTestClass</class>-->
+                        <!--</classes>-->
+                        <!--<packages>-->
+                        <!--<package>your.package.name</package>-->
+                        <!--</packages>-->
+                    </test>
+                </configuration>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>update-manifest</id>
+                        <goals>
+                            <goal>manifest-update</goal>
+                        </goals>
+                        <configuration>
+                            <manifest>
+                                <versionName>${project.version}</versionName>
+                                <versionCodeUpdateFromVersion>true</versionCodeUpdateFromVersion>
+                            </manifest>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Make module-specific reports
+It would be nice if we could specify these in the pluginManagement section of the parent...
+ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <configuration>
+                    <reportPlugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <reportSets>
+                                <reportSet>
+                                    <id>project-reports</id>
+                                    <reports>
+                                        <report>dependencies</report>
+                                        <report>dependency-convergence</report>
+                                        <report>dependency-info</report>
+                                        <report>dependency-management</report>
+                                        <report>modules</report>
+                                        <report>plugin-management</report>
+                                        <report>plugins</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-jxr-plugin</artifactId>
+                            <version>2.3</version>
+                            <reportSets><reportSet><reports><report>jxr</report></reports></reportSet></reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-changelog-plugin</artifactId>
+                            <version>2.2</version>
+                            <reportSets><reportSet><reports>
+                                <report>changelog</report>
+                                <report>dev-activity</report>
+                                <report>file-activity</report>
+                            </reports></reportSet></reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>findbugs-maven-plugin</artifactId>
+                            <version>2.5.2</version>
+                            <reportSets><reportSet><reports><report>findbugs</report></reports></reportSet></reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>versions-maven-plugin</artifactId>
+                            <version>2.0</version>
+                            <reportSets><reportSet><reports>
+                                <report>dependency-updates-report</report>
+                                <report>plugin-updates-report</report>
+                                <report>property-updates-report</report>
+                            </reports></reportSet></reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>taglist-maven-plugin</artifactId>
+                            <version>2.4</version>
+                            <reportSets><reportSet><reports><report>taglist</report></reports></reportSet></reportSets>
+                            <configuration>
+                                <tagListOptions>
+                                    <tagClasses>
+                                        <tagClass>
+                                            <displayName>TODO</displayName>
+                                            <tags>
+                                                <tag>
+                                                    <matchString>@TODO</matchString>
+                                                    <matchType>ignoreCase</matchType>
+                                                </tag>
+                                            </tags>
+                                        </tagClass>
+                                        <tagClass>
+                                            <displayName>API Workarounds</displayName>
+                                            <tags>
+                                                <tag>
+                                                    <matchString>@playhaven.apihack</matchString>
+                                                    <matchType>exact</matchType>
+                                                </tag>
+                                            </tags>
+                                        </tagClass>
+                                        <tagClass>
+                                            <displayName>Deprecated</displayName>
+                                            <tags>
+                                                <tag>
+                                                    <matchString>@deprecated</matchString>
+                                                    <matchType>exact</matchType>
+                                                </tag>
+                                            </tags>
+                                        </tagClass>
+                                    </tagClasses>
+                                </tagListOptions>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-pmd-plugin</artifactId>
+                            <version>2.7.1</version>
+                            <configuration>
+                                <linkXref>true</linkXref>
+                                <sourceEncoding>UTF-8</sourceEncoding>
+                                <minimumTokens>100</minimumTokens>
+                                <targetJdk>1.6</targetJdk>
+                            </configuration>
+                            <reportSets><reportSet><reports>
+                                <report>pmd</report>
+                                <report>cpd</report>
+                            </reports></reportSet></reportSets>
+                        </plugin>
+
+                    </reportPlugins>
+                </configuration>
+            </plugin>
+
+
+        </plugins>
+    </build>
+
+</project>

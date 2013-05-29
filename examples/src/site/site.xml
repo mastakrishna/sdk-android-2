@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright 2013 Medium Entertainment, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<project name="PlayHaven Android SDK - Providers" xmlns="http://maven.apache.org/DECORATION/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
+    <custom>
+        <reflowSkin>
+            <topNav>Overview|The Basics|Gathering Data|Virtual Goods|Performance|Advanced|Value-Add|reports|Modules</topNav>
+            <pages>
+                <index project="examples" combine.self="override">
+                    <toc>none</toc>
+                </index>
+                <deeplinking project="examples" combine.self="override">
+                    <toc>none</toc>
+                </deeplinking>
+                <sdkplatform project="examples" combine.self="override">
+                    <toc>none</toc>
+                </sdkplatform>
+            </pages>
+        </reflowSkin>
+    </custom>
+
+    <body>
+
+        <breadcrumbs>
+            <item name="Examples" href="./" />
+        </breadcrumbs>
+
+
+        <menu name="Overview">
+            <item name="Introduction" href="index.html"/>
+            <item name="Building and Running the SDK Examples" href="building.html" />
+        </menu>
+
+        <menu name="The Basics">
+            <item name="Hello World, aka The Open Request" href="open.html" />
+            <item name="The Content Request" href="content.html" />
+            <item name="Content Result" href="content2.html" />
+            <item name="Dialogs" href="dialogs.html" />
+            <item name="Embedded" href="embedded.html" />
+            <item name="More Games" href="moregames.html" />
+            <!--<item name="Push Notifications" href="push.html" />-->
+        </menu>
+
+        <menu name="Gathering Data">
+            <item name="Rewards" href="reward.html" />
+            <item name="Opt-In" href="optin.html" />
+            <item name="Purchases" href="purchase.html"/>
+        </menu>
+
+        <menu name="Virtual Goods">
+            <item name="Google Play" href="googleplay.html" />
+            <item name="Virtual Good Promotion" href="purchase.html"/>
+            <item name="In-App Purchases" href="iap.html"/>
+        </menu>
+
+        <menu name="Performance">
+            <item name="Display Options" href="dispopts.html" />
+            <item name="Preloading" href="preload.html"/>
+        </menu>
+
+        <menu name="Advanced">
+            <item name="Logging" href="logging.html" />
+            <item name="OnResume" href="onresume.html" />
+            <item name="Detecting NoContent" href="nocontent.html" />
+            <!--<item name="Push Notification" href="deeplinking.html" />-->
+        </menu>
+
+        <menu name="Value-Add">
+            <item name="SDK Platform" href="sdkplatform.html"/>
+        </menu>
+
+        <menu name="Virtual Goods and In-App Purchases">
+            <item name="Google Play" href="googleplay.html" />
+        </menu>
+
+        <menu ref="reports"/>
+    </body>
+</project>
+

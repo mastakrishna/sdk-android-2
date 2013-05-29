@@ -1,0 +1,69 @@
+Hello World, aka The Open Request
+========================================================
+
+This example illustrates how to create a basic application that will configure PlayHaven and send an Open Request.
+
+The Dashboard
+-------------
+
+First, you will need to grab your Token and Secret as defined in the [Dashboard].
+Go to the Game Settings section for your game, and copy the Token and Secret.
+
+![Dashboard Game Settings](images/dashboard_gamesettings.png "Dashboard Game Settings")
+
+String Resources
+----------------
+
+We chose to pass these into PlayHaven as resources, so we add them to ```res/values/strings.xml``` (if you are using Maven, that would be ```src/main/android/res/values/strings.xml```):
+
+```xml
+<string name="token">71dd5d607c4b421c8f8bdc4f24cbfa40</string>
+<string name="secret">8750450c0c414a20976110a82d1efac1</string>
+```
+
+Java
+----
+
+Once they are defined in the XML, we can reference them from the Java side:
+
+```java
+PlayHaven.configure(this, R.string.token, R.string.secret);
+```
+
+The Open Request
+----------------
+
+Once PlayHaven has been configured, we can create an Open request(for example, in our ```onCreate(Bundle)``` method)
+
+```java
+OpenRequest open = new OpenRequest();
+```
+
+and send it
+
+```java
+open.send(this);
+```
+
+Problems
+--------
+
+If there are any problems, with either configuring PlayHaven or sending the Open Request, the SDK will throw a
+[PlayHavenException].
+
+
+References
+----------
+
+Source code: [OpenExample.java](xref/com/playhaven/android/examples/OpenExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+
+[Dashboard]: https://dashboard.playhaven.com/
+[PlayHavenException]: xref/com/playhaven/android/PlayHavenException.html

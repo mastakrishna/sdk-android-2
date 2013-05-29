@@ -1,0 +1,102 @@
+<!--
+Copyright 2013 Medium Entertainment, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+    <id>complete</id>
+    <formats>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>PlayHaven</baseDirectory>
+    <fileSets>
+        <fileSet>
+            <outputDirectory>/</outputDirectory>
+            <directory>target/unpack</directory>
+        </fileSet>
+        <fileSet>
+            <outputDirectory>/</outputDirectory>
+            <directory>src/main/resources</directory>
+            <filtered>true</filtered>
+        </fileSet>
+        <!-- some empty directories -->
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/gen</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/assets</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/res</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/src</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <excludes>
+                <exclude>*:apklib</exclude>
+            </excludes>
+            <outputDirectory>/libs</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+            <unpack>false</unpack>
+            <scope>runtime</scope>
+        </dependencySet>
+        <!-- No such archiver: 'apklib' -->
+        <!--<dependencySet>-->
+            <!--<includes>-->
+                <!--<include>*:apklib</include>-->
+            <!--</includes>-->
+            <!--<outputDirectory>/</outputDirectory>-->
+            <!--<useProjectArtifact>false</useProjectArtifact>-->
+            <!--<unpack>true</unpack>-->
+            <!--<unpackOptions>-->
+
+            <!--</unpackOptions>-->
+            <!--<scope>runtime</scope>-->
+        <!--</dependencySet>-->
+    </dependencySets>
+</assembly>

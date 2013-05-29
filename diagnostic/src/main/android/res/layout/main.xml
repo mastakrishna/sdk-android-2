@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2013 Medium Entertainment, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:playhaven="http://schemas.android.com/apk/res-auto"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:layout_alignParentLeft="true"
+  android:layout_alignParentRight="true"
+  android:layout_alignParentTop="true"
+  android:layout_alignParentBottom="true">
+
+    <Spinner
+        android:id="@+id/request_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/viewtype_spinner"/>
+
+    <Spinner
+        android:id="@+id/viewtype_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/go"/>
+
+    <Button
+        android:text="@string/go"
+        android:onClick="doRequest"
+        android:id="@+id/go"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"/>
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:singleLine="true"
+        android:hint="@string/placementTag"
+        android:layout_height="wrap_content"
+        android:id="@+id/placementTag"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/request_spinner"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/auto"
+        android:id="@+id/auto"
+        android:checked="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/placementTag"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="5dp"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/overlay"
+        android:id="@+id/overlay"
+        android:checked="false"
+        android:layout_toRightOf="@+id/auto"
+        android:layout_below="@+id/placementTag"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/animation"
+        android:id="@+id/animation"
+        android:checked="false"
+        android:layout_toRightOf="@+id/overlay"
+        android:layout_below="@+id/placementTag"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="5dp"/>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fillViewport="true"
+        android:layout_below="@+id/placementTag"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:background="#222222">
+        <TextView
+                android:id="@+id/output"
+                android:hint="Nothing yet..."
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                />
+    </ScrollView>
+
+    <com.playhaven.android.view.MoreGames
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="2sp"
+        android:id="@+id/more"
+        android:text="@string/more"
+        android:onClick="doMoreGames"
+        android:layout_below="@+id/more"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"/>
+
+
+</RelativeLayout>

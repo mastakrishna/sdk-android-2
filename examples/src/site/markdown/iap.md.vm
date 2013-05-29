@@ -1,0 +1,155 @@
+In-App Purchases
+=============
+
+Standard IAP+VGP
+----------------
+
+In the [PlayHaven Dashboard], you specify a Virtual Good Promotion.  If the user chooses to buy the
+product once displayed, the product sku is then sent to your code so that you may initiate the purchase.
+Once the In-App Purchase has been resolved (bought, cancelled, error, etc.), you notify PlayHaven via a
+`PurchaseTrackingRequest`. You are then able to further refine your User Segmentation in the [PlayHaven Dashboard]
+based on the Amount Spent.
+
+Using IAP without VGP
+----------------------
+
+What if you have your own store/purchase process and want to track In-App Purchases without having first displayed a Virtual Good Promotion?
+
+The PlayHaven Android SDK allows you to send an arbitrary `PurchaseTrackingRequest` using your own data.
+
+This example will show three different types of tracking requests.  They are basically identical, other than the resolution.
+
+Initial Setup
+-------------
+
+This example is an extension of the [Hello World Example].  Please follow those instructions first.
+
+To keep this fairly generic, we have a couple static variables and a reusable method:
+
+```java
+    /**
+     * Unique name for logging
+     */
+    private static final String TAG = IAPTrackingExample.class.getSimpleName();
+
+    /**
+     * For creating fake orderId and payload
+     */
+    private static final Random random = new Random(new Date().getTime());
+
+    private void track(View target, Double price, Purchase.Result result)
+    {
+        Purchase purchase = new Purchase();
+        purchase.setSKU(getResources().getResourceName(target.getId()));
+        purchase.setPrice(price);
+        purchase.setStore("OurCoolStore");
+        String orderId = random.nextLong() + "ABC";
+        purchase.setPayload(TAG + ":" + orderId);
+        purchase.setOrderId(orderId);
+        purchase.setQuantity(1);
+        purchase.setResult(result);
+        (new PurchaseTrackingRequest(purchase)).send(this);
+    }
+```
+
+A Buyable Item
+---------------
+
+Our first example is the standard use case of a purchasable item.
+
+In our layout, we have defined a button to kick off the process:
+
+```xml
+    <Button
+            android:text="Buyable Item"
+            android:onClick="buyableItemBought"
+            android:id="@+id/buyableItem"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+```
+
+Then, in our Java code we create our `onClick` handler:
+
+```java
+    public void buyableItemBought(View target)
+    {
+        track(target, 1.50, Purchase.Result.Bought);
+    }
+```
+
+In this case, the server will be informed that this particular product has been purchased successfully.
+
+A Pre-Owned Item
+----------------
+
+What if the user has already purchased the item?  If the item has not been consumed, most stores will not allow the item to be purchased again.  You can report this `Already Owned` state to the server:
+
+In the layout:
+
+```xml
+    <Button
+            android:text="Pre-Owned Item"
+            android:onClick="alreadyOwnedItemFailed"
+            android:id="@+id/preownedItem"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+```
+
+And the `onClick` handler:
+
+```java
+    public void alreadyOwnedItemFailed(View target)
+    {
+        track(target, 10.00, Purchase.Result.Owned);
+    }
+```
+
+Invalid Items
+-------------
+
+What if the item the user is asking for no longer exists?  This could happen if the item was disabled on the server side, but the user has not upgraded their game.
+
+In the layout:
+
+```xml
+    <Button
+            android:text="No Longer Valid Item"
+            android:onClick="itemNoLongerExists"
+            android:id="@+id/invalidItem"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+```
+
+And the `onClick` handler:
+
+```java
+    public void itemNoLongerExists(View target)
+    {
+        track(target, 0.00, Purchase.Result.Invalid);
+    }
+```
+
+Cancelled, Error
+----------------
+
+In a similar fashion, you could also report the transaction as `Purchase.Result.Cancelled` or `Purchase.Result.Error`.
+
+
+References
+----------
+
+Source code: [IAPTrackingExample.java](xref/com/playhaven/android/examples/IAPTrackingExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+
+
+
+
+[PlayHaven Dashboard]: https://dashboard.playhaven.com/
+[Hello World Example]: open.html

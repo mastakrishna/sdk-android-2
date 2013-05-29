@@ -1,0 +1,94 @@
+Purchases
+==========================================
+
+Standard VGP+IAP
+----------------
+
+In the [PlayHaven Dashboard], you specify a Virtual Good Promotion.  If the user chooses to buy the
+product once displayed, the product sku is then sent to your code so that you may initiate the purchase.
+Once the In-App Purchase has been resolved (bought, cancelled, error, etc.), you notify PlayHaven via a
+`PurchaseTrackingRequest`. You are then able to further refine your User Segmentation in the [PlayHaven Dashboard]
+based on the Amount Spent.
+
+Using VGP
+----------------------
+
+This example builds on our previous examples [The Content Result](content2.html) and shows how to obtain information about items to purchase.
+
+It is possible to [use IAP without VGP](iap.html); but you should always use IAP to enable user segmentation.  This example, however, will focus exclusively on the VGP portion of the process.
+
+Preparation
+-----------
+
+Please see The Dashboard configuration on our previous example [The Content Request](content.html).  This time, you will need to specify an IAP Product, a Placement and a Virtual Good Promotion.
+
+We'll start by copying what we did in the previous example [The Content Request](content.html).
+
+Java
+----
+
+There are only two real changes.
+
+The first is to replace the placement tag with `vgp`, which points to a VGP placement in the PlayHaven Dashboard.
+
+The second it to add some logic to the `onActivityResult`:
+
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if(requestCode != EXAMPLE2_REQUEST_CODE)
+        return;
+
+    PlayHavenView.DismissType dismissType = (PlayHavenView.DismissType) data.getSerializableExtra(PlayHavenView.BUNDLE_DISMISS_TYPE);
+    if(dismissType != PlayHavenView.DismissType.Purchase) return;
+
+    Bundle adData = data.getBundleExtra(PlayHavenView.BUNDLE_DATA);
+    if(adData == null) return;
+
+    for(Purchase purchase : adData.<Purchase>getParcelableArrayList(PlayHavenView.BUNDLE_DATA_PURCHASE))
+        Log.d(TAG, "Purchase: (" + purchase.getSKU() +") " + purchase.getTitle());
+}
+```
+
+We grab the BUNDLE_DATA from the Intent, then extract any granted BUNDLE_DATA_PURCHASEs from it.
+
+If you aren't familiar with Generics, the syntax of this line might look odd:
+
+```java
+for(Purchase purchase : adData.<Purchase>getParcelableArrayList(PlayHavenView.BUNDLE_DATA_PURCHASE))
+```
+
+This returns an `ArrayList<Parcelable>` from the `adData` Bundle (using the `BUNDLE_DATA_PURCHASE` key) and cast it to
+an `ArrayList<Purchase>`.  You could, alternatively, do:
+
+```java
+for(Parcelable parcel : adData.getParcelableArrayList(PlayHavenView.BUNDLE_DATA_PURCHASE))
+{
+    Purchase purchase = (Purchase) parcel;
+    Log.d(TAG, "Purchase: (" + purchase.getSKU() +") " + purchase.getTitle());
+}
+```
+
+But the generics version is a bit more convenient.
+
+Similarly, you could change the logs to be more explicit:
+
+```java
+Log.d(TAG, String.format("Purchase: (%s) %s\n", purchase.getSKU(), purchase.getTitle() ));
+```
+
+
+
+References
+----------
+
+Source code: [PurchaseExample.java](xref/com/playhaven/android/examples/PurchaseExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

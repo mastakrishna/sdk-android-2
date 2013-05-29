@@ -1,0 +1,54 @@
+The Content Request
+==========================================
+
+This example builds on our previous example [Hello World, aka The Open Request](open.html),
+makes a Content Request and shows a full-screen content unit.
+
+The Dashboard
+-------------
+
+First, you will need to setup a placement in the [Dashboard](https://dashboard.playhaven.com/).
+Go to the Game Settings section for your game, select Placements and add a new one.
+
+![Dashboard Placements](images/content_example_placement.png "Dashboard Placements")
+
+You then need to create an Advertisement, and specify that your new placement is to be used.
+
+![Dashboard Ad](images/content_example_ad1.png "Dashboard Ad")
+
+It may take up to 5 minutes for changes to take effect.
+
+Java
+----
+
+We'll start by copying what we did in the previous example [Hello World, aka The Open Request](open.html),
+
+The only new code is:
+
+```java
+/**
+ * Now we start the new Activity.
+ *
+ * We'll use PlayHaven's convenience method to create the appropriate intent.
+ * The first parameter is our Context (ie: this Activity)
+ * The second parameter is our placement tag as defined in the Dashboard
+ *
+ * Once the ad is closed, this Activity will be resumed.
+ */
+startActivity(FullScreen.createIntent(this, "content_example"));
+```
+
+
+References
+----------
+
+Source code: [ContentExample.java](xref/com/playhaven/android/examples/ContentExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

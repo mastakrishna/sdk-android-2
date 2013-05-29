@@ -1,0 +1,29 @@
+Open Requests
+====================
+
+Prerequisites
+-------------
+
+* The Diagnostic Application must be configured to talk with your [PlayHaven Dashboard] as explained in the [Configuration Section].
+
+The Open Request
+----------------
+
+After configuring the Diagnostic Application, an `Open Request` must be sent before doing anything else.
+
+* The Diagnostic Application will default the Request Type pulldown to `Open Request`.
+
+* Click `Go`
+
+* Once completed, the output will be updated.
+
+![Open](images/diagnostic-open.png)
+
+Troubleshooting
+---------------
+
+* If you see a 403 Forbidden, double check that you have entered your token/secret (or configuration file path) correctly.
+
+
+[PlayHaven Dashboard]: https://dashboard.playhaven.com/
+[Configuration Section]: index.html

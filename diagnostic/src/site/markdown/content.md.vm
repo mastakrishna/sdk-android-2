@@ -1,0 +1,53 @@
+Content Requests
+====================
+
+Prerequisites
+-------------
+
+* The Diagnostic Application must be configured to talk with your [PlayHaven Dashboard] as explained in the [Configuration Section].
+
+* An `Open Request` must have been performed successfully with the current configuration
+
+The Content Request
+----------------
+
+* The Diagnostic Application will default the Request Type pulldown to `Open Request`.  Change it to `Content Request`.
+
+* Optionally, specify display options (`Overlay`, `Animation`). See the [Display Options Tutorial] for descriptions of the options.
+
+* Optionally, specify the view type (`Full Screen`, `Windowed`).
+
+* Enter a "Placement tag" into the appropriate box.
+
+* Click `Go`
+
+* Once completed, you will see a content unit (if configured correctly).
+
+* Once you dismiss the content unit, the output window will be updated.
+
+Note: the different views are configured to output different data to the screen.
+This is not a limitation of the data they have access to; but a desire to test as much as possible from the Diagnostic Application.
+`Full Screen` is configured to output the json while `Windowed` is configured to tell you how it was dismissed.
+
+
+Troubleshooting
+---------------
+
+* I don't see a content unit, and the output just says `{}`.
+
+
+This will happen if there is no available content unit for the specified placement.  If you use the Dialog option or look at logcat, you will see additional information:
+
+```
+E/PlayHaven( 3776): The request was successful but did not contain any displayable content. This may have occurred because there are no content units assigned to this placement; all content units assigned to this placement are suppressed by frequency caps or targeting; no ad campaigns are available at this time; or an invalid placement was requested. Visit the PlayHaven Dashboard for more details.
+E/PlayHaven( 3776): com.playhaven.android.req.NoContentException: The request was successful but did not contain any displayable content. This may have occurred because there are no content units assigned to this placement; all content units assigned to this placement are suppressed by frequency caps or targeting; no ad campaigns are available at this time; or an invalid placement was requested. Visit the PlayHaven Dashboard for more details.
+E/PlayHaven( 3776): 	at com.playhaven.android.Placement.handleResponse(Placement.java:246)
+E/PlayHaven( 3776): 	at com.playhaven.android.req.PlayHavenRequest.handleResponse(PlayHavenRequest.java:377)
+E/PlayHaven( 3776): 	at com.playhaven.android.req.PlayHavenRequest$1.run(PlayHavenRequest.java:356)
+E/PlayHaven( 3776): 	at java.lang.Thread.run(Thread.java:856)
+```
+
+
+[PlayHaven Dashboard]: https://dashboard.playhaven.com/
+[Configuration Section]: index.html
+[Display Options Tutorial]: ${config.siterepo.value}/com.playhaven.android/examples/${project.version}/examples/dispopts.html

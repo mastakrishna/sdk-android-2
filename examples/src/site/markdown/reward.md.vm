@@ -1,0 +1,81 @@
+Rewards
+==========================================
+
+This example builds on our previous examples [The Content Result](content2.html) and shows how to obtain information about granted rewards.
+
+Preparation
+-----------
+
+Please see The Dashboard configuration on our previous example [The Content Request](content.html).
+
+We'll start by copying what we did in the previous example [The Content Request](content.html).
+
+Java
+----
+
+There are only two real changes.
+
+The first is to replace the placement tag with `reward`, which points to a Reward placement in the PlayHaven Dashboard.
+
+The second it to add some logic to the `onActivityResult`:
+
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if(requestCode != EXAMPLE2_REQUEST_CODE)
+        return;
+
+    String placementTag = data.getStringExtra(PlayHavenView.BUNDLE_PLACEMENT_TAG);
+    PlayHavenView.DismissType dismissType = (PlayHavenView.DismissType) data.getSerializableExtra(PlayHavenView.BUNDLE_DISMISS_TYPE);
+    if(dismissType != PlayHavenView.DismissType.Reward) return;
+
+    Bundle adData = data.getBundleExtra(PlayHavenView.BUNDLE_DATA);
+    if(adData == null) return;
+
+    for(Reward reward : adData.<Reward>getParcelableArrayList(PlayHavenView.BUNDLE_DATA_REWARD))
+        Log.d(TAG, "Reward Collected:  " +reward);
+}
+```
+
+We grab the BUNDLE_DATA from the Intent, then extract any granted BUNDLE_DATA_REWARDs from it.
+
+If you aren't familiar with Generics, the syntax of this line might look odd:
+
+```java
+for(Reward reward : adData.<Reward>getParcelableArrayList(PlayHavenView.BUNDLE_DATA_REWARD))
+```
+
+This returns an `ArrayList<Parcelable>` from the `adData` Bundle (using the `BUNDLE_DATA_REWARD` key) and cast it to
+an `ArrayList<Reward>`.  You could, alternatively, do:
+
+```java
+for(Parcelable parcel : adData.getParcelableArrayList(PlayHavenView.BUNDLE_DATA_REWARD))
+{
+    Reward reward = (Reward) parcel;
+    Log.d(TAG, "Reward Collected:  " +reward);
+}
+```
+
+But the generics version is a bit more convenient.
+
+Similarly, you could change the logs to be more explicit:
+
+```java
+Log.d(TAG, String.format("Reward Collected: %d %s\n", reward.getQuantity().intValue(), reward.getTag() ));
+```
+
+
+
+References
+----------
+
+Source code: [RewardExample.java](xref/com/playhaven/android/examples/RewardExample.html)
+
+AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
+
+Full source code: [GitHub](${config.githubtag.value}/examples)
+
+For instructions on building and running the example, please see [Building and Running](building.html).
+
+
+

@@ -1,0 +1,29 @@
+IDE Integration
+===============
+
+The PlayHaven SDK is distributed as an [Android Library Project], or apklib. Unlike a library distributed as a jar, an apklib allows you as an app developer to use Android resources (such as images and strings) from our SDK.
+Importing an Android Library Project into any of the major IDEs is fairly straightforward.
+
+If you are using Maven, Buildr, Ant, Grape, Grails, Leiningen or SBT; please see the [Dependency Info] page for integration instructions.
+
+If you are not using one of those build frameworks, you will need to download the API w/ Dependencies ([zip]|[tar.gz]) archive and link it in manually.
+
+To assist you in integrating with your IDE, we have provided the following tutorials:
+
+|Command Line|
+|------------|
+|[Maven CLI](maven.html)|
+
+|Eclipse|
+|------------|
+|[Eclipse without Maven](eclipse.html)|
+
+|IntelliJ IDEA|
+|------------|
+|[IDEA with Maven](ideamvn.html)|
+|[IDEA without Maven](idea.html)|
+
+[Android Library Project]: http://developer.android.com/tools/projects/index.html#LibraryProjects
+[Dependency Info]: dependency-info.html
+[zip]: ${config.publicrepo.value}/com/playhaven/android/apiwithdeps/${project.version}/apiwithdeps-${project.version}.zip
+[tar.gz]: ${config.publicrepo.value}/com/playhaven/android/apiwithdeps/${project.version}/apiwithdeps-${project.version}.tar.gz
