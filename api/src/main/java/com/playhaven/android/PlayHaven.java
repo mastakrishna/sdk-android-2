@@ -15,6 +15,15 @@
  */
 package com.playhaven.android;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.lang.reflect.Field;
+import java.math.BigInteger;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Properties;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -22,14 +31,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.util.Log;
-
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.math.BigInteger;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Properties;
+import android.util.TypedValue;
 
 /**
  * Entrypoint into the PlayHaven SDK
@@ -282,7 +284,8 @@ public class PlayHaven
         // Setup PlayHaven values
         editor.putString(Config.Token.toString(), token);
         editor.putString(Config.Secret.toString(), secret);
-        editor.putString(Config.APIServer.toString(), context.getResources().getString(R.string.playhaven_public_api_server));
+        int apiServerResId = getResId(context, ResourceTypes.string, "playhaven.public.api.server");
+        editor.putString(Config.APIServer.toString(), context.getResources().getString(apiServerResId));
         editor.putString(Config.SDKVersion.toString(), Version.PROJECT_VERSION);
         editor.putString(Config.SDKPlatform.toString(), "android");
         editor.putString(Config.PushProjectId.toString(), projectId);
@@ -392,7 +395,8 @@ public class PlayHaven
         SharedPreferences.Editor editor = pref.edit();
 
         // Setup PlayHaven values
-        editor.putString(Config.APIServer.toString(), context.getResources().getString(R.string.playhaven_public_api_server));
+        int apiServerResId = getResId(context, ResourceTypes.string, "playhaven.public.api.server");
+        editor.putString(Config.APIServer.toString(), context.getResources().getString(apiServerResId));
         editor.putString(Config.SDKVersion.toString(), Version.PROJECT_VERSION);
         editor.putString(Config.SDKPlatform.toString(), "android");
 
@@ -748,5 +752,48 @@ public class PlayHaven
         if(isLoggable(Log.ERROR))
             Log.e(TAG, String.format(fmt, args), t);
     }
+    
+    public static enum ResourceTypes {
+    	string,
+    	layout,
+    	id,
+    	styleable,
+    	drawable, 
+    	attr
+    }
+    
+    /**
+     * Needed to allow wrapping with Unity 4.1.5 and below.  
+     * @param context
+     * @param type the ResourceType wanted 
+     * @param name the name of the wanted resource 
+     * @return the resource id for a given resource
+     */
+    public static int getResId(Context context, ResourceTypes type, String name)
+    {
+    	return context.getResources().getIdentifier(name, type.name(), context.getPackageName());
+    }
 
+    /**
+     * Needed to allow wrapping with Unity 4.1.5 and below. 
+     * @param context
+     * @param name the name of the styleable to parse 
+     * @return the attrs identifiers of a declare-styleable element, or an empty array 
+     */
+    public static final int[] getResStyleableArray(Context context, String name)
+    {
+        try {
+            Field[] fields = Class.forName("com.playhaven.android.R$styleable").getFields();
+            for (Field field : fields)
+            {
+                if (field.getName().equals(name))
+                {
+                    return (int[]) field.get(null);
+                }
+            }
+        } catch (Exception e) {
+        	PlayHaven.e(e);
+        }
+        return new int[0];
+    }
 }

@@ -16,8 +16,11 @@
 package com.playhaven.android.req;
 
 import android.content.Context;
+
+import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.R;
+import com.playhaven.android.PlayHaven.ResourceTypes;
+
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -69,7 +72,7 @@ public class SubcontentRequest extends PlayHavenRequest {
     }
 
     @Override
-    protected int getApiPath() {
-        return R.string.playhaven_request_subcontent;
+    protected int getApiPath(Context context) {
+        return PlayHaven.getResId(context, ResourceTypes.string, "playhaven.request.subcontent");
     }
 }

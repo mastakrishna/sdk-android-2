@@ -44,27 +44,27 @@ public class PushReceiverTest extends PHTestCase <Launcher>{
         receiver.onReceive(context, new Intent());
         
         Uri uri = Uri.parse("playhaven://com.playhaven.android/?activity=foo");
-        UriTypes type = receiver.checkUri(uri);
+        UriTypes type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.ACTIVITY);
         
         uri = Uri.parse("playhaven://com.playhaven.android/?placement=foo");
-        type = receiver.checkUri(uri);
+        type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.PLACEMENT);
         
         uri = Uri.parse("playhaven://com.playhaven.android.diagnostic");
-        type = receiver.checkUri(uri);
+        type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.CUSTOM);
         
         uri = Uri.parse("playhaven://com.playhaven.android");
-        type = receiver.checkUri(uri);
+        type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.DEFAULT);
         
         uri = Uri.parse("playhaven://com.foo.bar");
-        type = receiver.checkUri(uri);
+        type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.INVALID);
         
         uri = Uri.parse("market://com.foo.bar");
-        type = receiver.checkUri(uri);
+        type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.MARKET);
     }
 }

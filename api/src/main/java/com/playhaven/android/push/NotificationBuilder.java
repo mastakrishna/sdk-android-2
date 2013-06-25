@@ -54,7 +54,6 @@ public class NotificationBuilder {
 			return builder.getNotification();
     	} catch (Exception e) {
     		PlayHaven.e("Unable to create Notification from intent.");
-    		PlayHaven.e(e);
     		return null;
     	}
     }

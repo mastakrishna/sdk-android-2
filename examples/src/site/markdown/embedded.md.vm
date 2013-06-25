@@ -3,6 +3,12 @@ Embedded Ads
 
 This example builds on our previous example [The Content Request](content.html), but embeds the ad into your game menu.
 
+```
+NOTE: Embedding PlayHavenView into your own layouts is experimental/unsupported. We are working on defining guidelines.
+
+USE AT YOUR OWN RISK
+```
+
 The Dashboard
 -------------
 
@@ -21,8 +27,8 @@ We add the PlayHavenView into our XML layout.  Here we are specifying the placem
     android:id="@+id/ad"
     playhaven:placementTag="main_menu"
     playhaven:displayOptions="overlay|animation"
-    android:layout_width="300px"
-    android:layout_height="300px"
+    android:layout_width="320px"
+    android:layout_height="480px"
     android:layout_margin="30dp"
     android:layout_centerVertical="true"
     android:layout_alignParentRight="true"/>

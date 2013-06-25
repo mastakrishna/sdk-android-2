@@ -120,7 +120,7 @@ public abstract class PlayHavenRequest
         return new HttpEntity<Object>(getHeaders());
     }
 
-    protected int getApiPath()
+    protected int getApiPath(Context context)
     {
         return -1;
     }
@@ -146,7 +146,7 @@ public abstract class PlayHavenRequest
             SharedPreferences pref = PlayHaven.getPreferences(context);
 
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getString(pref, APIServer));
-            builder.path(context.getResources().getString(getApiPath()));
+            builder.path(context.getResources().getString(getApiPath(context)));
             builder.queryParam("app", getString(pref, AppPkg));
             builder.queryParam("app_version", getString(pref, AppVersion));
             builder.queryParam("os", getInt(pref, OSVersion, 0));

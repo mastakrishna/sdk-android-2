@@ -19,7 +19,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.R;
 import com.playhaven.android.data.Purchase;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -79,7 +78,8 @@ public class PurchaseTrackingRequest
     }
 
     @Override
-    protected int getApiPath() {
-        return R.string.playhaven_request_iap_tracking;
+    protected int getApiPath(Context context) 
+    {
+        return PlayHaven.getResId(context, PlayHaven.ResourceTypes.string, "playhaven.request.iap.tracking");
     }
 }

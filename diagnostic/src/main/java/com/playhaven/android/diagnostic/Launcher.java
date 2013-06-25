@@ -53,6 +53,7 @@ import java.util.ArrayList;
 
 public class Launcher extends Activity implements PlacementListener, AdapterView.OnItemSelectedListener, RequestListener, DialogInterface.OnDismissListener, PlayHavenListener {
 	private GCMReceiver pushReceiver;
+	private boolean pushRegisterToggle = true;
 	
     public enum RequestType
     {
@@ -283,8 +284,17 @@ public class Launcher extends Activity implements PlacementListener, AdapterView
             else if (requestType == RequestType.Gcm)
             {
         		GCMRegistrationRequest regRequest = new GCMRegistrationRequest();
-        		regRequest.send(this);
-        		updateOutput("Registration request sent.");
+        		if(pushRegisterToggle) 
+        		{
+            		regRequest.register(this);
+            		updateOutput("Registration request sent.");
+        		} 
+        		else 
+        		{
+            		regRequest.deregister(this);
+            		updateOutput("De-registration request sent.");
+        		}
+    			pushRegisterToggle = ! pushRegisterToggle;
         		return;
             }
 

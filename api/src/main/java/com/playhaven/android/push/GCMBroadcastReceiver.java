@@ -33,6 +33,7 @@ public class GCMBroadcastReceiver extends PushReceiver {
 	public static final String C2DM_REGISTRATION = "com.google.android.c2dm.intent.REGISTRATION";
 	public static final String C2DM_RECEIVE = "com.google.android.c2dm.intent.RECEIVE";
 	public static final String C2DM_REGISTER = "com.google.android.c2dm.intent.REGISTER";
+	public static final String C2DM_UNREGISTER = "com.google.android.c2dm.intent.UNREGISTER";
 	public static final String SERVICE_NOT_AVAILABLE = "SERVICE_NOT_AVAILABLE";
 	
     @Override
@@ -64,18 +65,26 @@ public class GCMBroadcastReceiver extends PushReceiver {
             edit.putString(GCMBroadcastReceiver.REGID, registrationId);
             edit.commit();
             
-    		String message_id = mBundle.getString(PushParams.message_id.name());
-    		String content_id = mBundle.getString(PushParams.content_id.name());
-    		
-    		PushTrackingRequest trackingRequest = new PushTrackingRequest(registrationId, message_id, content_id);
+            // A registration request will have no message_id, or content_id, these come from PH pushes. 
+    		PushTrackingRequest trackingRequest = new PushTrackingRequest(registrationId, null, null);
     		trackingRequest.send(context);
         }
 
         if (unregistered != null) {
-        	PlayHaven.v("GCM registration was unregistered: %s", unregistered);
-        	// TODO: unregistration request? 
+        	// We are unregistered with GCM, and now should clear our token and notify PlayHaven. 
+            SharedPreferences pref = PlayHaven.getPreferences(context);
+            SharedPreferences.Editor edit = pref.edit();
+            edit.remove(GCMBroadcastReceiver.REGID);
+            edit.commit();
+            
+            // An empty string for a registration_id prompts the server to deregister this device. 
+    		PushTrackingRequest trackingRequest = new PushTrackingRequest("", null, null);
+    		trackingRequest.send(context);
+    		
+        	PlayHaven.v("GCM has unregistered this application: %s", unregistered);
         }
 
+        // @TODO: retry after wait when service unavailable 
         if (error != null) {
             if (SERVICE_NOT_AVAILABLE.equals(error)) {
             	PlayHaven.e("GCM registration service unavailable."); 

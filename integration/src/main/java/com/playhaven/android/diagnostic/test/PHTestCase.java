@@ -108,15 +108,16 @@ extends ActivityInstrumentationTestCase2<ACTIVITY>
     }
 
     protected SharedPreferences.Editor configurePlayHaven() throws PlayHavenException {
-        return configurePlayHaven(R.string.instrumentation_token, R.string.instrumentation_secret);
+        return configurePlayHaven(R.string.instrumentation_token, R.string.instrumentation_secret, R.string.gcm_project_number);
     }
 
-    protected SharedPreferences.Editor configurePlayHaven(int tokenResId, int secretResId) throws PlayHavenException {
+    protected SharedPreferences.Editor configurePlayHaven(int tokenResId, int secretResId, int projectNumberResId) throws PlayHavenException {
         // Get the resources from our own strings.xml
         Context iCtx = getInstrumentationContext();
         Resources res = iCtx.getResources();
         String token = res.getString(tokenResId);
         String secret = res.getString(secretResId);
+        String regNum = res.getString(projectNumberResId);
 
         // But do all the work in the target context
         Context tCtx = getTargetContext();
@@ -128,7 +129,7 @@ extends ActivityInstrumentationTestCase2<ACTIVITY>
         editor.commit();
 
         // Now configure....
-        PlayHaven.configure(tCtx, token, secret);
+        PlayHaven.configure(tCtx, token, secret, regNum);
         return PlayHaven.getPreferences(tCtx).edit();
     }
 

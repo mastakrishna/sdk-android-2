@@ -90,11 +90,23 @@ limitations under the License.
         android:layout_marginRight="15dp"
         android:layout_marginLeft="5dp"/>
 
+    <com.playhaven.android.view.MoreGames
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="2sp"
+            android:id="@+id/more"
+            android:text="@string/more"
+            android:onClick="doMoreGames"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"/>
+
     <ScrollView
+        android:id="@+id/scroll"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:fillViewport="true"
-        android:layout_below="@+id/placementTag"
+        android:layout_below="@+id/overlay"
+        android:layout_above="@+id/more"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:background="#222222">
@@ -105,17 +117,6 @@ limitations under the License.
                 android:layout_height="fill_parent"
                 />
     </ScrollView>
-
-    <com.playhaven.android.view.MoreGames
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawablePadding="2sp"
-        android:id="@+id/more"
-        android:text="@string/more"
-        android:onClick="doMoreGames"
-        android:layout_below="@+id/more"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"/>
 
 
 </RelativeLayout>

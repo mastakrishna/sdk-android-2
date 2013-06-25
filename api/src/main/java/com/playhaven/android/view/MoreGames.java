@@ -15,11 +15,14 @@
  */
 package com.playhaven.android.view;
 
+import com.playhaven.android.PlayHaven;
+import com.playhaven.android.PlayHaven.ResourceTypes;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.Button;
-import com.playhaven.android.R;
 
 /**
  * More Games button
@@ -53,15 +56,21 @@ extends Button
      */
     public MoreGames(Context context, AttributeSet attrs) {
         super(context, attrs);
+        
+    	int[] badgeStyles = PlayHaven.getResStyleableArray(context, "com_playhaven_android_view_Badge");
+        TypedArray arr = context.obtainStyledAttributes(attrs, badgeStyles, 0, 0);
+        try {
+        	int badgeStyleableId = PlayHaven.getResId(context, ResourceTypes.attr, "com_playhaven_android_view_Badge_placementTag");
+        	int badgeColorId = PlayHaven.getResId(context, ResourceTypes.attr, "com_playhaven_android_view_Badge_textColor");
 
-        TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.com_playhaven_android_view_Badge, 0, 0);
-        try{
-            setPlacementTag(arr.getString(R.styleable.com_playhaven_android_view_Badge_placementTag));
-            setTextColor(arr.getColor(R.styleable.com_playhaven_android_view_Badge_textColor, Badge.DEFAULT_TEXT_COLOR));
-        }finally{
+        	setPlacementTag(arr.getString(badgeStyleableId));
+            setTextColor(arr.getColor(badgeColorId, Badge.DEFAULT_TEXT_COLOR));
+        } finally {
             arr.recycle();
         }
     }
+    
+    
 
     /**
      * Construct a MoreGames button
@@ -75,12 +84,15 @@ extends Button
     public MoreGames(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
+    	int[] badgeStyles = PlayHaven.getResStyleableArray(context, "com_playhaven_android_view_Badge");
+        TypedArray arr = context.obtainStyledAttributes(attrs, badgeStyles, 0, 0);
+        try {
+        	int badgeStyleableId = PlayHaven.getResId(context, ResourceTypes.attr, "com_playhaven_android_view_Badge_placementTag");
+        	int badgeColorId = PlayHaven.getResId(context, ResourceTypes.attr, "com_playhaven_android_view_Badge_textColor");
 
-        TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.com_playhaven_android_view_Badge, 0, 0);
-        try{
-            setPlacementTag(arr.getString(R.styleable.com_playhaven_android_view_Badge_placementTag));
-            setTextColor(arr.getColor(R.styleable.com_playhaven_android_view_Badge_textColor, Badge.DEFAULT_TEXT_COLOR));
-        }finally{
+        	setPlacementTag(arr.getString(badgeStyleableId));
+            setTextColor(arr.getColor(badgeColorId, Badge.DEFAULT_TEXT_COLOR));
+        } finally {
             arr.recycle();
         }
     }

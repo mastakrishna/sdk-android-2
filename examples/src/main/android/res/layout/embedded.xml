@@ -52,8 +52,8 @@ limitations under the License.
         android:id="@+id/ad"
         playhaven:placementTag="main_menu"
         playhaven:displayOptions="overlay|animation"
-        android:layout_width="300px"
-        android:layout_height="300px"
+        android:layout_width="320px"
+        android:layout_height="480px"
         android:layout_margin="30dp"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"/>

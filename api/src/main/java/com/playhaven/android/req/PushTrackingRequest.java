@@ -22,7 +22,7 @@ import android.content.SharedPreferences;
 
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.R;
+import com.playhaven.android.PlayHaven.ResourceTypes;
 import com.playhaven.android.push.GCMBroadcastReceiver;
 import com.playhaven.android.push.PushReceiver;
 
@@ -58,7 +58,7 @@ public class PushTrackingRequest extends PlayHavenRequest {
     }
 
     @Override
-    protected int getApiPath() {
-        return R.string.playhaven_request_push;
+    protected int getApiPath(Context context) {
+        return PlayHaven.getResId(context, ResourceTypes.string, "playhaven.request.push");
     }
 }

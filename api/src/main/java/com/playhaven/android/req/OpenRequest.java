@@ -22,18 +22,16 @@ import java.util.Date;
 
 import org.springframework.web.util.UriComponentsBuilder;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.playhaven.android.PlayHaven;
-import com.playhaven.android.PlayHaven.Config;
+import com.playhaven.android.PlayHaven.ResourceTypes;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.R;
 import com.playhaven.android.cache.Cache;
 import com.playhaven.android.cache.CacheResponseHandler;
 import com.playhaven.android.cache.CachedInfo;
 import com.playhaven.android.data.JsonUrlExtractor;
-import com.playhaven.android.push.GCMBroadcastReceiver;
-import com.playhaven.android.push.GCMRegistrationRequest;
 import com.playhaven.android.req.model.ClientApiResponseModel;
 import com.playhaven.android.util.TimeZoneFormatter;
 
@@ -67,14 +65,6 @@ extends PlayHavenRequest
 
         builder.queryParam(SCOUNT, scount);
         builder.queryParam(SSUM, ssum);
-        
-        // Ensure registration with GCM, if configuration available. 
-        String regId = pref.getString(GCMBroadcastReceiver.REGID, null);
-        String projectId = pref.getString(Config.PushProjectId.toString(), null);
-    	if(regId == null && projectId != null){
-    		GCMRegistrationRequest regRequest = new GCMRegistrationRequest();
-    		regRequest.send(context);
-    	}
 
         SharedPreferences.Editor edit = pref.edit();
         // Increment count
@@ -139,8 +129,8 @@ extends PlayHavenRequest
     }
 
     @Override
-    protected int getApiPath() {
-//        return R.string.playhaven_request_open_v4;
-        return R.string.playhaven_request_open_v3;
+    protected int getApiPath(Context context) 
+    {
+        return PlayHaven.getResId(context, ResourceTypes.string, "playhaven.request.open.v3");
     }
 }

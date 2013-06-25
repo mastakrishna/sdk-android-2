@@ -24,12 +24,20 @@ import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHaven.Config;
 
 public class GCMRegistrationRequest {
-	public void send(Context context){
+	public void send(Context context, String which){
         SharedPreferences pref = PlayHaven.getPreferences(context);
-    	PlayHaven.v("Starting registration request.");
-    	Intent registrationIntent = new Intent(GCMBroadcastReceiver.C2DM_REGISTER);
+    	PlayHaven.v("Starting %s request.", which);
+    	Intent registrationIntent = new Intent(which);
     	registrationIntent.putExtra("app", PendingIntent.getBroadcast(context, 0, new Intent(), 0));
     	registrationIntent.putExtra("sender", pref.getString(Config.PushProjectId.name(), ""));
     	context.startService(registrationIntent);
+	}
+	
+	public void deregister(Context context){
+		this.send(context, GCMBroadcastReceiver.C2DM_UNREGISTER);
+	}
+	
+	public void register(Context context){
+		this.send(context, GCMBroadcastReceiver.C2DM_REGISTER);
 	}
 }

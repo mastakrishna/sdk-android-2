@@ -19,8 +19,9 @@ import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+
+import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.R;
 import com.playhaven.android.req.MetadataRequest;
 import com.playhaven.android.req.RequestListener;
 import com.playhaven.android.req.model.ClientApiResponseModel;
@@ -84,7 +85,8 @@ extends Drawable implements RequestListener {
         setBounds(0, 0, size, size);
 
         this.placementTag = placementTag;
-        background = context.getResources().getDrawable(R.drawable.playhaven_badge);
+        int drawableId = PlayHaven.getResId(context, PlayHaven.ResourceTypes.drawable, "playhaven_badge");
+        background = context.getResources().getDrawable(drawableId);
     }
 
     /**

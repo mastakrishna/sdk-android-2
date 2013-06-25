@@ -19,7 +19,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.R;
 import com.playhaven.android.push.PushReceiver;
 
 import org.springframework.web.util.UriComponentsBuilder;
@@ -30,8 +29,7 @@ import java.util.Date;
 /**
  * Make a CONTENT request to PlayHaven
  */
-public class ContentRequest
-        extends PlayHavenRequest
+public class ContentRequest extends PlayHavenRequest
 {
     private static final String STIME = "stime";
     private static final String SSTART = "sstart";
@@ -87,8 +85,8 @@ public class ContentRequest
     }
 
     @Override
-    protected int getApiPath() {
-        return R.string.playhaven_request_content;
+    protected int getApiPath(Context context) {
+        return PlayHaven.getResId(context, PlayHaven.ResourceTypes.string, "playhaven.request.content");
     }
 
     public boolean isPreload() {

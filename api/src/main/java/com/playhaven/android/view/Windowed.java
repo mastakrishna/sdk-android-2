@@ -19,10 +19,12 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.OrientationEventListener;
 import android.view.WindowManager;
 import com.playhaven.android.Placement;
+import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.R;
+import com.playhaven.android.PlayHaven.ResourceTypes;
 
 /**
  * Displays a PlayHaven content unit in a dialog
@@ -34,6 +36,7 @@ implements PlayHavenListener
     private static final int DEFAULT_THEME = android.R.style.Theme_Translucent_NoTitleBar;
     private PlayHavenListener phListener;
     private PlayHavenView playHavenView;
+    private OrientationEventListener orientation;
 
     /**
      * Construct a Windowed dialog, using the default theme
@@ -130,7 +133,7 @@ implements PlayHavenListener
     public Windowed(Context context, Placement placement, PlayHavenListener listener, int theme)
     {
         super(context, theme);
-        configure();
+        configure(context);
         setPlayHavenListener(listener);
         setPlacement(placement);
     }
@@ -148,19 +151,39 @@ implements PlayHavenListener
     public Windowed(Context context, String placementTag, PlayHavenListener listener, int theme)
     {
         super(context, theme);
-        configure();
+        configure(context);
         setPlayHavenListener(listener);
         setPlacementTag(placementTag);
     }
 
     /**
+     * Initial configuration
+     */
+    protected void configure(Context context)
+    {
+        configureSize();
+        playHavenView.setPlayHavenListener(this);
+        setContentView(playHavenView);
+        orientation = new OrientationEventListener(context) {
+            @Override
+            public void onOrientationChanged(int i) {
+                configureSize();
+            }
+        };
+        orientation.enable();
+    }
+
+
+    /**
      * Configure sizing
      */
-    protected void configure()
+    protected void configureSize()
     {
-        android.view.View layout =  getLayoutInflater().inflate(R.layout.playhaven_dialog, null);
-        playHavenView = (PlayHavenView) layout.findViewById(R.id.playhaven_dialog_view);
-        playHavenView.setPlayHavenListener(this);
+    	int dialogLayoutId = PlayHaven.getResId(getContext(), ResourceTypes.layout, "playhaven_dialog");
+    	int dialogViewId = PlayHaven.getResId(getContext(), ResourceTypes.id, "playhaven_dialog_view");
+    	
+        android.view.View layout =  getLayoutInflater().inflate(dialogLayoutId, null);
+        playHavenView = (PlayHavenView) layout.findViewById(dialogViewId);
 
         // Adjust the size of the dialog to be 90%
         DisplayMetrics dm = new DisplayMetrics();
@@ -170,10 +193,8 @@ implements PlayHavenListener
         lp.width = (int) (dm.widthPixels * 0.9);
         lp.height =  (int) (dm.heightPixels * 0.9);
         getWindow().setAttributes(lp);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-
-        setContentView(playHavenView);
     }
+
 
     /**
      * Retrieve the display options
@@ -306,5 +327,11 @@ implements PlayHavenListener
         super.onContentChanged();
     }
 
+    @Override
+    public void dismiss() {
+        if(orientation != null)
+            orientation.disable();
 
+        super.dismiss();
+    }
 }

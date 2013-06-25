@@ -32,10 +32,11 @@ import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.req.PushTrackingRequest;
 import com.playhaven.android.view.FullScreen;
+import com.playhaven.android.view.PlayHavenView;
 import com.playhaven.android.view.PlayHavenView.DismissType;
 
 /**
- * This is the general-purpose class for handling Push Notifications. 
+ * Handles the Notification side of push notifications. 
  */
 public class PushReceiver extends BroadcastReceiver implements PlacementListener {
 	protected Context mContext;
@@ -61,15 +62,25 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 	@Override
 	public void contentLoaded(Placement placement) {
 		PlayHaven.v("Have preloaded placement: %s", placement.getPlacementTag());
-
-		Intent placementIntent = FullScreen.createIntent(mContext, placement);
-		placementIntent.putExtras(mBundle);
-		placementIntent.putExtra(NotificationBuilder.Keys.URI.name(), mBundle.getString(NotificationBuilder.Keys.URI.name()));
-		PendingIntent pendingIntent = PendingIntent.getActivity(mContext, this.hashCode(), placementIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		
+		Intent newIntent = new Intent(mContext, PushReceiver.class);
+		newIntent.putExtra(PlayHavenView.BUNDLE_PLACEMENT, placement);
+		newIntent.putExtras(mBundle);
+		newIntent.putExtra(NotificationBuilder.Keys.URI.name(), mBundle.getString(NotificationBuilder.Keys.URI.name()));
+		
+		// Needed for instrumentation tests. 
+		int requestCode;
+		try {
+			requestCode = Integer.parseInt(placement.getMessageId());
+		} catch (NumberFormatException e){
+			requestCode = this.hashCode();
+		}
+		
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, requestCode, newIntent, 0);
 		Notification notification = new NotificationBuilder(mContext).makeNotification(mBundle, pendingIntent);
     	NotificationManager manager = (NotificationManager) mContext.getSystemService(Service.NOTIFICATION_SERVICE);
-    	manager.notify(this.hashCode(), notification);
+    	
+    	manager.notify(requestCode, notification);
 	}
 	
 	@Override
@@ -88,25 +99,24 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 	/**
 	 * Handles returning from Notification. See messaging-service-specific 
 	 * classes for when system provides push notifications. 
+	 * (Such as GCMBroadcastReceiver.) 
 	 */
-	public void onReceive(Context context, Intent intent) { 
-		mContext = context;
-		mBundle = intent.getExtras();
-		
-		if(mBundle == null){
+	public void onReceive(Context context, Intent intent) {
+		Bundle bundle = intent.getExtras();
+		if(bundle == null){
 			// There is nothing more we can do. 
 			PlayHaven.e("Received Notification with no extras.");
 			return;
 		}
 		
-		Uri uri = Uri.parse(mBundle.getString(NotificationBuilder.Keys.URI.name()));
+		Uri uri = Uri.parse(bundle.getString(NotificationBuilder.Keys.URI.name()));
 		Intent nextIntent = null;
-		switch(checkUri(uri)){
+		switch(checkUri(uri, context)){
 			case ACTIVITY:
 				// The publisher has provided a particular activity to launch after the notification.
 				try {
 					Class<?> activityClass = Class.forName(uri.getQueryParameter(PlayHaven.ACTION_ACTIVITY));
-					nextIntent = new Intent(mContext, activityClass);
+					nextIntent = new Intent(context, activityClass);
 				} catch (ClassNotFoundException e) {
 					PlayHaven.e(e);
 				}
@@ -117,23 +127,28 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 				break;
 			case DEFAULT:
 				// The default is to invoke the Application's default launcher after a notification. 
-	    		PackageManager pm = mContext.getPackageManager();
-				nextIntent = pm.getLaunchIntentForPackage(mContext.getPackageName());
+	    		PackageManager pm = context.getPackageManager();
+				nextIntent = pm.getLaunchIntentForPackage(context.getPackageName());
+				break;
+			case PLACEMENT:
+				// Launch a placement. 
+				Placement placement = intent.getParcelableExtra(PlayHavenView.BUNDLE_PLACEMENT);
+				nextIntent = FullScreen.createIntent(context, placement);
 				break;
 			default:
 				break;
 		}
 
-		String message_id = mBundle.getString(PushParams.message_id.name());
-		String content_id = mBundle.getString(PushParams.content_id.name());
+		String message_id = bundle.getString(PushParams.message_id.name());
+		String content_id = bundle.getString(PushParams.content_id.name());
 		
-		PushTrackingRequest trackingRequest = new PushTrackingRequest(mContext, message_id, content_id);
-		trackingRequest.send(mContext);
+		PushTrackingRequest trackingRequest = new PushTrackingRequest(context, message_id, content_id);
+		trackingRequest.send(context);
 		
 		if(nextIntent != null) {
-			nextIntent.putExtras(mBundle);
+			nextIntent.putExtras(bundle);
 			nextIntent.addFlags(0 | Intent.FLAG_ACTIVITY_NEW_TASK);
-			mContext.startActivity(nextIntent);
+			context.startActivity(nextIntent);
 		}
 	}
 	
@@ -142,25 +157,30 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 	 * Notification (if appropriate) or perform other actions. 
 	 */
 	public void interpretPush(Intent intent, Context context) {
+		mContext = context;
+		mBundle = intent.getExtras();
+		
 		Uri uri = Uri.parse(intent.getStringExtra(NotificationBuilder.Keys.URI.name()));
 		Notification notification = null;
+		String messageId = intent.getStringExtra(PushParams.message_id.name());
 
 		Intent newIntent = new Intent(context, PushReceiver.class);
 		newIntent.putExtras(intent.getExtras());
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, this.hashCode(), newIntent, 0);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, getMessageId(intent), newIntent, 0);
 		
-		switch(checkUri(uri)){
+		switch(checkUri(uri, mContext)){
 			case DEFAULT:
 				notification = new NotificationBuilder(mContext).makeNotification(mBundle, pendingIntent);
 		    	break;
 			case PLACEMENT:
-				// Show a notification that will launch a placement after it loads. 
+				// Load a placement to show when the notification is clicked. 
 				String placementTag = uri.getQueryParameter(PlayHaven.ACTION_PLACEMENT);
-				String messageId = intent.getStringExtra(PushParams.message_id.name());
 				Placement placement = new Placement(placementTag);
 				placement.setListener(PushReceiver.this);
 				placement.setMessageId(messageId);
 				placement.preload(mContext);
+				
+				// Preserve these extras to pass to the pendingintent once the placement has loaded. 
 				break;
 			case CUSTOM:
 				// The publisher has provided a Uri to broadcast. 
@@ -181,7 +201,22 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 		
 		if(notification != null){
 	    	NotificationManager manager = (NotificationManager) mContext.getSystemService(Service.NOTIFICATION_SERVICE);
-	    	manager.notify(this.hashCode(), notification);
+	    	manager.notify(getMessageId(intent), notification);
+		}
+	}
+	
+	/**
+	 * Instrumentation needs to be able to retrieve the Notification from 
+	 * the Notification Manager and so uses the message id to set the Notification id. 
+	 * It requires an integer ID, which the message id might not always be if 
+	 * coming from the PlayHaven server. 
+	 */
+	public int getMessageId(Intent intent){
+		try {
+			String messageId = intent.getStringExtra(PushParams.message_id.name());
+			return Integer.parseInt(messageId);
+		} catch (NumberFormatException e){
+			return intent.hashCode();
 		}
 	}
     
@@ -192,12 +227,12 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
      * 	playhaven://<application package name>
      * 	playhaven://com.playhaven.android/?<activity=x>|<placement=y>
      */
-    public UriTypes checkUri(Uri uri){
+    public UriTypes checkUri(Uri uri, Context context){
     	String host = uri.getHost();
     	String scheme = uri.getScheme();
     	
     	if(PlayHaven.URI_SCHEME.equals(scheme)){
-    		if(mContext.getPackageName().equals(host)){
+    		if(context.getPackageName().equals(host)){
     			return UriTypes.CUSTOM;
     		}
     		else if("com.playhaven.android".equals(host)){

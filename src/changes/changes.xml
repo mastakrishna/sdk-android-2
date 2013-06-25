@@ -24,20 +24,31 @@ limitations under the License.
 
     <body>
 
-<release version="2.0.5" description="[skyrunner] M6: Update for SDK 22" date="2013-05-23">
+<release version="2.0.6" description="SDK private release" date="2013-06-24">
+  <action type="add" dev="Malachi de AElfweald">[back-bay] Dialog not respecting rotation</action>
+  <action type="add" dev="Christa Mabee">[valentines] investigate jar packaging for Unity</action>
+  <action type="add" dev="Christa Mabee">[coles] Push Notifications via Google Cloud Messaging</action>
+  <action type="add" dev="Christa Mabee">[whitlash] Mock Config includes GCM project id</action>
+  <action type="add" dev="Christa Mabee">[subtle-moose] push tests on multiple API levels</action>
+  <action type="add" dev="Christa Mabee">[mt-prosper] user_agent for requests</action>
+  <action type="add" dev="Malachi de AElfweald">[messer] Mark Embedded as Unsupported</action>
+  <action type="add" dev="Christa Mabee">[big-rock-candy-mountain] deregistration</action>
+</release>
+
+<release version="2.0.5" description="Update for SDK 22" date="2013-05-23">
   <action type="add" dev="Malachi de AElfweald">[gannon] Update maven android plugin to handle new Android SDK</action>
   <action type="fix" dev="Malachi de AElfweald">[waynesfield] NPE in contentDismissed</action>
   <action type="fix" dev="Malachi de AElfweald">[trapper-creek-wilderness] "More Games" button overlaps "Animation" Text , when in portrait mode on PH Diagnostic application.</action>
   <action type="fix" dev="Christa Mabee">[mossy-dell] opt-in crash</action>
 </release>
 
-<release version="2.0.4" description="[commander-clash] M5: Documentation fixes" date="2013-05-10">
+<release version="2.0.4" description="Documentation fixes" date="2013-05-10">
   <action type="update" dev="Malachi de AElfweald">[duenweg] Update documentation to have links to APKs</action>
   <action type="update" dev="Malachi de AElfweald">[grizzly-flat] Update default page</action>
   <action type="fix" dev="Malachi de AElfweald">[flamingo] Some documentation links did not get updated to the new repo names</action>
 </release>
 
-<release version="2.0.3" description="[looten-plunder] M4: Last Minute Touchups" date="2013-05-09">
+<release version="2.0.3" description="Last Minute Touchups" date="2013-05-09">
   <action type="update" dev="Malachi de AElfweald">[slate-valley] Add PlayHaven copyright to all reasonable files</action>
   <action type="update" dev="Malachi de AElfweald">[bruington] Customize skin to look more PlayHaven-ish</action>
   <action type="update" dev="Malachi de AElfweald">[bryantsburg] Customize documented modules</action>
@@ -94,7 +105,7 @@ limitations under the License.
   <action type="add" dev="Malachi de AElfweald">[stillwell] Remove PlayHavenView.NO_DISPLAY_OPTIONS from quickstart example</action>
 </release>
 
-<release version="2.0.2" description="[doctor-blight] M3: Google Play Support" date="2013-04-04">
+<release version="2.0.2" description="Google Play Support" date="2013-04-04">
   <action type="update" dev="Malachi de AElfweald">[yuba] Research: Google Play In-App Billing</action>
   <action type="update" dev="Malachi de AElfweald">Research Amazon App Store integration</action>
   <action type="update" dev="Malachi de AElfweald">[barron] Research Samsung App Store Integration</action>
@@ -119,7 +130,7 @@ limitations under the License.
   <action type="add" dev="Malachi de AElfweald">[clarks-mill] IAP/VGP support in framework</action>
 </release>
 
-<release version="2.0.1" description="[Captain-Pollution] M2: Parity minus Google Play" date="2013-02-21">
+<release version="2.0.1" description="Parity minus Google Play" date="2013-02-21">
   <action type="add" dev="Malachi de AElfweald">[johnsons-corner] Add ACCESS_NETWORK_STATE</action>
   <action type="add" dev="Malachi de AElfweald">[dobbs-ferry] Add emergency close button to PHActivity</action>
   <action type="update" dev="Malachi de AElfweald">[foresthill] Refactor out PH prefix</action>
@@ -150,7 +161,7 @@ limitations under the License.
   <action type="add" dev="Martin Peck">[pellston] Overlay not shown</action>
 </release>
 
-        <release version="2.0.0" description="[Captain-Planet] M1: Basic WebView interstitial" date="2013-02-05">
+        <release version="2.0.0" description="Basic WebView interstitial" date="2013-02-05">
             <action type="add" dev="Malachi de AElfweald">[garrochales] Make SampleApp actually do something</action>
             <action type="add" dev="Malachi de AElfweald">[malbis] Implement PlayHavenView loading animation</action>
             <action type="add" dev="Malachi de AElfweald">[sdk-clackamas] Framework for displaying full screen ad [activity]</action>

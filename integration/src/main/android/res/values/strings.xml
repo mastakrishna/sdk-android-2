@@ -18,4 +18,7 @@ limitations under the License.
     <!-- For configuring PlayHaven -->
     <string name="instrumentation_token">71dd5d607c4b421c8f8bdc4f24cbfa40</string>
     <string name="instrumentation_secret">8750450c0c414a20976110a82d1efac1</string>
+    <string name="gcm_url">https://android.googleapis.com/gcm/send</string>
+    <string name="gcm_api_key">AIzaSyCfHKtut7_nYNRnDUrgbnVxUsQ7qtwhng4</string>
+    <string name="gcm_project_number">625035565106</string>
 </resources>
