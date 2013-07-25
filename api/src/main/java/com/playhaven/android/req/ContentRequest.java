@@ -26,6 +26,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
+
 /**
  * Make a CONTENT request to PlayHaven
  */
@@ -35,7 +37,6 @@ public class ContentRequest extends PlayHavenRequest
     private static final String SSTART = "sstart";
 
     private String placementTag = null;
-    private String message_id = null;
     private int placementResId = -1;
     private boolean preload = false;
 
@@ -75,18 +76,13 @@ public class ContentRequest extends PlayHavenRequest
         SharedPreferences.Editor edit = pref.edit();
         edit.putLong(STIME, stime);
         edit.commit();
-        
-        if(this.message_id != null)
-        {
-        	builder.queryParam(PushReceiver.PushParams.message_id.name(), this.message_id);
-        }
 
         return builder;
     }
 
     @Override
     protected int getApiPath(Context context) {
-        return PlayHaven.getResId(context, PlayHaven.ResourceTypes.string, "playhaven.request.content");
+        return getCompat(context).getResourceId(context, ResourceType.string, "playhaven_request_content");
     }
 
     public boolean isPreload() {
@@ -95,10 +91,5 @@ public class ContentRequest extends PlayHavenRequest
 
     public void setPreload(boolean preload) {
         this.preload = preload;
-    }
-    
-    public void setMessageId(String message_id)
-    {
-    	this.message_id = message_id;
     }
 }

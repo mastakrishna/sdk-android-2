@@ -25,6 +25,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Currency;
 import java.util.Locale;
 
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
+
 /**
  * Report purchase transactions
  */
@@ -80,6 +82,6 @@ public class PurchaseTrackingRequest
     @Override
     protected int getApiPath(Context context) 
     {
-        return PlayHaven.getResId(context, PlayHaven.ResourceTypes.string, "playhaven.request.iap.tracking");
+        return getCompat(context).getResourceId(context, ResourceType.string, "playhaven_request_iap_tracking");
     }
 }

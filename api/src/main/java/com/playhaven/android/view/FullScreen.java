@@ -23,15 +23,20 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.Window;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
+import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.push.NotificationBuilder;
 import com.playhaven.android.push.PushReceiver;
 import com.playhaven.android.req.PushTrackingRequest;
 
 import java.util.List;
+
+import static com.playhaven.android.compat.VendorCompat.Resource.*;
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
 
 public class FullScreen
 extends Activity
@@ -43,6 +48,11 @@ implements PlayHavenListener
      * Result to send back to calling Activity
      */
     private Intent result;
+
+    /**
+     * Vendor compat lib for wrappers
+     */
+    private VendorCompat compat;
 
     /**
      * Construct an Intent, used to display a PlayHaven FullScreen ad using the default display options
@@ -157,13 +167,15 @@ implements PlayHavenListener
         //Remove title bar
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
+        compat = PlayHaven.getVendorCompat(this);
+
         //Remove notification bar - Note: this broke adjustResize due to http://code.google.com/p/android/issues/detail?id=5497 
         //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        int contentViewId = PlayHaven.getResId(getApplicationContext(), PlayHaven.ResourceTypes.layout, "playhaven_activity");
+        int contentViewId = compat.getResourceId(getApplicationContext(), ResourceType.layout, playhaven_activity);
         setContentView(contentViewId);
 
-        int activityViewId = PlayHaven.getResId(getApplicationContext(), PlayHaven.ResourceTypes.id, "playhaven_activity_view");
+        int activityViewId = compat.getResourceId(getApplicationContext(), ResourceType.id, playhaven_activity_view);
         PlayHavenView playHavenView = (PlayHavenView) findViewById(activityViewId);
         playHavenView.setPlayHavenListener(this);
 
@@ -190,33 +202,24 @@ implements PlayHavenListener
         if(extras != null)
         {
             playHavenView.setDisplayOptions(extras.getInt(PlayHavenView.BUNDLE_DISPLAY_OPTIONS));
-
             // Prefer an actual placement over the placement tag if both are provided
             Placement pl = extras.getParcelable(PlayHavenView.BUNDLE_PLACEMENT);
             if(pl != null)
             {
                 playHavenView.setPlacement(pl);
-            }else{
+            } else {
                 String plId = extras.getString(PlayHavenView.BUNDLE_PLACEMENT_TAG);
                 if(plId != null)
-                    playHavenView.setPlacementTag(plId);
-            }
-            
-            // If this happened as the result of a push notification, send a tracking request. 
-            String message_id = extras.getString(PushReceiver.PushParams.message_id.name());
-            if(message_id != null && pl != null)
-            {
-            	// TODO: when the server supports requesting content_id, change this. Until then, 
-            	// use and track the placement tag. 
-            	//String content_id = extras.getString(PushReceiver.PushParams.content_id.name());
-            	String content_id = pl.getPlacementTag();
-            	
-            	PushTrackingRequest trackingRequest = new PushTrackingRequest(getApplicationContext(), message_id, content_id);
-            	trackingRequest.send(getApplicationContext());
+                {
+                	playHavenView.setPlacementTag(plId);
+                } else {
+                	// If there was no placement or tag... 
+                	PlayHavenException e = new PlayHavenException("FullScreen was launched without a valid placement or tag.");
+                	e.printStackTrace();
+                	viewFailed(playHavenView, e);
+                }
             }
         }
-        
-
     }
 
     /**
@@ -229,7 +232,7 @@ implements PlayHavenListener
         {
             // Default result...
             result = new Intent();
-            int activityViewId = PlayHaven.getResId(getApplicationContext(), PlayHaven.ResourceTypes.id, "playhaven_activity_view");
+            int activityViewId = compat.getResourceId(getApplicationContext(), ResourceType.id, playhaven_activity_view);
             PlayHavenView playHavenView = (PlayHavenView) findViewById(activityViewId);
             result.putExtra(PlayHavenView.BUNDLE_DISMISS_TYPE, PlayHavenView.DismissType.SelfClose);
             doResult(RESULT_OK, result, playHavenView);
@@ -244,7 +247,7 @@ implements PlayHavenListener
     @Override
     public void onBackPressed() 
     {
-    	int activityViewId = PlayHaven.getResId(getApplicationContext(), PlayHaven.ResourceTypes.id, "playhaven_activity_view");
+    	int activityViewId = compat.getResourceId(getApplicationContext(), ResourceType.id, playhaven_activity_view);
         viewDismissed((PlayHavenView) findViewById(activityViewId), PlayHavenView.DismissType.BackButton, null);
     }
 
@@ -292,21 +295,22 @@ implements PlayHavenListener
         result.putExtra(PlayHavenView.BUNDLE_DISPLAY_OPTIONS, view.getDisplayOptions());
         
         // If this placement was launched as a result of a Notification, we want to 
-        // launch the provided URI as an Intent or launch the providing Application. 
-        String uriString = getIntent().getExtras().getString(NotificationBuilder.Keys.URI.name());
+        // launch the provided URI as an Intent or launch the providing Application.
+        String uriString = getIntent().getStringExtra(NotificationBuilder.Keys.URI.name());
         if(uriString != null)
         {
         	PlayHaven.v("Provided URI was: %s", uriString);
-        	// TODO: handle URIs not meant to launch the default application 
+        	// TODO: for push 1.0 - handle URIs not meant to launch the default application 
     		PackageManager pm = getPackageManager();
     		Intent newIntent = pm.getLaunchIntentForPackage(getPackageName());
+    		newIntent.putExtras(result);
     		
     		// Pass the uri parameters as extras to the Application as it launches (cleaner in API 11+, but...)
         	String[] params = uriString.split("&");
         	for(String param : params) {
         		String[] parts = param.split("=");
         		if(parts.length == 2){
-        			newIntent.putExtra(param.split("=")[0], param.split("=")[1]);
+        			newIntent.putExtra(parts[0], parts[1]);
         		}
         	}
     		startActivity(newIntent);

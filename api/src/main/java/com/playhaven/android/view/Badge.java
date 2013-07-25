@@ -22,11 +22,14 @@ import android.os.Handler;
 
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
+import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.req.MetadataRequest;
 import com.playhaven.android.req.RequestListener;
 import com.playhaven.android.req.model.ClientApiResponseModel;
 import com.playhaven.android.req.model.Notification;
 import com.playhaven.android.req.model.Response;
+
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
 
 /**
  * A Badge
@@ -70,6 +73,11 @@ extends Drawable implements RequestListener {
     private int size = 30;
 
     /**
+     * Vendor compat lib for wrappers
+     */
+    private VendorCompat compat;
+
+    /**
      * Construct a Badge (the number on the circle)
      *
      * @param context of the application
@@ -80,12 +88,13 @@ extends Drawable implements RequestListener {
     {
         super();
         handler = new Handler();
+        compat = PlayHaven.getVendorCompat(context);
 
         // We must explicitely set the bounds
         setBounds(0, 0, size, size);
 
         this.placementTag = placementTag;
-        int drawableId = PlayHaven.getResId(context, PlayHaven.ResourceTypes.drawable, "playhaven_badge");
+        int drawableId = compat.getResourceId(context, ResourceType.drawable, VendorCompat.Resource.playhaven_badge);
         background = context.getResources().getDrawable(drawableId);
     }
 

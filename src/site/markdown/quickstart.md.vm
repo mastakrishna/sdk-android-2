@@ -1,0 +1,329 @@
+#PlayHaven Quickstart Guide
+
+
+This guide is a brief introduction to the PlayHaven Android SDK. Javadocs, complete code examples,  tutorials and tips are available in the current documentation here: https://nexus.playhaven.com/android-sdk-latest. 
+
+> Before you can get started, you must have a token and secret from your PlayHaven dashboard. If you want to use Push Notifications, you must also have a Project Number and API Key for Google Cloud Messaging. 
+
+| Covered in this Guide |  |
+| ------------- 	| --: |
+| [Configuration](#configuration)		| [Purchases](#purchases) |
+| [Session Tracking](#session-tracking)	| [Preloading](#preloading) |
+| [Showing Content \("Placements"\)](#showing-content)|	[More Games](#more-games) |
+| [Get Results](#get-results)		|	[Logging](#logging) |
+| [Push Notifications](#push)		|	 |
+
+
+##<a name="configuration"></a>Configuration 
+
+You may provide your token, secret, and GCM Project Number (the project number argument may be omitted) as either strings or resource identifiers. The configure() method must be called before any request is made. 
+
+``` 
+import com.playhaven.android.PlayHaven;
+...
+PlayHaven.configure(getApplicationContext(), 
+	R.string.token, R.string.secret, R.string.projectNumber);
+// or … 
+PlayHaven.configure(getApplicationContext(), "token", "secret", "projectNumber");
+```
+##<a name="session-tracking"></a>Session Tracking 
+
+In order for user segmentation to work properly, you must make an open request at the beginning of each session. This is how PlayHaven tracks how many sessions have been played. We suggest that this be placed in the onCreate() method of your application's launch Activity. 
+
+> This should be done before any content is requested. 
+
+```
+import com.playhaven.android.req.OpenRequest;
+...
+(new OpenRequest()).send(getApplicationContext());
+```
+
+##<a name="showing-content"></a> Showing Content ("Placements") 
+> Placements are defined in your PlayHaven Dashboard. When you create a Placement, notice the Placement Tag; you'll need it.  
+
+###Fullscreen (an Android Activity) 
+
+Construct an Intent for a full-screen Activity, and start it: 
+
+	import com.playhaven.android.view.FullScreen; 
+	...
+	Intent contentIntent = FullScreen.createIntent(getApplicationContext(), "placement_tag");
+	startActivity(contentIntent);
+
+###Windowed (an Android Dialog)  
+
+Create a PlayHaven dialog if you want a popup that doesn't pause your Application:  
+
+	import com.playhaven.android.view.Windowed;
+	...
+	Windowed dialog = new Windowed(getApplicationContext(), "placement_tag");
+	dialog.show();
+
+
+##<a name="get-results"></a>Get Results 
+
+###From Fullscreen mode
+To get the results of a Placement (such as rewards, data collection forms, purchases, or how it was closed), use ```startActivityForResult```: 
+
+	Intent contentIntent = FullScreen.createIntent(getApplicationContext(), "placement_tag");
+	startActivityForResult(contentIntent, EXAMPLE_REQUEST_CODE);
+
+Now when the Activity returns, data about the placement will be available in the Intent bundle of ```onActivityResult```. In the following example, we get the dismiss type for the content. 
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(requestCode != EXAMPLE_REQUEST_CODE) return;
+ 
+		String placementTag = data.getStringExtra(PlayHavenView.BUNDLE_PLACEMENT_TAG);
+		PlayHavenView.DismissType dismissType = (PlayHavenView.DismissType) 
+		data.getSerializableExtra(PlayHavenView.BUNDLE_DISMISS_TYPE);
+		// You can now tell from dismissType how the content was dismissed.
+	}
+
+###From Windowed mode 
+For a dialog, implement a `PlayHavenListener` with these two methods: 
+
+	void viewFailed(PlayHavenView view, PlayHavenException exception)
+	void viewDismissed(PlayHavenView view, PlayHavenView.DismissTypes dismissType, Bundle data)
+
+The listener may be added: 
+
+	dialog.setPlayHavenListener(yourListener);
+ 
+… or specified using the expanded constructor: 
+
+	Windowed(Context context, String placementTag, PlayHavenListener yourListener);
+
+###From a Push Notification
+When a Notification from PlayHaven results in PlayHaven content being displayed, it will be shown in Fullscreen mode. When that is closed, your application will be launched using its default Activity. This is the same Activity that is launched from its icon in the Launcher. 
+
+You can retrieve the data from the current Intent's extras like this: 
+
+	Bundle adData = getIntent().getBundleExtra(PlayHavenView.BUNDLE_DATA);
+	if (adData != null && adData.size() > 0) {
+		if(adData.containsKey(PlayHavenView.BUNDLE_DATA_REWARD)){
+			// Do reward stuff. 
+		}
+
+		if(adData.containsKey(PlayHavenView.BUNDLE_DATA_OPTIN)) {
+			// Do opt-in data stuff. 
+		}
+	}
+	
+###Rewards and Opt-In Data Collection
+
+Using either the Bundle provided in Windowed's `ViewDismissed` listener or the one collected from `onActivityResult()`, retrieve the BUNDLE_DATA extra. This `Bundle` contains the results any rewards, purchases, or form data collected. 
+
+	import com.playhaven.android.view.PlayHavenView;
+	...
+	Bundle adData = data.getBundleExtra(PlayHavenView.BUNDLE_DATA);
+
+####Loop through the available Rewards: 
+ 
+ ```
+ if(adData.containsKey(PlayHavenView.BUNDLE_DATA_REWARD)){
+ 	for(Parcelable parcel : adData.getParcelableArrayList(PlayHavenView.BUNDLE_DATA_REWARD)){
+		Reward reward = (Reward) parcel;
+		Double quantity = reward.getQuantity();
+		Double receipt = reward.getReceipt();
+		String tag = reward.getTag();
+		// Manage your reward item.
+ 	}
+ }
+ ```
+
+####Loop through the available form data: 
+
+> Data from Opt-In Data Collection forms will get sent to PlayHaven's servers, and you can retrieve it from the Dashboard. In addition, you can collect it inside your app as soon as the form is dismissed like this:  
+
+```
+ if(adData.containsKey(PlayHavenView.BUNDLE_DATA_OPTIN)){
+	for(Parcelable parcel : adData.getParcelableArrayList(PlayHavenView.BUNDLE_DATA_OPTIN)){        
+		DataCollectionField field = (DataCollectionField) parcel;
+		String name = field.getName();
+		String value = field.getValue();
+		// Manage the data you've collected, such as email address or age. 
+		}
+	}
+ ```
+ 
+##Purchases <a name="purchases"></a>(Virtual Goods Promotions) 
+###Purchases from a VGP 
+If you create a Virtual Goods Promotion, then when the user dismisses a Placement (either by closing the promotion or by choosing the buy button) then a Purchase object is provided to you. 
+
+If your purchase was presented in a Dialog, you'll retrieve the data as the Bundle argument from `viewDismissed`. When a user clicks the purchase button in a full-screen placement, the data will be returned in `onActivityResult`. You can access that data in `onActivityResult` like this: 
+
+	Bundle adData = data.getBundleExtra(PlayHavenView.BUNDLE_DATA);
+	 
+Either way, you can then pick out the purchase object(s) like so: 
+
+````
+import com.playhaven.android.data.Purchase;
+…
+	for(Purchase purchase : 
+ 		adData.<Purchase>getParcelableArrayList(PlayHavenView.BUNDLE_DATA_PURCHASE)){
+ 		String product_id = purchase.getSKU();
+ 		...
+	}
+````
+> Note that PlayHaven does not handle interacting with Google Play. You'll need to use the SKU (Product ID in Google Play) to make the purchase. Then you need send a tracking request to PlayHaven in order to keep track of purchases in your Dashboard. See "Track Purchases" below. 
+
+###Record your own purchase data 
+
+If you want to track purchases independently of VGP, you may construct the purchase object yourself. 
+
+	import com.playhaven.android.data.Purchase;
+	...
+    Purchase purchase = new Purchase();
+        
+The purchase may then be updated with the following methods: 
+
+```
+public void setOrderId(String orderId)
+public void setPayload(String payload)
+public void setPrice(Double price)
+public void setPrice(Double price)
+public void setQuantity(int qty)
+public void setResult(Purchase.Result result)
+public void setSKU(String sku)
+public void setStore(Purchase.Store store)
+public void setStore(String store)
+```
+
+`Purchase.Result` may be: 
+
+* Bought // The item has been bought
+* Cancelled // The purchase was cancelled
+* Error // There was an error during the purchase process
+* Invalid // The requested item was invalid
+* Owned // The requested item was already owned by this user 
+
+You can provide your own "store" as a string, or use any one of the 35 stores listed in `Purchase.Store`. 
+
+At a minimum, you must provide the SKU, quantity, and result before making the tracking request to PlayHaven. The SKU must match the product identifier in your PlayHaven Dashboard in order to be tracked properly. 
+
+###Track Purchases
+
+To send a purchase tracking request to PlayHaven, construct a PurchaseTrackingRequest from either the purchase object you've created or the one provided from a VGP placement, then use `send(Context context)`. Example: 
+
+	import com.playhaven.android.req.PurchaseTrackingRequest;
+	...
+	(new PurchaseTrackingRequest(purchase)).send(getApplicationContext());
+ 
+##<a name="more-games"></a>More Games 
+You have several options for creating a More Games button. This button displays a number that represents the number of new games the user can view. 
+
+You can define the button in XML like so (notice the two PlayHaven-specific attributes): 
+
+ 	<com.playhaven.android.view.MoreGames
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="2sp"
+        android:id="@+id/more"
+        android:text="@string/moregames.text"
+        android:onClick="moreGamesClicked"
+        playhaven:placementTag="@string/moregames.tag"
+        playhaven:textColor="@color/cornsilk"
+        />
+
+To load the button: 
+
+	((MoreGames) findViewById(R.id.moreGamesButton)).load(getApplicationContext());
+	
+You can also define the button in Java. 
+
+```
+import com.playhaven.android.view.MoreGames;
+...
+MoreGames button = new MoreGames(context);
+button.setPlacementTag("placement_tag");
+button.setTextColor(android.graphics.Color.RED);
+// attach it to the appropriate ViewGroup 
+button.load();
+```
+
+Alternatively, you can trigger a More Games Placement from a button of your own, without the badge. See "Showing Content" above. 
+
+##<a name="preloading"></a>Preloading 
+To make Placements load faster, you can use preloading to download the content ahead of time. First, implement PlacementListener, which has the following three methods: 
+
+	import com.playhaven.android.Placement;
+	import com.playhaven.android.PlacementListener;
+	import com.playhaven.android.PlayHavenException;
+	import com.playhaven.android.view.PlayHavenView.DismissType;
+	…
+	@Override
+	public void contentLoaded(Placement placement) { }
+
+	@Override
+	public void contentFailed(Placement placement, PlayHavenException e) { }
+
+	@Override
+	public void contentDismissed(Placement placement, DismissType dismissType,
+			Bundle data) { }
+	
+Now, in your Activity, create a Placement yourself and preload it. 
+
+	Placement placement = new Placement("placement_tag");
+	placement.setListener(myPlacementListener);
+	placement.preload(myPlacementListener);
+
+In the contentLoaded() method you created, display the Placement it receives either with Fullscreen or Windowed display modes by providing the Placement object instead of a placement tag to the appropriate constructor. 
+
+> Preloading works best on API level 11 and above. On older API levels (below Honeycomb), some of the content will be preloaded, but images will not be loaded until the Placement is shown due to limitations in Android's WebView. 
+
+##<a name="logging"></a>Logging 
+You can choose how much information the PlayHaven SDK will send to logcat by setting the log level. The standard log levels are used. 
+
+	PlayHaven.setLogLevel(Log.VERBOSE);
+	
+If you've set the log levels to something restrictive (say, ERROR) but later want to diagnose a problem in the field, you can change the log level through ADB. 
+
+	adb shell setprop log.tag.PlayHaven DEBUG
+	
+> The log level will be set to the most permissive option specified. If you set the shell to DEBUG and programmatic to INFO, it will display DEBUG logs. If you swap them, setting the shell to INFO and the programmatic to DEBUG, it will still display DEBUG logs. This allows the developer to specify areas that need more logging while still allowing Support to get additional details.
+
+
+##<a name="push"></a>Push Notifications 
+There is very little you need to do to enable the push notification features available through PlayHaven. Before you start, you need a valid Google Cloud Messaging project number and API key; see "How to get a GCM Project Number and API Key" below for help. 
+
+First, add the appropriate permissions to your Android manifest. Replace `<your app's package name here>` with your application's package name.
+
+    <permission android:name="<your app's package name here>.permission.C2D_MESSAGE" 
+        android:protectionLevel="signature" />
+    <uses-permission android:name="<your app's package name here>.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+Now add this receiver to the manifest (be sure to substitute your application's package name). 
+
+    <!-- This is needed to receive Google Cloud Messaging intents from the system. -->
+    <receiver
+        android:name="com.playhaven.android.push.GCMBroadcastReceiver"
+        android:permission="com.google.android.c2dm.permission.SEND" >
+        <intent-filter>
+            <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+            <category android:name="<your app's package name here>" />
+        </intent-filter>
+     </receiver> 
+
+When you go to do PlayHaven.configure(), you'll need to provide your Google Cloud Messaging project number. 
+
+    PlayHaven.configure(getApplicationContext(), token, secret, projectNumber);
+
+Now your app is ready to receive push notifications. 
+
+###How to get a GCM Project Number and API Key
+
+1. Visit the [Google APIs Console](https://code.google.com/apis/console) and create (or select an existing) project. 
+2. Scroll down to "Google Cloud Messaging for Android" and turn it on. 
+3. On the API Access page, click "Create new Server key...". Leave the input box for IP addresses blank. Click "Create". 
+4. Save two important pieces of information.
+    - The API key: copy the API key you just created. 
+    - The Project Number: this is visible on the Overview page as "Project Number". 
+5. You'll use the API key in your PlayHaven dashboard, and your Project Number when you configure your application. 
+
+>An application which has been installed but never launched is in a "stopped" state. It is also in a stopped state if it has been force-stopped but never re-launched. Applications will not receive broadcasts (and therefore push notifications) while in a stopped state. Your application will only receive notifications again after a call to PlayHaven.configure() where you provide a Google Cloud Messaging project number. 
+
+>Only devices with a valid Google account associated will receive push notifications from Google Cloud Messaging, and they must have Google Play installed. 

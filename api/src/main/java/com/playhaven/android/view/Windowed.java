@@ -19,12 +19,16 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.PlayHaven.ResourceTypes;
+import com.playhaven.android.compat.VendorCompat;
+
+import static com.playhaven.android.compat.VendorCompat.Resource;
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
 
 /**
  * Displays a PlayHaven content unit in a dialog
@@ -179,9 +183,10 @@ implements PlayHavenListener
      */
     protected void configureSize()
     {
-    	int dialogLayoutId = PlayHaven.getResId(getContext(), ResourceTypes.layout, "playhaven_dialog");
-    	int dialogViewId = PlayHaven.getResId(getContext(), ResourceTypes.id, "playhaven_dialog_view");
-    	
+        VendorCompat compat = PlayHaven.getVendorCompat(getContext());
+        int dialogLayoutId = compat.getResourceId(getContext(), ResourceType.layout, Resource.playhaven_dialog);
+        int dialogViewId = compat.getResourceId(getContext(), ResourceType.id, Resource.playhaven_dialog_view);
+
         android.view.View layout =  getLayoutInflater().inflate(dialogLayoutId, null);
         playHavenView = (PlayHavenView) layout.findViewById(dialogViewId);
 

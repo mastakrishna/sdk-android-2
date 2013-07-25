@@ -16,12 +16,7 @@
 package com.playhaven.android.diagnostic;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,8 +27,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
-
-import com.google.android.gcm.GCMBroadcastReceiver;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlacementListener;
 import com.playhaven.android.PlayHaven;
@@ -53,23 +46,6 @@ import java.util.ArrayList;
 
 public class Launcher extends Activity implements PlacementListener, AdapterView.OnItemSelectedListener, RequestListener, DialogInterface.OnDismissListener, PlayHavenListener {
 	private GCMReceiver pushReceiver;
-	private boolean pushRegisterToggle = true;
-	
-    public enum RequestType
-    {
-        Open(R.string.req_open),
-        Preload(R.string.req_preload),
-        Content(R.string.req_content),
-        Metadata(R.string.req_meta),
-        Gcm(R.string.req_push_reg);
-
-        RequestType(int id)
-        {
-            this.id = id;
-        }
-        private int id;
-        public String toString(Resources resources){return resources.getString(id);}
-    }
 
     private RequestType getRequestTypeForTitle(String title)
     {
@@ -157,11 +133,8 @@ public class Launcher extends Activity implements PlacementListener, AdapterView
 
         reqSpinner = (Spinner) findViewById(R.id.request_spinner);
         Resources res = getResources();
-        ArrayList<String> reqTypes = new ArrayList<String>();
-        for(RequestType type : RequestType.values())
-            reqTypes.add(type.toString(res));
 
-        ArrayAdapter<String> reqAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, reqTypes);
+        RequestTypeAdapter reqAdapter = new RequestTypeAdapter(this);
         reqAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         reqSpinner.setAdapter(reqAdapter);
         reqSpinner.setOnItemSelectedListener(this);
@@ -274,29 +247,30 @@ public class Launcher extends Activity implements PlacementListener, AdapterView
 
             updatePlayHaven();
 
-            if(requestType == RequestType.Open)
+            GCMRegistrationRequest regRequest = null;
+            switch(requestType)
             {
-                OpenRequest open = new OpenRequest();
-                open.setResponseHandler(this);
-                open.send(this);
-                return;
+                case Open:
+                    OpenRequest open = new OpenRequest();
+                    open.setResponseHandler(this);
+                    open.send(this);
+                    return;
+                case GcmReg:
+                    regRequest = new GCMRegistrationRequest();
+                    regRequest.register(this);
+                    updateOutput("Registration request sent.");
+                    ((RequestTypeAdapter)reqSpinner.getAdapter()).setGCM(this, true);
+                    return;
+                case GcmDereg:
+                    regRequest = new GCMRegistrationRequest();
+                    regRequest.deregister(this);
+                    updateOutput("De-registration request sent.");
+                    ((RequestTypeAdapter)reqSpinner.getAdapter()).setGCM(this, false);
+                    return;
+                default:
+                    break;
             }
-            else if (requestType == RequestType.Gcm)
-            {
-        		GCMRegistrationRequest regRequest = new GCMRegistrationRequest();
-        		if(pushRegisterToggle) 
-        		{
-            		regRequest.register(this);
-            		updateOutput("Registration request sent.");
-        		} 
-        		else 
-        		{
-            		regRequest.deregister(this);
-            		updateOutput("De-registration request sent.");
-        		}
-    			pushRegisterToggle = ! pushRegisterToggle;
-        		return;
-            }
+
 
             String placementTag = getPlacementTag();
             if(placementTag == null)

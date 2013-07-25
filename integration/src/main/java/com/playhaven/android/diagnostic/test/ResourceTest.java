@@ -16,11 +16,19 @@
 package com.playhaven.android.diagnostic.test;
 
 import android.app.Instrumentation;
+import android.content.Context;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.playhaven.android.PlayHaven.ResourceTypes;
+import android.util.AttributeSet;
+import android.util.Xml;
+import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.PlayHaven;
+import org.xmlpull.v1.XmlPullParser;
+
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
 
 /**
  * Test dynamic resource lookup from Diagnostic 
@@ -28,30 +36,53 @@ import com.playhaven.android.PlayHaven;
 public class ResourceTest
 extends PHTestCase<Launcher>
 {
+    private Instrumentation instrumentation;
+    private Launcher launcher;
+
     public ResourceTest()
     {
         super(Launcher.class);
     }
 
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        instrumentation = getInstrumentation();
+        launcher = startActivitySync(Launcher.class);
+
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        launcher.finish();
+        super.tearDown();
+    }
+
     @SmallTest
     public void testStart() throws Exception
     {
-        Instrumentation instrumentation = getInstrumentation();
-        Launcher launcher = startActivitySync(Launcher.class);
+        VendorCompat compat = PlayHaven.getVendorCompat(instrumentation.getContext());
 
-        // Make sure we can look up a resource belonging to the instrumentation apk. 
-        int id = PlayHaven.getResId(instrumentation.getContext(), PlayHaven.ResourceTypes.string, "instrumentation_token");
+        // Make sure we can look up a resource belonging to the instrumentation apk.
+        int id = compat.getResourceId(instrumentation.getContext(), ResourceType.string, "instrumentation_token");
         assertEquals(com.playhaven.android.diagnostic.test.R.string.instrumentation_token, id);
         
         // Now let's look up something in the PlayHaven SDK. 
-        int apiServerResId = PlayHaven.getResId(instrumentation.getTargetContext(), ResourceTypes.string, "playhaven.public.api.server");
+        int apiServerResId = compat.getResourceId(instrumentation.getTargetContext(), ResourceType.string, "playhaven_public_api_server");
         assertEquals(com.playhaven.android.R.string.playhaven_public_api_server, apiServerResId);
-        
-        // How about a <declare-styleable> element? 
-        int[] attrs = PlayHaven.getResStyleableArray(instrumentation.getContext(), "com_playhaven_android_view_Badge");
-        PlayHaven.w("Styleable attrs has: %s elements.", attrs.length);
-        assertTrue(attrs.length == 2);
-        
-        launcher.finish();
+    }
+
+    @SmallTest
+    public void testTypedArray() throws Exception
+    {
+        // How about a <declare-styleable> element?
+        Context ctx = instrumentation.getContext();
+        VendorCompat compat = PlayHaven.getVendorCompat(ctx);
+        Resources res = ctx.getResources();
+        XmlPullParser parser = res.getXml(R.layout.moregames);
+        AttributeSet attrs = Xml.asAttributeSet(parser);
+        TypedArray arr = compat.obtainStyledAttributes(ctx, attrs, VendorCompat.Resource.com_playhaven_android_view_Badge);
+        PlayHaven.w("Resource attrs has: %s elements.", arr.length());
+        assertTrue(arr.length() == 2);
     }
 }

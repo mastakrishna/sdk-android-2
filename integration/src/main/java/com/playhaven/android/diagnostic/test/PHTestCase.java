@@ -107,8 +107,30 @@ extends ActivityInstrumentationTestCase2<ACTIVITY>
         }
     }
 
+    protected SharedPreferences.Editor clearAndConfigurePlayHaven() throws PlayHavenException
+    {
+        clearPreferences();
+        return configurePlayHaven();
+    }
+
     protected SharedPreferences.Editor configurePlayHaven() throws PlayHavenException {
+    	try {
+    		PlayHaven.configure(getTargetContext(), getInstrumentationContext().getString(R.string.instrumentation_file));
+    		return PlayHaven.getPreferences(getTargetContext()).edit();
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
         return configurePlayHaven(R.string.instrumentation_token, R.string.instrumentation_secret, R.string.gcm_project_number);
+    }
+
+    protected void clearPreferences()
+    {
+        // clear any values from old tests
+        Context tCtx = getTargetContext();
+        SharedPreferences pref = PlayHaven.getPreferences(tCtx);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.commit();
     }
 
     protected SharedPreferences.Editor configurePlayHaven(int tokenResId, int secretResId, int projectNumberResId) throws PlayHavenException {
@@ -121,12 +143,6 @@ extends ActivityInstrumentationTestCase2<ACTIVITY>
 
         // But do all the work in the target context
         Context tCtx = getTargetContext();
-
-        // First clear any values from old tests
-        SharedPreferences pref = PlayHaven.getPreferences(tCtx);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.clear();
-        editor.commit();
 
         // Now configure....
         PlayHaven.configure(tCtx, token, secret, regNum);

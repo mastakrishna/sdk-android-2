@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 Copyright 2013 Medium Entertainment, Inc.
 
@@ -15,11 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@drawable/playhaven_overlay"
-    android:id="@+id/com_playhaven_android_view_Overlay">
-
-</LinearLayout>
+<resources>
+    <color name="cornsilk">#fffff8dc</color>
+</resources>

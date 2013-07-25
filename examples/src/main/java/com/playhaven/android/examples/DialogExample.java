@@ -46,7 +46,6 @@ public class DialogExample extends Activity implements PlayHavenListener {
      */
     public void onCreate(Bundle savedInstanceState)
     {
-        Log.d("MALACHI", "******************** onCreate");
         super.onCreate(savedInstanceState);
 
         /**

@@ -45,7 +45,7 @@ implements Parcelable, CacheResponseHandler, RequestListener
      *
      * @see <a href="https://dashboard.playhaven.com/">https://dashboard.playhaven.com/</a>
      */
-    private String placementTag;
+    protected String placementTag;
 
     /**
      * Databound model returned from the server
@@ -62,28 +62,13 @@ implements Parcelable, CacheResponseHandler, RequestListener
      * Cache used for loading of the content
      * NOT serialized
      */
-    private Cache cache;
+    protected Cache cache;
 
     /**
      * Flag to indicate whether this placement is in the process of loading
      * NOT serialized
      */
-    private boolean isLoading = false;
-    
-    /**
-     * The id of the push notification that might have prompted this placement. 
-     */
-    private String messageId;
-    
-    public String getMessageId()
-    {
-    	return messageId;
-    }
-    
-    public void setMessageId(String msgId)
-    {
-    	this.messageId = msgId;
-    }
+    protected boolean isLoading = false;
 
     /**
      * Construct a placement from a tag
@@ -252,7 +237,6 @@ implements Parcelable, CacheResponseHandler, RequestListener
         ContentRequest content = new ContentRequest(placementTag);
         content.setPreload(true);
         content.setResponseHandler(this);
-        if(messageId != null) content.setMessageId(messageId);
         content.send(context);
     }
 

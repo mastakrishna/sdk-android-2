@@ -24,6 +24,22 @@ limitations under the License.
 
     <body>
 
+<release version="2.0.7" description="SDK release" date="2013-07-24" >
+  <action type="update" dev="Malachi de AElfweald">[apijar] playhaven-api-version.jar needs to be uploaded to Nexus for Unity</action>
+  <action type="update" dev="Christa Mabee">[clearbrook] convenient way to configure instrumentation tests' api server</action>
+  <action type="fix" dev="Christa Mabee">[owatonna] reward collection broken in push placement </action>
+  <action type="add" dev="Malachi de AElfweald">[vaudreuil] Valentine abstraction</action>
+  <action type="add" dev="Christa Mabee">[hedrick-sdk-android] Android SDK needs to send "message_id" when request content or when clicking a content unit</action>
+  <action type="add" dev="Malachi de AElfweald">[folgers] Create test plan folders for SDK's</action>
+  <action type="fix" dev="Christa Mabee">[seaford] Landscape content in Portrait mode</action>
+  <action type="add" dev="John Park">[urbana] Android UI automation should be able to standby 24/7 for testing</action>
+  <action type="add" dev="John Park">[sawmill] Make (de-)registration more obvious in diagnostic app </action>
+  <action type="fix" dev="Malachi de AElfweald">[palm-shores] Push tests sometimes fail over slow networks</action>
+  <action type="add" dev="Christa Mabee">[hazelton-android] Publisher sends a one-off PN campaign that will open a specific content unit </action>
+  <action type="fix" dev="Malachi de AElfweald">[thewindow] Windowed mode not working</action>
+  <action type="add" dev="Malachi de AElfweald">[cigland] Android SDK needs to add signature verification (4 day)</action>
+</release>
+
 <release version="2.0.6" description="SDK private release" date="2013-06-24">
   <action type="add" dev="Malachi de AElfweald">[back-bay] Dialog not respecting rotation</action>
   <action type="add" dev="Christa Mabee">[valentines] investigate jar packaging for Unity</action>

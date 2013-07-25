@@ -22,9 +22,10 @@ import android.content.SharedPreferences;
 
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.PlayHaven.ResourceTypes;
 import com.playhaven.android.push.GCMBroadcastReceiver;
 import com.playhaven.android.push.PushReceiver;
+
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
 
 public class PushTrackingRequest extends PlayHavenRequest {
 	private String mPushToken;
@@ -51,7 +52,7 @@ public class PushTrackingRequest extends PlayHavenRequest {
     @Override 
     protected UriComponentsBuilder createUrl(Context context) throws PlayHavenException {
         UriComponentsBuilder builder = super.createUrl(context);
-        builder.queryParam(PushReceiver.PushParams.push_token.name(),  mPushToken); // On our side, the GCM registration id. 
+        builder.queryParam(PushReceiver.PushParams.push_token.name(),  mPushToken); // aka GCM registration id. 
         builder.queryParam(PushReceiver.PushParams.message_id.name(),  mMessageId);
         builder.queryParam(PushReceiver.PushParams.content_id.name(),  mContentId);
         return builder;
@@ -59,6 +60,6 @@ public class PushTrackingRequest extends PlayHavenRequest {
 
     @Override
     protected int getApiPath(Context context) {
-        return PlayHaven.getResId(context, ResourceTypes.string, "playhaven.request.push");
+        return getCompat(context).getResourceId(context, ResourceType.string, "playhaven_request_push");
     }
 }

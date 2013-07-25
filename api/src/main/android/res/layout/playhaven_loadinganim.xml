@@ -17,7 +17,7 @@ limitations under the License.
 
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/com.playhaven.android.view.LoadingAnimation"
-        style="@style/com.playhaven.android.view.LoadingAnimation.layout">
-    <ProgressBar style="@style/com.playhaven.android.view.LoadingAnimation.indicator"/>
+        android:id="@+id/com_playhaven_android_view_LoadingAnimation"
+        style="@style/com_playhaven_android_view_LoadingAnimation_layout">
+    <ProgressBar style="@style/com_playhaven_android_view_LoadingAnimation_indicator"/>
 </RelativeLayout>

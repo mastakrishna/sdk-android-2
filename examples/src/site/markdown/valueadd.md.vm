@@ -1,0 +1,44 @@
+Value-Add
+==========
+
+The PlayHaven Android SDK has provided hooks to allow vendors to wrap the SDK and provide additional value to their customers.
+
+Plugin Identifer
+-----------------
+
+When a vendor wraps the PlayHaven Android SDK, they need to specify a vendor plugin identifer.  This identifier is sent to the server on every call and provides the ability for you to add a reference to your product in the URLs/logs/metrics.
+
+To specify a plugin identifier with the default Vendor Compatability hooks, you would do:
+
+```java
+PlayHaven.setVendorCompat(this, new VendorCompat("myplugin-1.2"));
+```
+
+The first parameter is your Context (Activity, Application, etc.).
+
+The plugin identifer must conform with "Unreserved Characters" in [RFC 3986]. Any other characters will be removed.
+
+Per [RFC 3986]:
+
+    Characters that are allowed in a URI but do not have a reserved
+    purpose are called unreserved.  These include uppercase and lowercase
+    letters, decimal digits, hyphen, period, underscore, and tilde.
+
+
+Unity Compatability
+-------------------
+
+Prior to Unity 4.2, Unity did not properly handle stock Android resources.  If you are providing a Unity wrapper, you may want to consider using the Unity Compatability hooks instead of the default stock Android hooks.
+
+```java
+PlayHaven.setVendorCompat(this, new UnityCompat("myplugin-1.2"));
+```
+
+Other
+-----
+
+If you are working with another platform and the default Vendor Compatability hooks do not work for you, you can extend VendorCompat to provide your own implementations.  Please let us know what you come up with.
+
+
+
+[RFC 3986]: http://tools.ietf.org/html/rfc3986#section-2.3

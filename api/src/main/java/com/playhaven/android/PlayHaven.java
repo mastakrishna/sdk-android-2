@@ -18,7 +18,7 @@ package com.playhaven.android;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.lang.reflect.Field;
+import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Map;
@@ -31,7 +31,9 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.util.Log;
-import android.util.TypedValue;
+import com.playhaven.android.compat.VendorCompat;
+
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
 
 /**
  * Entrypoint into the PlayHaven SDK
@@ -54,6 +56,11 @@ public class PlayHaven
      * Uri query parameter to launch placements from push notifications. 
      */
     public static final String ACTION_PLACEMENT = "placement";
+    
+    /**
+     * Uri query parameter to launch placements (via content unit id) from push notifications. 
+     */
+    public static final String ACTION_CONTENT_UNIT = "content_id";
     
     /**
      * Uri query parameter to launch Activities from push notifications. 
@@ -106,11 +113,14 @@ public class PlayHaven
         SDKVersion,
 
         /**
-         * The SDK Platform, if any.
-         *
-         * @see PlayHaven#setSDKPlatform(android.content.Context, String)
+         * The vendor plugin identifier, if any.
          */
-        SDKPlatform,
+        PluginIdentifer,
+
+        /**
+         * The vendor plugin type, if any
+         */
+        PluginType,
 
         /**
          * Package of the Application
@@ -284,30 +294,7 @@ public class PlayHaven
         // Setup PlayHaven values
         editor.putString(Config.Token.toString(), token);
         editor.putString(Config.Secret.toString(), secret);
-        int apiServerResId = getResId(context, ResourceTypes.string, "playhaven.public.api.server");
-        editor.putString(Config.APIServer.toString(), context.getResources().getString(apiServerResId));
-        editor.putString(Config.SDKVersion.toString(), Version.PROJECT_VERSION);
-        editor.putString(Config.SDKPlatform.toString(), "android");
         editor.putString(Config.PushProjectId.toString(), projectId);
-
-        // Setup Publisher values
-        String pkgName = context.getPackageName();
-        PackageInfo packageInfo = null;
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(pkgName, 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new PlayHavenException("Unable to obtain package inforamtion", e);
-        }
-        // AndroidManifest.xml | <manifest package />
-        editor.putString(Config.AppPkg.toString(), packageInfo.packageName);
-        // AndroidManifest.xml | <manifest android:versionName />
-        editor.putString(Config.AppVersion.toString(), packageInfo.versionName);
-
-        // Setup Device values
-        editor.putString(Config.OSName.toString(), Build.VERSION.RELEASE);
-        editor.putInt(Config.OSVersion.toString(), Build.VERSION.SDK_INT);
-        editor.putString(Config.DeviceId.toString(), new DeviceId(context).toString());
-        editor.putString(Config.DeviceModel.toString(), Build.MODEL);
 
         // And commit it
         editor.commit();
@@ -394,11 +381,12 @@ public class PlayHaven
         SharedPreferences pref = appContext.getSharedPreferences(SHARED_PREF_NAME, SHARED_PREF_MODE);
         SharedPreferences.Editor editor = pref.edit();
 
+        VendorCompat compat = getVendorCompat(context);
+
         // Setup PlayHaven values
-        int apiServerResId = getResId(context, ResourceTypes.string, "playhaven.public.api.server");
+        int apiServerResId = compat.getResourceId(context, ResourceType.string, "playhaven_public_api_server");
         editor.putString(Config.APIServer.toString(), context.getResources().getString(apiServerResId));
         editor.putString(Config.SDKVersion.toString(), Version.PROJECT_VERSION);
-        editor.putString(Config.SDKPlatform.toString(), "android");
 
         // Setup Publisher values
         String pkgName = context.getPackageName();
@@ -423,54 +411,6 @@ public class PlayHaven
         editor.commit();
 
         return editor;
-    }
-
-    /**
-     * Used by wrappers (such as Unity and Air) to specify their platform in the logs
-     *
-     * @param platform to set
-     */
-    public static void setSDKPlatform(Context context, String platform) throws PlayHavenException {
-        try{
-            if(platform == null || platform.length() == 0)
-                throw new PlayHavenException("Platform can not be null");
-
-            // Application-wide configuration
-            Context appContext = context.getApplicationContext();
-
-            // PlayHaven specific configuration for this Application
-            SharedPreferences pref = appContext.getSharedPreferences(SHARED_PREF_NAME, SHARED_PREF_MODE);
-            SharedPreferences.Editor editor = pref.edit();
-
-            /**
-             * Per http://tools.ietf.org/html/rfc3986#section-2.3
-             * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
-             */
-            String replacePattern = "[^A-Za-z0-9\\-\\.\\_\\~]*";
-
-            /**
-             * Replace all invalid characters
-             * This works because we are saying to replace all characters that don't match
-             */
-            platform = platform.replaceAll(replacePattern, "");
-
-            if(platform == null || platform.length() == 0)
-                throw new PlayHavenException("Platform has no valid characters in it");
-
-            // Trim to size
-            platform = platform.substring(0, Math.min(platform.length(), 42));
-
-            // Set the property
-            editor.putString(Config.SDKPlatform.toString(), platform);
-
-            // And commit it
-            editor.commit();
-
-            i("PlayHaven platform set: %s", platform);
-            debugConfig(context);
-        } catch (Exception e) {
-            throw new PlayHavenException("Failed to set platform", e);
-        }
     }
 
     /**
@@ -752,48 +692,58 @@ public class PlayHaven
         if(isLoggable(Log.ERROR))
             Log.e(TAG, String.format(fmt, args), t);
     }
-    
-    public static enum ResourceTypes {
-    	string,
-    	layout,
-    	id,
-    	styleable,
-    	drawable, 
-    	attr
-    }
-    
-    /**
-     * Needed to allow wrapping with Unity 4.1.5 and below.  
-     * @param context
-     * @param type the ResourceType wanted 
-     * @param name the name of the wanted resource 
-     * @return the resource id for a given resource
-     */
-    public static int getResId(Context context, ResourceTypes type, String name)
+
+    private static VendorCompat cachedCompat;
+
+    public static void setVendorCompat(Context context, VendorCompat compat)
     {
-    	return context.getResources().getIdentifier(name, type.name(), context.getPackageName());
+        cachedCompat = compat;
+
+        // Application-wide configuration
+        Context appContext = context.getApplicationContext();
+
+        // PlayHaven specific configuration for this Application
+        SharedPreferences pref = appContext.getSharedPreferences(SHARED_PREF_NAME, SHARED_PREF_MODE);
+        SharedPreferences.Editor editor = pref.edit();
+
+        // Set the property
+        editor.putString(Config.PluginIdentifer.toString(), compat.getVendorId());
+        editor.putString(Config.PluginType.toString(), compat.getClass().toString());
+
+        // And commit it
+        editor.commit();
+
+        i("PlayHaven plugin identifier set: %s", compat.getVendorId());
+        debugConfig(context);
     }
 
-    /**
-     * Needed to allow wrapping with Unity 4.1.5 and below. 
-     * @param context
-     * @param name the name of the styleable to parse 
-     * @return the attrs identifiers of a declare-styleable element, or an empty array 
-     */
-    public static final int[] getResStyleableArray(Context context, String name)
-    {
-        try {
-            Field[] fields = Class.forName("com.playhaven.android.R$styleable").getFields();
-            for (Field field : fields)
-            {
-                if (field.getName().equals(name))
-                {
-                    return (int[]) field.get(null);
-                }
+    public static VendorCompat getVendorCompat(Context context) {
+        if(cachedCompat != null)
+            return cachedCompat;
+
+        // Application-wide configuration
+        Context appContext = context.getApplicationContext();
+
+        // PlayHaven specific configuration for this Application
+        SharedPreferences pref = appContext.getSharedPreferences(SHARED_PREF_NAME, SHARED_PREF_MODE);
+
+        String pluginType = pref.getString(Config.PluginType.toString(), VendorCompat.class.toString());
+        String pluginId = pref.getString(Config.PluginIdentifer.toString(), "android");
+        VendorCompat compat = null;
+        if(pluginId != null && pluginType != null)
+        {
+            try{
+                Class cls = Class.forName(pluginType);
+                @SuppressWarnings("unchecked") Constructor con = cls.getConstructor(String.class);
+                compat = (VendorCompat) con.newInstance(pluginId);
+            } catch (Exception e) {
+                compat = new VendorCompat("android");
             }
-        } catch (Exception e) {
-        	PlayHaven.e(e);
+        }else{
+            compat = new VendorCompat("android");
         }
-        return new int[0];
+
+        setVendorCompat(context, compat);
+        return compat;
     }
 }

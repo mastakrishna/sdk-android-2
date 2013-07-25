@@ -13,6 +13,8 @@ On the `Modules` menu above, you will see the following links:
 |----|-----------|
 |[API](../../playhaven-api/${project.version}/playhaven-api/index.html)|Programmer's Interface|
 |[Examples](../../examples/${project.version}/examples/index.html)|Standalone Examples with Source Code|
+|[Javadocs](../../playhaven-api/${project.version}/playhaven-api/apidocs/index.html)|Javadocs for the SDK|
 |[Quickstart Archetypes](../../archetypes/${project.version}/archetypes/index.html)|[Maven Archetypes](http://maven.apache.org/guides/introduction/introduction-to-archetypes.html) to help you get started quickly|
+|[Quickstart Guide](quickstart.html)|An overview of the SDK's features|
 |[IDE Integration](../../playhaven-api/${project.version}/playhaven-api/ide.html)|Instructions for various IDEs|
 |[Diagnostic Application](../../diagnostic/${project.version}/diagnostic/index.html)|Tool to assist in debugging your placements|

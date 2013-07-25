@@ -21,7 +21,7 @@ import static com.playhaven.android.PlayHaven.Config.AppVersion;
 import static com.playhaven.android.PlayHaven.Config.DeviceId;
 import static com.playhaven.android.PlayHaven.Config.DeviceModel;
 import static com.playhaven.android.PlayHaven.Config.OSVersion;
-import static com.playhaven.android.PlayHaven.Config.SDKPlatform;
+import static com.playhaven.android.PlayHaven.Config.PluginIdentifer;
 import static com.playhaven.android.PlayHaven.Config.SDKVersion;
 import static com.playhaven.android.PlayHaven.Config.Secret;
 import static com.playhaven.android.PlayHaven.Config.Token;
@@ -29,18 +29,17 @@ import static com.playhaven.android.PlayHaven.Config.MAC;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Formatter;
+import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.ContentCodingType;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import com.playhaven.android.compat.VendorCompat;
+import org.springframework.http.*;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -64,11 +63,17 @@ import com.playhaven.android.Version;
 import com.playhaven.android.data.DataboundMapper;
 import com.playhaven.android.req.model.ClientApiResponseModel;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 /**
  * Base class for making requests to the server
  */
 public abstract class PlayHavenRequest
 {
+    protected static final String UTF8 = "UTF-8";
+    protected static final String HMAC = "HmacSHA1";
+
     /**
      * REST handler
      */
@@ -78,6 +83,11 @@ public abstract class PlayHavenRequest
      * Handler for server response
      */
     private RequestListener handler;
+
+    /**
+     * Signature verification
+     */
+    private Mac sigMac;
 
     protected PlayHavenRequest()
     {
@@ -91,10 +101,8 @@ public abstract class PlayHavenRequest
         rest = new RestTemplate();
         rest.setErrorHandler(new ServerErrorHandler());
 
-        // Use Jackson simple databinding
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setObjectMapper(new DataboundMapper());
-        rest.getMessageConverters().add(converter);
+        // Capture the JSON for signature verification
+        rest.getMessageConverters().add(new StringHttpMessageConverter(Charset.forName(UTF8)));
     }
 
     /**
@@ -197,7 +205,7 @@ public abstract class PlayHavenRequest
             builder.queryParam("sdk_version", sdkVersion);
 
 
-            builder.queryParam("plugin", getString(pref, SDKPlatform));
+            builder.queryParam("plugin", getString(pref, PluginIdentifer));
             builder.queryParam("languages", context.getResources().getConfiguration().locale.getLanguage());
             builder.queryParam("token", getString(pref, Token));
 
@@ -211,6 +219,13 @@ public abstract class PlayHavenRequest
             builder.queryParam("nonce", nonce);
 
             addSignature(builder, pref, nonce, mac);
+
+            // Setup for signature verification
+            String secret = getString(pref, Secret);
+            SecretKeySpec key = new SecretKeySpec(secret.getBytes(UTF8), HMAC);
+            sigMac = Mac.getInstance(HMAC);
+            sigMac.init(key);
+            sigMac.update(nonce.getBytes(UTF8));
 
             return builder;
         }catch(Exception e){
@@ -352,6 +367,22 @@ public abstract class PlayHavenRequest
         return 		  md.digest(in.getBytes("UTF8"));
     }
 
+    protected void validateSignature(String xPhDigest, String json) throws PlayHavenException {
+        if(sigMac == null) return;
+
+        // If we did not get a signature from the server, don't validate it
+        if(xPhDigest == null) return;
+
+        try{
+            sigMac.update(json.getBytes(UTF8));
+            byte[] bytes = sigMac.doFinal();
+            String derived = new String(Base64.encode(bytes, Base64.URL_SAFE), UTF8).trim();
+            if(!xPhDigest.equals(derived))
+                throw new PlayHavenException("Invalid signature.");
+        } catch (UnsupportedEncodingException e) {
+            throw new PlayHavenException("Error decoding signature", e);
+        }
+    }
 
     public void send(final Context context)
     {
@@ -381,8 +412,22 @@ public abstract class PlayHavenRequest
                      */
                     String url = getUrl(context);
                     PlayHaven.v("Request(%s): %s", getClass().getSimpleName(), url);
-                    ClientApiResponseModel responseModel = rest.getForObject(url, ClientApiResponseModel.class);
-                    PlayHaven.v("Response(%s): %s", getClass().getSimpleName(), mapper.writeValueAsString(responseModel));
+
+                    ResponseEntity<String> entity = rest.getForEntity(url, String.class);
+                    String json = entity.getBody();
+
+                    List<String> digests = entity.getHeaders().get("X-PH-DIGEST");
+                    String digest = (digests == null || digests.size() == 0) ? null : digests.get(0);
+
+                    validateSignature(digest, json);
+
+                    HttpStatus statusCode = entity.getStatusCode();
+                    PlayHaven.v("Response (%s): %s",
+                        statusCode,
+                        json
+                    );
+
+                    ClientApiResponseModel responseModel = mapper.readValue(json, ClientApiResponseModel.class);
 
                     serverSuccess(context);
                     handleResponse(responseModel);
@@ -446,4 +491,6 @@ public abstract class PlayHavenRequest
     {
         return null;
     }
+
+    protected VendorCompat getCompat(Context context){return PlayHaven.getVendorCompat(context);}
 }

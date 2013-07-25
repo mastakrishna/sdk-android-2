@@ -55,6 +55,7 @@ limitations under the License.
     <string name="req_content">Content Request</string>
     <string name="req_meta">Metadata Request</string>
     <string name="req_push_reg">GCM Registration Request</string>
+    <string name="req_push_dereg">GCM Deregistration Request</string>
 
     <!-- PlayHavenView types -->
     <string name="view_activity">FullScreen</string>

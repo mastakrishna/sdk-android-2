@@ -43,7 +43,7 @@ public class PHSubcontentRequestTest extends PHTestCase <Launcher> {
         Context insContext = instrumentation.getTargetContext();
         Launcher launcher = startActivitySync(Launcher.class);
 
-        configurePlayHaven();
+        clearAndConfigurePlayHaven();
 
         TestSubcontentRequest subcontentRequest = null; 
         try {

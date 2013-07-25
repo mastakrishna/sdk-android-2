@@ -37,7 +37,7 @@ public class ServerErrorTest
     @SmallTest
     public void testBadIAPQty() throws Throwable{
         Launcher launcher = doActivityTestSetup();
-        configurePlayHaven();
+        clearAndConfigurePlayHaven();
 
         Context ctx = getTargetContext();
         (new OpenRequest()).send(ctx);

@@ -16,12 +16,12 @@ limitations under the License.
 -->
 
 <resources>
-    <style name="com.playhaven.android.view.LoadingAnimation.layout" parent="@android:Theme">
+    <style name="com_playhaven_android_view_LoadingAnimation_layout" parent="@android:Theme">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">fill_parent</item>
         <item name="android:gravity">center</item>
     </style>
-    <style name="com.playhaven.android.view.LoadingAnimation.indicator" parent="@android:style/Widget.ProgressBar.Large">
+    <style name="com_playhaven_android_view_LoadingAnimation_indicator" parent="@android:style/Widget.ProgressBar.Large">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:indeterminate">true</item>

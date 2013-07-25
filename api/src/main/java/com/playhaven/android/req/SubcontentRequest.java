@@ -19,9 +19,10 @@ import android.content.Context;
 
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.PlayHaven.ResourceTypes;
 
 import org.springframework.web.util.UriComponentsBuilder;
+
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
 
 /**
  * Enables requesting a CU via a subcontent request Url
@@ -73,6 +74,6 @@ public class SubcontentRequest extends PlayHavenRequest {
 
     @Override
     protected int getApiPath(Context context) {
-        return PlayHaven.getResId(context, ResourceTypes.string, "playhaven.request.subcontent");
+        return getCompat(context).getResourceId(context, ResourceType.string, "playhaven_request_subcontent");
     }
 }

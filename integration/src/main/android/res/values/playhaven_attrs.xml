@@ -16,7 +16,7 @@ limitations under the License.
 -->
 
 <resources>
-    <declare-styleable name="com_playhaven_android_view_PlayHavenView">
+    <declare-styleable name="com.playhaven.android.view.PlayHavenView">
         <!-- The placement tag as defined in the Dashboard -->
         <attr name="placementTag" format="string"/>
 
@@ -38,7 +38,7 @@ limitations under the License.
         </attr>
     </declare-styleable>
 
-    <declare-styleable name="com_playhaven_android_view_Badge">
+    <declare-styleable name="com.playhaven.android.view.Badge">
         <!-- The placement tag as defined in the Dashboard -->
         <attr name="placementTag"/>
 

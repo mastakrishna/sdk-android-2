@@ -64,7 +64,7 @@ public class PushTest extends PHTestCase<Launcher> {
     
     @MediumTest
     public void test_a_start() throws Throwable {
-    	PlayHaven.setLogLevel(Log.VERBOSE);
+    	clearAndConfigurePlayHaven();
     	
     	// Make sure that some account is set up. 
         Context ctx = getTargetContext();
@@ -160,7 +160,7 @@ public class PushTest extends PHTestCase<Launcher> {
 		
         int count = 0;
         PendingIntent pending = null;
-        while (pending == null && count < 30) { // It doesn't usually take that long, but ...
+        while (pending == null && count < 300) { // It doesn't usually take that long, but ...
         	pending = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_NO_CREATE);
         	if(pending == null){
                 count += 1;

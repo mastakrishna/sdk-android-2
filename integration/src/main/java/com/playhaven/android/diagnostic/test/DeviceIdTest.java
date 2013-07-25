@@ -36,7 +36,7 @@ public class DeviceIdTest
     {
         Instrumentation instrumentation = getInstrumentation();
         Launcher launcher = startActivitySync(Launcher.class);
-        configurePlayHaven();
+        clearAndConfigurePlayHaven();
         SharedPreferences pref = PlayHaven.getPreferences(instrumentation.getTargetContext());
         String devId = pref.getString(PlayHaven.Config.DeviceId.toString(), null);
         assertNotNull(devId);

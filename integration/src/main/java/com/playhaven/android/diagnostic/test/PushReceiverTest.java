@@ -16,24 +16,18 @@
 package com.playhaven.android.diagnostic.test;
 
 import android.app.Instrumentation;
+import android.test.InstrumentationTestCase;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.suitebuilder.annotation.SmallTest;
-import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.push.PushReceiver;
 import com.playhaven.android.push.PushReceiver.UriTypes;
 
 /**
- * Tests the Uri interpretation. The other actions in PushReceiver
- * involve multiple activities and network requests, and so would be
- * tested in the automated regression testing. 
+ * Tests the Uri interpretation.
  */
-public class PushReceiverTest extends PHTestCase <Launcher>{
-	
-    public PushReceiverTest() {
-        super(Launcher.class);
-    }
+public class PushReceiverTest extends InstrumentationTestCase {
     
     @SmallTest
     public void testCheckUri() throws Throwable {
@@ -50,6 +44,10 @@ public class PushReceiverTest extends PHTestCase <Launcher>{
         uri = Uri.parse("playhaven://com.playhaven.android/?placement=foo");
         type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.PLACEMENT);
+        
+        uri = Uri.parse("playhaven://com.playhaven.android/?content_id=12345");
+        type = receiver.checkUri(uri, context);
+        assertEquals(type, UriTypes.PLACEMENT); // This is not a typo. 
         
         uri = Uri.parse("playhaven://com.playhaven.android.diagnostic");
         type = receiver.checkUri(uri, context);

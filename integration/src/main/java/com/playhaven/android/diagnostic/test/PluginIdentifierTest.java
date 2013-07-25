@@ -19,6 +19,7 @@ import android.content.Context;
 import android.test.suitebuilder.annotation.MediumTest;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
+import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.req.OpenRequest;
 import org.apache.http.NameValuePair;
@@ -27,12 +28,12 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import java.net.URI;
 
 /**
- * Verify that the SDKPlatform parameter is added to the URL
+ * Verify that the PluginIdentifer parameter is added to the URL
  */
-public class SDKPlatformTest
+public class PluginIdentifierTest
         extends PHTestCase<Launcher>
 {
-    private static final String TAG = SDKPlatformTest.class.getSimpleName();
+    private static final String TAG = PluginIdentifierTest.class.getSimpleName();
     private static final String PARAM_NAME = "plugin";
 
     private enum Plugin
@@ -50,7 +51,7 @@ public class SDKPlatformTest
         public String requested, corrected;
     }
 
-    public SDKPlatformTest() {
+    public PluginIdentifierTest() {
         super(Launcher.class);
     }
 
@@ -78,8 +79,9 @@ public class SDKPlatformTest
 
         for(Plugin plugin : Plugin.values())
         {
+            clearPreferences();
+            PlayHaven.setVendorCompat(ctx, new VendorCompat(plugin.requested));
             configurePlayHaven();
-            PlayHaven.setSDKPlatform(ctx, plugin.requested);
 
             TestOpenRequest req = new TestOpenRequest();
             String url = req.getUrl(ctx);

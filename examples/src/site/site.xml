@@ -28,9 +28,6 @@ limitations under the License.
                 <deeplinking project="examples" combine.self="override">
                     <toc>none</toc>
                 </deeplinking>
-                <sdkplatform project="examples" combine.self="override">
-                    <toc>none</toc>
-                </sdkplatform>
             </pages>
         </reflowSkin>
     </custom>
@@ -79,10 +76,7 @@ limitations under the License.
             <item name="OnResume" href="onresume.html" />
             <item name="Detecting NoContent" href="nocontent.html" />
             <!--<item name="Push Notification" href="deeplinking.html" />-->
-        </menu>
-
-        <menu name="Value-Add">
-            <item name="SDK Platform" href="sdkplatform.html"/>
+            <item name="Value-Add" href="valueadd.html"/>
         </menu>
 
         <menu name="Virtual Goods and In-App Purchases">

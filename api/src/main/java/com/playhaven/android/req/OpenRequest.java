@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.playhaven.android.PlayHaven;
-import com.playhaven.android.PlayHaven.ResourceTypes;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.cache.Cache;
 import com.playhaven.android.cache.CacheResponseHandler;
@@ -34,6 +33,8 @@ import com.playhaven.android.cache.CachedInfo;
 import com.playhaven.android.data.JsonUrlExtractor;
 import com.playhaven.android.req.model.ClientApiResponseModel;
 import com.playhaven.android.util.TimeZoneFormatter;
+
+import static com.playhaven.android.compat.VendorCompat.ResourceType;
 
 /**
  * Make an OPEN request to PlayHaven
@@ -131,6 +132,6 @@ extends PlayHavenRequest
     @Override
     protected int getApiPath(Context context) 
     {
-        return PlayHaven.getResId(context, ResourceTypes.string, "playhaven.request.open.v3");
+        return getCompat(context).getResourceId(context, ResourceType.string, "playhaven_request_open_v3");
     }
 }
