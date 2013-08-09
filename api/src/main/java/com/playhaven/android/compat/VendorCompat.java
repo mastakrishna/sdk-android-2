@@ -3,9 +3,7 @@ package com.playhaven.android.compat;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import com.playhaven.android.PlayHaven;
-import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.R;
 
 /**
@@ -13,25 +11,41 @@ import com.playhaven.android.R;
  */
 public class VendorCompat
 {
-    public enum Resource
+    public enum LAYOUT
     {
-        com_playhaven_android_view_PlayHavenView,
+        playhaven_activity,
+        playhaven_overlay,
+        playhaven_loadinganim,
+        playhaven_exit,
+        playhaven_dialog,
+    }
+
+    public enum DRAWABLE
+    {
+        playhaven_badge,
+    }
+
+    public enum ATTR
+    {
         com_playhaven_android_view_PlayHavenView_placementTag,
         com_playhaven_android_view_PlayHavenView_displayOptions,
-        com_playhaven_android_view_Badge,
         com_playhaven_android_view_Badge_placementTag,
         com_playhaven_android_view_Badge_textColor,
-        playhaven_dialog,
+    }
+
+    public enum STYLEABLE
+    {
+        com_playhaven_android_view_Badge,
+        com_playhaven_android_view_PlayHavenView,
+    }
+
+    public enum ID
+    {
         playhaven_dialog_view,
-        playhaven_badge,
-        playhaven_overlay,
         com_playhaven_android_view_Overlay,
-        playhaven_loadinganim,
         com_playhaven_android_view_LoadingAnimation,
-        playhaven_exit,
         com_playhaven_android_view_Exit,
         com_playhaven_android_view_Exit_button,
-        playhaven_activity,
         playhaven_activity_view
     }
 
@@ -76,6 +90,54 @@ public class VendorCompat
 
     public String getVendorId(){return vendorId;}
 
+    public int getLayoutId(Context context, LAYOUT layout)
+    {
+        return getResourceId(context, ResourceType.layout, layout.name());
+    }
+
+    public int getDrawableId(Context context, DRAWABLE drawable)
+    {
+        return getResourceId(context, ResourceType.drawable, drawable.name());
+    }
+
+    public int getAttrId(Context context, ATTR attr)
+    {
+        switch(attr)
+        {
+            case com_playhaven_android_view_PlayHavenView_displayOptions:
+                return R.styleable.com_playhaven_android_view_PlayHavenView_displayOptions;
+            case com_playhaven_android_view_PlayHavenView_placementTag:
+                return R.styleable.com_playhaven_android_view_PlayHavenView_placementTag;
+            case com_playhaven_android_view_Badge_placementTag:
+                return R.styleable.com_playhaven_android_view_Badge_placementTag;
+            case com_playhaven_android_view_Badge_textColor:
+                return R.styleable.com_playhaven_android_view_Badge_textColor;
+            default:
+                return getResourceId(context, ResourceType.attr, attr.name());
+        }
+    }
+
+    public int getId(Context context, ID id)
+    {
+        /**
+         * Unity needs to look up by string name
+         * If not Unity, this will give us better performance
+         */
+        switch(id)
+        {
+            case com_playhaven_android_view_Exit:
+                return R.id.com_playhaven_android_view_Exit;
+            case com_playhaven_android_view_Exit_button:
+                return R.id.com_playhaven_android_view_Exit_button;
+            case com_playhaven_android_view_Overlay:
+                return R.id.com_playhaven_android_view_Overlay;
+            case com_playhaven_android_view_LoadingAnimation:
+                return R.id.com_playhaven_android_view_LoadingAnimation;
+            default:
+                return getResourceId(context, ResourceType.id, id.name());
+        }
+    }
+
     /**
      * @param context
      * @param type the ResourceType wanted
@@ -87,38 +149,9 @@ public class VendorCompat
         return context.getResources().getIdentifier(name, type.name(), context.getPackageName());
     }
 
-    public int getResourceId(Context context, ResourceType type, Resource resource)
+    public TypedArray obtainStyledAttributes(Context context, AttributeSet attrs, STYLEABLE styleable)
     {
-        /**
-         * Unity needs to look up by string name
-         * If not Unity, this will give us better performance
-         */
-        switch(resource)
-        {
-            case com_playhaven_android_view_Exit:
-                return R.id.com_playhaven_android_view_Exit;
-            case com_playhaven_android_view_Exit_button:
-                return R.id.com_playhaven_android_view_Exit_button;
-            case com_playhaven_android_view_Overlay:
-                return R.id.com_playhaven_android_view_Overlay;
-            case com_playhaven_android_view_LoadingAnimation:
-                return R.id.com_playhaven_android_view_LoadingAnimation;
-            case com_playhaven_android_view_PlayHavenView_displayOptions:
-                return R.styleable.com_playhaven_android_view_PlayHavenView_displayOptions;
-            case com_playhaven_android_view_PlayHavenView_placementTag:
-                return R.styleable.com_playhaven_android_view_PlayHavenView_placementTag;
-            case com_playhaven_android_view_Badge_placementTag:
-                return R.styleable.com_playhaven_android_view_Badge_placementTag;
-            case com_playhaven_android_view_Badge_textColor:
-                return R.styleable.com_playhaven_android_view_Badge_textColor;
-            default:
-                return getResourceId(context, type, resource.name());
-        }
-    }
-
-    public TypedArray obtainStyledAttributes(Context context, AttributeSet attrs, Resource resource)
-    {
-        switch(resource)
+        switch(styleable)
         {
             case com_playhaven_android_view_Badge:
                 return context.obtainStyledAttributes(attrs, R.styleable.com_playhaven_android_view_Badge, 0, 0);
@@ -128,5 +161,4 @@ public class VendorCompat
                 return null;
         }
     }
-
 }

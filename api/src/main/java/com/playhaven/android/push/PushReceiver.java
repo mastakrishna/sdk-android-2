@@ -26,11 +26,13 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.playhaven.android.*;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlacementListener;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.PushPlacement;
+import com.playhaven.android.push.NotificationBuilder.Keys;
 import com.playhaven.android.req.PushTrackingRequest;
 import com.playhaven.android.view.FullScreen;
 import com.playhaven.android.view.PlayHavenView;
@@ -47,7 +49,7 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 	public enum UriTypes {
 		DEFAULT,
 		CUSTOM,
-		MARKET,
+		SYSTEM_ACTIVITY,
 		INVALID,
 		PLACEMENT,
 		ACTIVITY
@@ -123,8 +125,8 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 					PlayHaven.e(e);
 				}
 				break;
-			case MARKET:
-				// Launch Google Play. 
+			case SYSTEM_ACTIVITY:
+				// Launch Google Play or Android Browser. 
 				nextIntent = new Intent(Intent.ACTION_VIEW, uri);
 				break;
 			case DEFAULT:
@@ -149,7 +151,7 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 		
 		if(nextIntent != null) {
 			nextIntent.putExtras(bundle);
-			nextIntent.addFlags(0 | Intent.FLAG_ACTIVITY_NEW_TASK);
+			nextIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			context.startActivity(nextIntent);
 		}
 	}
@@ -160,9 +162,9 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 	 */
 	public void interpretPush(Intent intent, Context context) {
 		mContext = context;
-		mBundle = intent.getExtras();
+		mBundle = validatePushKeys(intent.getExtras());
 		
-		Uri uri = Uri.parse(intent.getStringExtra(NotificationBuilder.Keys.URI.name()));
+		Uri uri = Uri.parse(mBundle.getString(NotificationBuilder.Keys.URI.name()));
 		Notification notification = null;
 		String messageId = intent.getStringExtra(PushParams.message_id.name());
 
@@ -187,11 +189,11 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 				break;
 			case CUSTOM:
 				// The publisher has provided a Uri to broadcast. 
-				Intent customIntent = new Intent();
-				customIntent.setData(uri);
+				PlayHaven.v("Broadcasting custom intent: %s.", uri);
+				Intent customIntent = new Intent(Intent.ACTION_VIEW, uri);
 				mContext.sendBroadcast(customIntent);
 				break;
-			case MARKET: 
+			case SYSTEM_ACTIVITY: 
 				notification = new NotificationBuilder(mContext).makeNotification(mBundle, pendingIntent);
 				break;
 			case ACTIVITY: 
@@ -224,36 +226,54 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 	}
     
     /**
-     * Make sure this URI meets our security standards. 
-     * We accept: 
+     *  Determine the desired behavior. Besides, custom, we support: 
+     *   
      * 	market://<...>
-     * 	playhaven://<application package name>
-     * 	playhaven://com.playhaven.android/?<activity=x>|<placement=y>
+     * 	playhaven://com.playhaven.android/?<activity=x>|<placement=y>|<content_id=z>
+     * 
+     * There may, in the future, be restrictions on allowed custom URIs. 
      */
     public UriTypes checkUri(Uri uri, Context context){
     	String host = uri.getHost();
     	String scheme = uri.getScheme();
     	
-    	if(PlayHaven.URI_SCHEME.equals(scheme)){
-    		if(context.getPackageName().equals(host)){
-    			return UriTypes.CUSTOM;
-    		}
-    		else if("com.playhaven.android".equals(host)){
-    			if(uri.getQueryParameter(PlayHaven.ACTION_ACTIVITY) != null) {
-    				return UriTypes.ACTIVITY;
-    			}
-    			if(uri.getQueryParameter(PlayHaven.ACTION_PLACEMENT) != null) {
-    				return UriTypes.PLACEMENT;
-    			}
-    			if(uri.getQueryParameter(PlayHaven.ACTION_CONTENT_UNIT) != null) {
-    				return UriTypes.PLACEMENT;
-    			}
-    			return UriTypes.DEFAULT;
-    		}
-    	} else if("market".equals(scheme)){
-    		return UriTypes.MARKET;
+    	if(host == null || scheme == null || "".equals(host) || "".equals(scheme)){
+    		return UriTypes.INVALID;
     	}
 		
-    	return UriTypes.INVALID;
+    	if(PlayHaven.URI_SCHEME.equals(scheme) && "com.playhaven.android".equals(host)){
+			if(uri.getQueryParameter(PlayHaven.ACTION_ACTIVITY) != null) {
+				return UriTypes.ACTIVITY;
+			}
+			if(uri.getQueryParameter(PlayHaven.ACTION_PLACEMENT) != null) {
+				return UriTypes.PLACEMENT;
+			}
+			if(uri.getQueryParameter(PlayHaven.ACTION_CONTENT_UNIT) != null) {
+				return UriTypes.PLACEMENT;
+			}
+			return UriTypes.DEFAULT;
+    	} else if("market".equals(scheme)){
+    		return UriTypes.SYSTEM_ACTIVITY;
+    	} else if("http".equals(scheme) || "https".equals(scheme)){
+    		return UriTypes.SYSTEM_ACTIVITY;
+    	}
+
+    	return UriTypes.CUSTOM;
+    }
+    
+    /**
+     * Converts the keys for strings needed to create a Notification to uppercase. 
+     * Does not consider collisions. 
+     */
+    public static Bundle validatePushKeys(Bundle extras) {
+    	for(Keys item : NotificationBuilder.Keys.values()){
+    		if(!extras.containsKey(item.name())){
+    			if(extras.containsKey(item.name().toLowerCase())){
+    				extras.putString(item.name(), extras.getString(item.name().toLowerCase()));
+    				extras.remove(item.name().toLowerCase());
+    			}
+    		}
+    	}
+    	return extras;
     }
 }

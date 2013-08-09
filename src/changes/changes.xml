@@ -24,6 +24,14 @@ limitations under the License.
 
     <body>
 
+<release version="2.0.8" description="SDK release" date="2013-08-08" >
+  <action type="add" dev="Christa Mabee">[mahopac] allow custom URI prefixes on push notifications</action>
+  <action type="add" dev="Malachi de AElfweald">[wabasso-beach-park] Diagnostic app should reflect current registration state on launch</action>
+  <action type="add" dev="Malachi de AElfweald">[eagle-village] Look into splitting up the VendorCompat.Resource into multiple (id, layout, etc) enums</action>
+  <action type="add" dev="Christa Mabee">[subby] Update Android and rebuild the plugins given the fix to client-api for sub-content requests (half-sick)</action>
+  <action type="add" dev="Malachi de AElfweald">[nettleboro] Update Readme files for Android Private Beta builds for Push Release</action>
+</release>
+
 <release version="2.0.7" description="SDK release" date="2013-07-24" >
   <action type="update" dev="Malachi de AElfweald">[apijar] playhaven-api-version.jar needs to be uploaded to Nexus for Unity</action>
   <action type="update" dev="Christa Mabee">[clearbrook] convenient way to configure instrumentation tests' api server</action>

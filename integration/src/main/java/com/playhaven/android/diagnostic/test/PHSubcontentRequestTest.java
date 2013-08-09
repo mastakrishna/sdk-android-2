@@ -29,7 +29,7 @@ import com.playhaven.android.req.model.Response;
 import java.util.List;
 
 public class PHSubcontentRequestTest extends PHTestCase <Launcher> {
-    public static final String PLACEMENT_ID = "more_games";
+    public static final String DISPATCH_CONTEXT = "{ \"url\": \"\", \"additional_parameters\": { \"skip_featured\": \"\", \"placement_id\": \"more_games\", \"args\": \"skip_featured\", \"skip_content\": \"\" } }";
     private ClientApiResponseModel mModel;
     private Exception mE;
 
@@ -47,7 +47,7 @@ public class PHSubcontentRequestTest extends PHTestCase <Launcher> {
 
         TestSubcontentRequest subcontentRequest = null; 
         try {
-            subcontentRequest = new TestSubcontentRequest(PLACEMENT_ID, insContext);
+            subcontentRequest = new TestSubcontentRequest(DISPATCH_CONTEXT);
         } catch (PlayHavenException e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -76,8 +76,8 @@ public class PHSubcontentRequestTest extends PHTestCase <Launcher> {
     }
 
     private class TestSubcontentRequest extends SubcontentRequest {
-        public TestSubcontentRequest(String url, Context ctx) throws PlayHavenException{
-            super(url, ctx);
+        public TestSubcontentRequest(String dispatchContext) throws PlayHavenException {
+            super(dispatchContext);
         }
 
         @Override

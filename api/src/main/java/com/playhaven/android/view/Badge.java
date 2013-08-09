@@ -19,7 +19,6 @@ import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.compat.VendorCompat;
@@ -29,7 +28,7 @@ import com.playhaven.android.req.model.ClientApiResponseModel;
 import com.playhaven.android.req.model.Notification;
 import com.playhaven.android.req.model.Response;
 
-import static com.playhaven.android.compat.VendorCompat.ResourceType;
+import static com.playhaven.android.compat.VendorCompat.DRAWABLE.playhaven_badge;
 
 /**
  * A Badge
@@ -94,7 +93,7 @@ extends Drawable implements RequestListener {
         setBounds(0, 0, size, size);
 
         this.placementTag = placementTag;
-        int drawableId = compat.getResourceId(context, ResourceType.drawable, VendorCompat.Resource.playhaven_badge);
+        int drawableId = compat.getDrawableId(context, playhaven_badge);
         background = context.getResources().getDrawable(drawableId);
     }
 

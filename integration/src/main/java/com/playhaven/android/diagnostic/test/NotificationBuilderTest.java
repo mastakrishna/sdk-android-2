@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.test.suitebuilder.annotation.SmallTest;
 import com.playhaven.android.diagnostic.Launcher;
+import com.playhaven.android.push.PushReceiver;
 import com.playhaven.android.push.NotificationBuilder;
 import com.playhaven.android.push.NotificationBuilder.Keys;
 
@@ -50,6 +51,27 @@ public class NotificationBuilderTest extends PHTestCase <Launcher>{
     	bundle.putString(Keys.TITLE.name(), "Test Title");
     	bundle.putString(Keys.TEXT.name(), "Test Message");
         notification = new NotificationBuilder(context).makeNotification(bundle, pendingIntent);
+        assertNotNull(notification);
+        assertNotNull(notification.contentIntent);
+    }
+    
+    /*
+     * Tests the method that validates (and uppercases) the keys for building a notification. 
+     */
+    @SmallTest
+    public void testCaseInsensitivity() throws Throwable {
+        Instrumentation instrumentation = getInstrumentation();
+        Context context = instrumentation.getTargetContext();
+    	
+        Bundle bundle = new Bundle();
+
+    	bundle.putString(Keys.TITLE.name(), "Test Title");
+    	bundle.putString(Keys.TEXT.name().toLowerCase(), "Test Message");
+    	bundle.putString(Keys.URI.name().toLowerCase(), "playhaven://com.android.playhaven/?");
+    	bundle = PushReceiver.validatePushKeys(bundle);
+
+    	PendingIntent pendingIntent = PendingIntent.getActivity(context, this.hashCode(), new Intent(), 0);
+        Notification notification = new NotificationBuilder(context).makeNotification(bundle, pendingIntent);
         assertNotNull(notification);
         assertNotNull(notification.contentIntent);
     }

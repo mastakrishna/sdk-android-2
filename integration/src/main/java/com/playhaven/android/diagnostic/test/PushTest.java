@@ -40,6 +40,7 @@ import android.util.Log;
 
 import com.playhaven.android.push.GCMBroadcastReceiver;
 import com.playhaven.android.push.PushReceiver;
+import com.playhaven.android.diagnostic.DiagnosticPreferences;
 import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.push.GCMRegistrationRequest;
 import com.playhaven.android.view.FullScreen;
@@ -53,7 +54,7 @@ public class PushTest extends PHTestCase<Launcher> {
     String[] URIS = {
     		"market://details?id=com.bitwisedesign.SolRunner", // MARKET
     		"playhaven://com.playhaven.android", // DEFAULT
-    		"playhaven://com.playhaven.android.diagnostic", // CUSTOM 
+    		"phdiagnostic://com.playhaven.android.diagnostic?easterEggs=15", // CUSTOM 
     		"playhaven://com.playhaven.android/?placement=more_games", // PLACEMENT 
     		"playhaven://com.playhaven.android/?activity=Preferences", // ACTIVITY 
     };
@@ -129,7 +130,22 @@ public class PushTest extends PHTestCase<Launcher> {
     
     @SmallTest
     public void test_d_custom() throws Throwable {
-    	// TODO - what would a valid test for this even be? 
+    	int testId = 42;
+        Context context = getTargetContext();
+        
+        ActivityMonitor monitor = getInstrumentation().addMonitor(DiagnosticPreferences.class.getName(), null, false);
+        
+        // Send a push *TO* GCM.There will be no Notification. 
+        boolean went = go(context, URIS[2], "Custom test.", testId);
+        assertTrue(went);
+        
+        // Check to see if the DiagnosticPreferences Activity got launched. 
+        DiagnosticPreferences startedActivity = (DiagnosticPreferences) monitor.waitForActivityWithTimeout(20000);
+        assertNotNull(startedActivity);
+        
+        // Check to see if it got the easter eggs. 
+        assertNotNull(startedActivity.easterEggs);
+        assertTrue("15".equals(startedActivity.easterEggs));
     }
     
     @SmallTest

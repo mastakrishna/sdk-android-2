@@ -1,7 +1,6 @@
 package com.playhaven.android;
 
 import android.content.Context;
-
 import com.playhaven.android.cache.Cache;
 import com.playhaven.android.req.ContentUnitRequest;
 

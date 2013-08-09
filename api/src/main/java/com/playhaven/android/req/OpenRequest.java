@@ -15,16 +15,8 @@
  */
 package com.playhaven.android.req;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-
-import org.springframework.web.util.UriComponentsBuilder;
-
 import android.content.Context;
 import android.content.SharedPreferences;
-
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.cache.Cache;
@@ -33,6 +25,12 @@ import com.playhaven.android.cache.CachedInfo;
 import com.playhaven.android.data.JsonUrlExtractor;
 import com.playhaven.android.req.model.ClientApiResponseModel;
 import com.playhaven.android.util.TimeZoneFormatter;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import static com.playhaven.android.compat.VendorCompat.ResourceType;
 

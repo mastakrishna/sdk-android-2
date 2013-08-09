@@ -18,7 +18,6 @@ package com.playhaven.android.push;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.req.PushTrackingRequest;
 

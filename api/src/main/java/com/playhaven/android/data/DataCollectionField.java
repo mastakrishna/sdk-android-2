@@ -15,19 +15,17 @@
  */
 package com.playhaven.android.data;
 
+import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
+import com.playhaven.android.PlayHavenException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import com.playhaven.android.PlayHavenException;
 
 /**
  * Represents the input fields used in an opt-in data collection template. 

@@ -16,9 +16,8 @@ limitations under the License.
 -->
 
 <com.playhaven.android.view.PlayHavenView
-    xmlns:playhaven="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/playhaven_activity_view"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-/>
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/playhaven_activity_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        />

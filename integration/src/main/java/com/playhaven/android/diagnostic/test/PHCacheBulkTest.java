@@ -17,6 +17,7 @@ package com.playhaven.android.diagnostic.test;
 
 import android.app.Instrumentation;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 import com.playhaven.android.cache.Cache;
 import com.playhaven.android.cache.CachedInfo;
 import com.playhaven.android.diagnostic.Launcher;
@@ -50,6 +51,7 @@ extends PHTestCase<Launcher>
     }
 
     @SmallTest
+    @Suppress
     public void testBulkRequest() throws Exception
     {
         Instrumentation instrumentation = getInstrumentation();

@@ -24,7 +24,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlacementListener;
 import com.playhaven.android.PlayHaven;
@@ -32,9 +31,10 @@ import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.util.MemoryReporter;
 
-import static com.playhaven.android.compat.VendorCompat.Resource.*;
-import static com.playhaven.android.compat.VendorCompat.ResourceType;
-import static com.playhaven.android.compat.VendorCompat.Resource;
+import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_displayOptions;
+import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_placementTag;
+import static com.playhaven.android.compat.VendorCompat.ID.*;
+import static com.playhaven.android.compat.VendorCompat.LAYOUT.*;
 
 /**
  * A PlayHaven container view.  This view wraps the logic
@@ -160,10 +160,10 @@ implements PlacementListener
         compat = PlayHaven.getVendorCompat(context);
         createLayers();
 
-        TypedArray arr = compat.obtainStyledAttributes(context, attrs, com_playhaven_android_view_PlayHavenView);
+        TypedArray arr = compat.obtainStyledAttributes(context, attrs, VendorCompat.STYLEABLE.com_playhaven_android_view_PlayHavenView);
         try {
-            int viewStyleIdTag = compat.getResourceId(context, ResourceType.attr, com_playhaven_android_view_PlayHavenView_placementTag);
-            int displayOptsId = compat.getResourceId(context, ResourceType.attr, com_playhaven_android_view_PlayHavenView_displayOptions);
+            int viewStyleIdTag = compat.getAttrId(context, com_playhaven_android_view_PlayHavenView_placementTag);
+            int displayOptsId = compat.getAttrId(context, com_playhaven_android_view_PlayHavenView_displayOptions);
 
             setPlacementTag(arr.getString(viewStyleIdTag));
             setDisplayOptions(arr.getInteger(displayOptsId, AUTO_DISPLAY_OPTIONS));
@@ -200,13 +200,13 @@ implements PlacementListener
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // Bottom Layer is the Overlay
-        int overlayId = compat.getResourceId(getContext(), ResourceType.layout, Resource.playhaven_overlay);
+        int overlayId = compat.getLayoutId(getContext(), playhaven_overlay);
         LinearLayout overlay = (LinearLayout)inflater.inflate(overlayId, null);
         overlay.setVisibility(android.view.View.GONE);
         addView(overlay);
 
         // Next Layer is the Animation
-        int animationId = compat.getResourceId(getContext(), ResourceType.layout, Resource.playhaven_loadinganim);
+        int animationId = compat.getLayoutId(getContext(), playhaven_loadinganim);
         RelativeLayout animation = (RelativeLayout)inflater.inflate(animationId, null);
         animation.setVisibility(android.view.View.GONE);
         addView(animation);
@@ -215,8 +215,8 @@ implements PlacementListener
         addView(new android.view.View(getContext()));
 
         // Then the top Layer is the close button
-        int exitId = compat.getResourceId(getContext(), ResourceType.layout, Resource.playhaven_exit);
-        int exitBtnId = compat.getResourceId(getContext(), ResourceType.id, Resource.com_playhaven_android_view_Exit_button);
+        int exitId = compat.getLayoutId(getContext(), playhaven_exit);
+        int exitBtnId = compat.getId(getContext(), com_playhaven_android_view_Exit_button);
         
         LinearLayout exit = (LinearLayout)inflater.inflate(exitId, null);
         exit.setVisibility(android.view.View.GONE);
@@ -394,7 +394,7 @@ implements PlacementListener
      */
     protected void setOverlayVisible(final boolean visible)
     {
-        int overlayId = compat.getResourceId(getContext(), ResourceType.id, Resource.com_playhaven_android_view_Overlay);
+        int overlayId = compat.getId(getContext(), com_playhaven_android_view_Overlay);
         final android.view.View overlay = findViewById(overlayId);
         post(new Runnable(){
             @Override
@@ -411,7 +411,7 @@ implements PlacementListener
      */
     protected void setAnimationVisible(final boolean visible)
     {
-        int animationId = compat.getResourceId(getContext(), ResourceType.id, Resource.com_playhaven_android_view_LoadingAnimation);
+        int animationId = compat.getId(getContext(), com_playhaven_android_view_LoadingAnimation);
         final android.view.View animation = findViewById(animationId);
         post(new Runnable() {
             @Override
@@ -428,7 +428,7 @@ implements PlacementListener
      */
     protected void setExitVisible(final boolean visible)
     {
-        int exitViewId = compat.getResourceId(getContext(), ResourceType.id, Resource.com_playhaven_android_view_Exit);
+        int exitViewId = compat.getId(getContext(), com_playhaven_android_view_Exit);
         final android.view.View exit = findViewById(exitViewId);
         post(new Runnable() {
             @Override

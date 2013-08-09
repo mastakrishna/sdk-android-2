@@ -15,34 +15,6 @@
  */
 package com.playhaven.android.req;
 
-import static com.playhaven.android.PlayHaven.Config.APIServer;
-import static com.playhaven.android.PlayHaven.Config.AppPkg;
-import static com.playhaven.android.PlayHaven.Config.AppVersion;
-import static com.playhaven.android.PlayHaven.Config.DeviceId;
-import static com.playhaven.android.PlayHaven.Config.DeviceModel;
-import static com.playhaven.android.PlayHaven.Config.OSVersion;
-import static com.playhaven.android.PlayHaven.Config.PluginIdentifer;
-import static com.playhaven.android.PlayHaven.Config.SDKVersion;
-import static com.playhaven.android.PlayHaven.Config.Secret;
-import static com.playhaven.android.PlayHaven.Config.Token;
-import static com.playhaven.android.PlayHaven.Config.MAC;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.Formatter;
-import java.util.List;
-import java.util.UUID;
-
-import com.playhaven.android.compat.VendorCompat;
-import org.springframework.http.*;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -56,15 +28,30 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
-
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.Version;
+import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.data.DataboundMapper;
 import com.playhaven.android.req.model.ClientApiResponseModel;
+import org.springframework.http.*;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Formatter;
+import java.util.List;
+import java.util.UUID;
+
+import static com.playhaven.android.PlayHaven.Config.*;
 
 /**
  * Base class for making requests to the server

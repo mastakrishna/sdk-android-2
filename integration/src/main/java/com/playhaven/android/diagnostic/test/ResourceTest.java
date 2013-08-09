@@ -81,7 +81,7 @@ extends PHTestCase<Launcher>
         Resources res = ctx.getResources();
         XmlPullParser parser = res.getXml(R.layout.moregames);
         AttributeSet attrs = Xml.asAttributeSet(parser);
-        TypedArray arr = compat.obtainStyledAttributes(ctx, attrs, VendorCompat.Resource.com_playhaven_android_view_Badge);
+        TypedArray arr = compat.obtainStyledAttributes(ctx, attrs, VendorCompat.STYLEABLE.com_playhaven_android_view_Badge);
         PlayHaven.w("Resource attrs has: %s elements.", arr.length());
         assertTrue(arr.length() == 2);
     }

@@ -53,6 +53,12 @@ limitations under the License.
                 <category android:name="com.playhaven.android.diagnostic" />
             </intent-filter>
         </receiver>
+       <!-- This receives a custom URI broadcast from the instrumentation tests. -->
+       <receiver android:name="com.playhaven.android.diagnostic.InstrumentationReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data android:scheme="phdiagnostic" android:host="com.playhaven.android.diagnostic"/>
+            </intent-filter>
+       </receiver>
     </application>
-    
 </manifest>

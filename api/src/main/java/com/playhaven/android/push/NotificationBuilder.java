@@ -20,7 +20,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 

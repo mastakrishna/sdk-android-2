@@ -15,15 +15,6 @@
  */
 package com.playhaven.android;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.lang.reflect.Constructor;
-import java.math.BigInteger;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Properties;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -32,6 +23,15 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.util.Log;
 import com.playhaven.android.compat.VendorCompat;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.lang.reflect.Constructor;
+import java.math.BigInteger;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Properties;
 
 import static com.playhaven.android.compat.VendorCompat.ResourceType;
 

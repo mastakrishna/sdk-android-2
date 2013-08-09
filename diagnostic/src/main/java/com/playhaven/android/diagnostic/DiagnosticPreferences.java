@@ -61,6 +61,12 @@ public class DiagnosticPreferences extends PreferenceActivity implements SharedP
         pref_auto,
         pref_misc
     }
+    
+    /**
+     * This is for instrumentation tests. 
+     * @return
+     */
+    public String easterEggs = "";
 
     @Override
     @SuppressWarnings("deprecation")
@@ -74,6 +80,9 @@ public class DiagnosticPreferences extends PreferenceActivity implements SharedP
          */
         addPreferencesFromResource(R.layout.prefs);
         reset(getPreferenceScreen().getSharedPreferences());
+        
+        // Check for easter eggs (provided by instrumentation test) 
+        easterEggs = getIntent().getStringExtra("easterEggs");
     }
 
     @Override

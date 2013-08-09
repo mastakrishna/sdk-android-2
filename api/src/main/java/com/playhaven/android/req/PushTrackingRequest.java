@@ -15,15 +15,13 @@
  */
 package com.playhaven.android.req;
 
-import org.springframework.web.util.UriComponentsBuilder;
-
 import android.content.Context;
 import android.content.SharedPreferences;
-
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.push.GCMBroadcastReceiver;
 import com.playhaven.android.push.PushReceiver;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static com.playhaven.android.compat.VendorCompat.ResourceType;
 

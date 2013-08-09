@@ -23,20 +23,17 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.Window;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.push.NotificationBuilder;
-import com.playhaven.android.push.PushReceiver;
-import com.playhaven.android.req.PushTrackingRequest;
 
 import java.util.List;
 
-import static com.playhaven.android.compat.VendorCompat.Resource.*;
-import static com.playhaven.android.compat.VendorCompat.ResourceType;
+import static com.playhaven.android.compat.VendorCompat.ID.playhaven_activity_view;
+import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_activity;
 
 public class FullScreen
 extends Activity
@@ -172,10 +169,10 @@ implements PlayHavenListener
         //Remove notification bar - Note: this broke adjustResize due to http://code.google.com/p/android/issues/detail?id=5497 
         //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        int contentViewId = compat.getResourceId(getApplicationContext(), ResourceType.layout, playhaven_activity);
+        int contentViewId = compat.getLayoutId(getApplicationContext(), playhaven_activity);
         setContentView(contentViewId);
 
-        int activityViewId = compat.getResourceId(getApplicationContext(), ResourceType.id, playhaven_activity_view);
+        int activityViewId = compat.getId(getApplicationContext(), VendorCompat.ID.playhaven_activity_view);
         PlayHavenView playHavenView = (PlayHavenView) findViewById(activityViewId);
         playHavenView.setPlayHavenListener(this);
 
@@ -232,7 +229,7 @@ implements PlayHavenListener
         {
             // Default result...
             result = new Intent();
-            int activityViewId = compat.getResourceId(getApplicationContext(), ResourceType.id, playhaven_activity_view);
+            int activityViewId = compat.getId(getApplicationContext(), playhaven_activity_view);
             PlayHavenView playHavenView = (PlayHavenView) findViewById(activityViewId);
             result.putExtra(PlayHavenView.BUNDLE_DISMISS_TYPE, PlayHavenView.DismissType.SelfClose);
             doResult(RESULT_OK, result, playHavenView);
@@ -247,7 +244,7 @@ implements PlayHavenListener
     @Override
     public void onBackPressed() 
     {
-    	int activityViewId = compat.getResourceId(getApplicationContext(), ResourceType.id, playhaven_activity_view);
+    	int activityViewId = compat.getId(getApplicationContext(), VendorCompat.ID.playhaven_activity_view);
         viewDismissed((PlayHavenView) findViewById(activityViewId), PlayHavenView.DismissType.BackButton, null);
     }
 

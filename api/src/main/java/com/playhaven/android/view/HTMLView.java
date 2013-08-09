@@ -39,7 +39,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -122,8 +121,8 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
      * then reloads the WebView with the new stuff.
      */
     private class SubcontentRequest extends com.playhaven.android.req.SubcontentRequest {
-        public SubcontentRequest(String url) {
-            super(url);
+        public SubcontentRequest(String dispatchContext) {
+            super(dispatchContext);
         }
 
         @Override
@@ -366,16 +365,11 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
              * more_games widget that follows a featured ad
              */
             case subcontent:
-                try {
-                    String dispatchContext = callbackUri.getQueryParameter("context");
-                    String subcontentUrl = new JSONObject(dispatchContext).getString("url");
-                    SubcontentRequest subcontentRequest = new SubcontentRequest(subcontentUrl);
-                    subcontentRequest.send(getContext());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+				String dispatchContext = callbackUri.getQueryParameter("context");
+				SubcontentRequest subcontentRequest = new SubcontentRequest(dispatchContext);
+				subcontentRequest.send(getContext());
                 break;
-            /**  TODO: Find out why this dispatch abandoned in 1.12 */
+            /**  TODO: Find out why this dispatch was abandoned in 1.12 */
             case track:
                 PlayHaven.d("track callback not implemented.");
                 break;

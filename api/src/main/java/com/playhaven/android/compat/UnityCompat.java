@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import com.playhaven.android.PlayHaven;
-import com.playhaven.android.PlayHavenException;
 
 import java.lang.reflect.Field;
 
@@ -22,22 +21,27 @@ public class UnityCompat
 //    private static final String r_styleable = "R.styleable";
     private static final String ph_r_styleable = "com.playhaven.android.R$styleable";
 
-    public TypedArray obtainStyledAttributes(Context context, AttributeSet attrs, Resource resource)
+    public TypedArray obtainStyledAttributes(Context context, AttributeSet attrs, STYLEABLE styleable)
     {
-        switch(resource)
+        switch(styleable)
         {
             case com_playhaven_android_view_Badge:
             case com_playhaven_android_view_PlayHavenView:
-                return context.obtainStyledAttributes(attrs, getResourceStyleableArray(resource.name()), 0, 0);
+                return context.obtainStyledAttributes(attrs, getResourceStyleableArray(styleable.name()), 0, 0);
             default:
                 return null;
         }
     }
 
-
-    public int getResourceId(Context context, ResourceType type, Resource resource)
+    public int getAttrId(Context context, ATTR attr)
     {
-        return context.getResources().getIdentifier(resource.name(), type.name(), context.getPackageName());
+        return getResourceId(context, ResourceType.attr, attr.name());
+    }
+
+
+    public int getResourceId(Context context, ID id)
+    {
+        return context.getResources().getIdentifier(id.name(), ResourceType.id.name(), context.getPackageName());
     }
 
     /**                                                                                                                               ul
