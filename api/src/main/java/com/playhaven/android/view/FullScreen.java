@@ -24,6 +24,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Window;
+import android.view.WindowManager;
+
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
@@ -84,6 +86,7 @@ implements PlayHavenListener
         Intent intent = new Intent(context, FullScreen.class);
         intent.putExtra(PlayHavenView.BUNDLE_PLACEMENT_TAG, placementTag);
         intent.putExtra(PlayHavenView.BUNDLE_DISPLAY_OPTIONS, displayOptions);
+        intent.putExtra(PlayHaven.Config.FullScreen.toString(), callerIsFullscreen(context));
         return intent;
     }
 
@@ -120,6 +123,7 @@ implements PlayHavenListener
         Intent intent = new Intent(context, FullScreen.class);
         intent.putExtra(PlayHavenView.BUNDLE_PLACEMENT, placement);
         intent.putExtra(PlayHavenView.BUNDLE_DISPLAY_OPTIONS, displayOptions);
+        intent.putExtra(PlayHaven.Config.FullScreen.toString(), callerIsFullscreen(context));
         return intent;
     }
 
@@ -161,14 +165,24 @@ implements PlayHavenListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Don't re-show from the history
+        int flags = getIntent().getFlags();
+        if((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0)
+        {
+            compat = PlayHaven.getVendorCompat(this);
+            finish();
+            return;
+        }
+
         //Remove title bar
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         compat = PlayHaven.getVendorCompat(this);
 
-        //Remove notification bar - Note: this broke adjustResize due to http://code.google.com/p/android/issues/detail?id=5497 
-        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+        if (this.getIntent().getBooleanExtra(PlayHaven.Config.FullScreen.toString(), true)) {
+            this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        
         int contentViewId = compat.getLayoutId(getApplicationContext(), playhaven_activity);
         setContentView(contentViewId);
 
@@ -212,7 +226,6 @@ implements PlayHavenListener
                 } else {
                 	// If there was no placement or tag... 
                 	PlayHavenException e = new PlayHavenException("FullScreen was launched without a valid placement or tag.");
-                	e.printStackTrace();
                 	viewFailed(playHavenView, e);
                 }
             }
@@ -225,7 +238,7 @@ implements PlayHavenListener
     @Override
     public void finish() 
     {
-        if(result == null) 
+        if(result == null && compat != null)
         {
             // Default result...
             result = new Intent();
@@ -245,7 +258,9 @@ implements PlayHavenListener
     public void onBackPressed() 
     {
     	int activityViewId = compat.getId(getApplicationContext(), VendorCompat.ID.playhaven_activity_view);
-        viewDismissed((PlayHavenView) findViewById(activityViewId), PlayHavenView.DismissType.BackButton, null);
+        PlayHavenView view = (PlayHavenView) findViewById(activityViewId);
+        if(view != null)
+            view.dismissView(PlayHavenView.DismissType.BackButton);
     }
 
     /**
@@ -287,21 +302,23 @@ implements PlayHavenListener
     
     public void doResult(int resultCode, Intent result, PlayHavenView view) 
     {
-        result.putExtra(PlayHavenView.BUNDLE_PLACEMENT, view.getPlacement());
-        result.putExtra(PlayHavenView.BUNDLE_PLACEMENT_TAG, view.getPlacementTag());
-        result.putExtra(PlayHavenView.BUNDLE_DISPLAY_OPTIONS, view.getDisplayOptions());
-        
+        if(view != null)
+        {
+            result.putExtra(PlayHavenView.BUNDLE_PLACEMENT, view.getPlacement());
+            result.putExtra(PlayHavenView.BUNDLE_PLACEMENT_TAG, view.getPlacementTag());
+            result.putExtra(PlayHavenView.BUNDLE_DISPLAY_OPTIONS, view.getDisplayOptions());
+        }
+
         // If this placement was launched as a result of a Notification, we want to 
         // launch the provided URI as an Intent or launch the providing Application.
         String uriString = getIntent().getStringExtra(NotificationBuilder.Keys.URI.name());
         if(uriString != null)
         {
         	PlayHaven.v("Provided URI was: %s", uriString);
-        	// TODO: for push 1.0 - handle URIs not meant to launch the default application 
     		PackageManager pm = getPackageManager();
     		Intent newIntent = pm.getLaunchIntentForPackage(getPackageName());
     		newIntent.putExtras(result);
-    		
+
     		// Pass the uri parameters as extras to the Application as it launches (cleaner in API 11+, but...)
         	String[] params = uriString.split("&");
         	for(String param : params) {
@@ -314,5 +331,24 @@ implements PlayHavenListener
         }
     	// Provide this result to calling activity, if there was one. 
         setResult(resultCode, result);
+    }
+    
+    public static boolean callerIsFullscreen(Context context) {
+    	// If this is happening from an Activity context then we would like to know if that 
+    	// Activity is being shown fullscreen. 
+        // Note: A publisher may choose to provide a different context, in which case we 
+    	// default to true. 
+    	if (context instanceof Activity) 
+    	{
+    		Activity originatingActivity = (Activity) context;
+    		return (
+	        			originatingActivity.getWindow().getAttributes().flags & 
+	        			WindowManager.LayoutParams.FLAG_FULLSCREEN
+        			) != 0;
+    	} 
+    	else {
+    		PlayHaven.v("Unable to retrieve window flags without an Activity context.");
+        	return true;
+    	}
     }
 }

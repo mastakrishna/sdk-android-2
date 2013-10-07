@@ -21,19 +21,19 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
+import com.jayway.jsonpath.JsonPath;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.Version;
 import com.playhaven.android.compat.VendorCompat;
-import com.playhaven.android.data.DataboundMapper;
-import com.playhaven.android.req.model.ClientApiResponseModel;
+import com.playhaven.android.util.JsonUtil;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
@@ -44,6 +44,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -60,6 +61,7 @@ public abstract class PlayHavenRequest
 {
     protected static final String UTF8 = "UTF-8";
     protected static final String HMAC = "HmacSHA1";
+    private String lastUrl;
 
     /**
      * REST handler
@@ -143,6 +145,7 @@ public abstract class PlayHavenRequest
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getString(pref, APIServer));
             builder.path(context.getResources().getString(getApiPath(context)));
             builder.queryParam("app", getString(pref, AppPkg));
+            builder.queryParam("opt_out", getString(pref, OptOut, "0"));
             builder.queryParam("app_version", getString(pref, AppVersion));
             builder.queryParam("os", getInt(pref, OSVersion, 0));
             WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
@@ -151,15 +154,6 @@ public abstract class PlayHavenRequest
             builder.queryParam("hardware", getString(pref, DeviceModel));
             PlayHaven.ConnectionType connectionType = getConnectionType(context);
             builder.queryParam("connection", connectionType.ordinal());
-            String mac = getString(pref, MAC, null);
-            if(mac == null)
-                mac = getMacAddress(context, connectionType);
-
-            if(mac != null)
-            {
-                mac = mac.toLowerCase().replaceAll("[^a-z0-9]", "");
-                builder.queryParam("mac", mac);
-            }
             builder.queryParam("idiom", context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK);
 
             /**
@@ -205,7 +199,7 @@ public abstract class PlayHavenRequest
             String nonce = base64Digest(uuid);
             builder.queryParam("nonce", nonce);
 
-            addSignature(builder, pref, nonce, mac);
+            addSignature(builder, pref, nonce);
 
             // Setup for signature verification
             String secret = getString(pref, Secret);
@@ -220,11 +214,11 @@ public abstract class PlayHavenRequest
         }
     }
 
-    protected void addSignature(UriComponentsBuilder builder, SharedPreferences pref, String nonce, String mac) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        addV3Signature(builder, pref, nonce, mac);
+    protected void addSignature(UriComponentsBuilder builder, SharedPreferences pref, String nonce) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+        addV4Signature(builder, pref, nonce);
     }
 
-    protected void addV3Signature(UriComponentsBuilder builder, SharedPreferences pref, String nonce, String mac) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    protected void addV3Signature(UriComponentsBuilder builder, SharedPreferences pref, String nonce) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         builder.queryParam("signature", hexDigest(
             concat(":",
                 getString(pref, Token),
@@ -235,18 +229,27 @@ public abstract class PlayHavenRequest
         ));
     }
 
-    protected void addV4Signature(UriComponentsBuilder builder, SharedPreferences pref, String nonce, String mac) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        // Malachi - I don't think this is right since the secret is not included...?
-        builder.queryParam("sig4", base64Digest(
-            concat(":",
-                nonce,
-                getString(pref, Token),
-                getString(pref, DeviceId),
-                // ifa,
-                mac
-                // odin
-            )
-        ));
+    protected void addV4Signature(UriComponentsBuilder builder, SharedPreferences pref, String nonce) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+        String ids = concat(":",
+            getString(pref, DeviceId),
+            getString(pref, Token),
+            nonce
+        );
+        builder.queryParam("sig4", createHmac(pref, ids, true));
+    }
+
+    protected String createHmac(SharedPreferences pref, String content, boolean stripEquals) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
+        String secret = getString(pref, Secret);
+        SecretKeySpec key = new SecretKeySpec(secret.getBytes(UTF8), HMAC);
+        Mac hmac = Mac.getInstance(HMAC);
+        hmac.init(key);
+        hmac.update(content.getBytes(UTF8));
+        byte[] bytes = hmac.doFinal();
+        String derived = new String(Base64.encode(bytes, Base64.URL_SAFE), UTF8).trim();
+        if(stripEquals)
+            derived = derived.replaceAll("=", "");
+
+        return derived;
     }
 
     protected String concat(String delim, String ... data)
@@ -295,27 +298,6 @@ public abstract class PlayHavenRequest
         return PlayHaven.ConnectionType.NO_NETWORK;
     }
 
-    protected static String getMacAddress(Context context) {
-        return getMacAddress(context, getConnectionType(context));
-    }
-
-    protected static String getMacAddress(Context context, PlayHaven.ConnectionType connectionType) {
-        switch(connectionType)
-        {
-            case WIFI:
-                try{
-                    WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                    WifiInfo info = manager.getConnectionInfo();
-                    return info.getMacAddress();
-                }catch(SecurityException e){
-                    PlayHaven.d(e, "Error obtaining mac address");
-                    return null;
-                }
-            default:
-                return null;
-        }
-    }
-
     protected static String convertToHex(byte[] in) {
         StringBuilder builder = new StringBuilder(in.length*2);
 
@@ -354,20 +336,88 @@ public abstract class PlayHavenRequest
         return 		  md.digest(in.getBytes("UTF8"));
     }
 
-    protected void validateSignature(String xPhDigest, String json) throws PlayHavenException {
+    protected void validateSignatures(Context context, String xPhDigest, String json) throws SignatureException {
+        // If sigMac isn't setup... then createUrl wasn't called which means we're probably doing mock calls
         if(sigMac == null) return;
 
-        // If we did not get a signature from the server, don't validate it
-        if(xPhDigest == null) return;
+        /**
+         * Step 1: Validate X-PH-DIGEST
+         */
 
-        try{
+        // X-PH-DIGEST are required when coming from the server
+        if(xPhDigest == null)
+            throw new SignatureException(SignatureException.Type.Digest, "No digest found");
+
+        // Valid X-PH-DIGEST against sigMac
+        try {
             sigMac.update(json.getBytes(UTF8));
             byte[] bytes = sigMac.doFinal();
             String derived = new String(Base64.encode(bytes, Base64.URL_SAFE), UTF8).trim();
-            if(!xPhDigest.equals(derived))
-                throw new PlayHavenException("Invalid signature.");
+            if(!xPhDigest.equals(derived)) {
+            	PlayHaven.v("Signature error. Received: %s != Derived: %s", xPhDigest, derived);
+                throw new SignatureException(SignatureException.Type.Digest, "Signature mismatch");
+            }
         } catch (UnsupportedEncodingException e) {
-            throw new PlayHavenException("Error decoding signature", e);
+            throw new SignatureException(e, SignatureException.Type.Digest, "Error decoding signature");
+        }
+
+        SharedPreferences pref = PlayHaven.getPreferences(context);
+
+        /**
+         * Step 2: Validate any Rewards
+         */
+        try{
+            JSONArray rewards = JsonUtil.getPath(json, "$.response.context.content.*.parameters.rewards");
+            if(rewards != null)
+            {
+                for(int i=0; i<rewards.size(); i++)
+                {
+                    JSONObject reward = (JSONObject) rewards.get(i);
+                    String body = concat(":",
+                        getString(pref, DeviceId),
+                        JsonUtil.asString(reward, "$.reward"),
+                        JsonUtil.asString(reward, "$.quantity"),
+                        JsonUtil.asString(reward, "$.receipt")
+                    );
+                    String mac = createHmac(pref, body, true);
+                    String sig = JsonUtil.<String>getPath(reward, "$.sig4");
+                    if(!mac.equals(sig))
+                        throw new SignatureException(SignatureException.Type.Reward, "Signature does not match.");
+                }
+            }
+        }catch(SignatureException se){
+            throw se;
+        }catch(Exception e){
+            throw new SignatureException(e, SignatureException.Type.Reward);
+        }
+
+        /**
+         * Step 3: Validate any Purchases
+         */
+        try{
+            JSONArray purchases = JsonUtil.getPath(json, "$.response.context.content.*.parameters.purchases");
+            if(purchases != null)
+            {
+                for(int i=0; i<purchases.size(); i++)
+                {
+                    JSONObject purchase = (JSONObject) purchases.get(i);
+                    String body = concat(":",
+                            getString(pref, DeviceId),
+                            JsonUtil.asString(purchase, "$.product"),
+                            JsonUtil.asString(purchase, "$.name"),
+                            JsonUtil.asString(purchase, "$.quantity"),
+                            JsonUtil.asString(purchase, "$.receipt")
+                    );
+                    String mac = createHmac(pref, body, true);
+                    String sig = JsonPath.<String>read(purchase, "$.sig4");
+                    if(!mac.equals(sig))
+                        throw new SignatureException(SignatureException.Type.Purchase, "Signature does not match.");
+                }
+            }
+        }catch(SignatureException se){
+            throw se;
+        }catch(Exception e){
+            throw new SignatureException(e, SignatureException.Type.Purchase);
         }
     }
 
@@ -377,8 +427,6 @@ public abstract class PlayHavenRequest
             @Override
             public void run() {
                 try{
-                    DataboundMapper mapper = new DataboundMapper();
-
                     /**
                      * First, check if we are mocking the URL
                      */
@@ -389,8 +437,7 @@ public abstract class PlayHavenRequest
                          * Mock the response
                          */
                         PlayHaven.v("Mock Response: %s", mockJsonResponse);
-                        ClientApiResponseModel model = mapper.readValue(mockJsonResponse, ClientApiResponseModel.class);
-                        handleResponse(model);
+                        handleResponse(mockJsonResponse);
                         return;
                     }
 
@@ -398,7 +445,7 @@ public abstract class PlayHavenRequest
                      * Not mocking the response. Do an actual server call.
                      */
                     String url = getUrl(context);
-                    PlayHaven.v("Request(%s): %s", getClass().getSimpleName(), url);
+                    PlayHaven.v("Request(%s): %s", PlayHavenRequest.this.getClass().getSimpleName(), url);
 
                     ResponseEntity<String> entity = rest.getForEntity(url, String.class);
                     String json = entity.getBody();
@@ -406,7 +453,7 @@ public abstract class PlayHavenRequest
                     List<String> digests = entity.getHeaders().get("X-PH-DIGEST");
                     String digest = (digests == null || digests.size() == 0) ? null : digests.get(0);
 
-                    validateSignature(digest, json);
+                    validateSignatures(context, digest, json);
 
                     HttpStatus statusCode = entity.getStatusCode();
                     PlayHaven.v("Response (%s): %s",
@@ -414,10 +461,8 @@ public abstract class PlayHavenRequest
                         json
                     );
 
-                    ClientApiResponseModel responseModel = mapper.readValue(json, ClientApiResponseModel.class);
-
                     serverSuccess(context);
-                    handleResponse(responseModel);
+                    handleResponse(json);
                 }catch(PlayHavenException e){
                     handleResponse(e);
                 }catch(IOException e2){
@@ -444,10 +489,10 @@ public abstract class PlayHavenRequest
         return handler;
     }
 
-    protected void handleResponse(ClientApiResponseModel model)
+    protected void handleResponse(String json)
     {
         if(handler != null)
-            handler.handleResponse(model);
+            handler.handleResponse(json);
     }
 
     protected void handleResponse(PlayHavenException e)
@@ -464,8 +509,17 @@ public abstract class PlayHavenRequest
      * @return the url to call
      * @throws PlayHavenException if there is a problem
      */
-    protected String getUrl(Context context) throws PlayHavenException {
-        return createUrl(context).build().encode().toUriString();
+    public String getUrl(Context context) throws PlayHavenException {
+        lastUrl = createUrl(context).build().encode().toUriString();
+        return lastUrl;
+    }
+
+    /**
+     * @return the url last returned from getUrl
+     */
+    public String getLastUrl()
+    {
+        return lastUrl;
     }
 
     /**

@@ -21,63 +21,51 @@ limitations under the License.
         <xsd:apply-templates />
     </xsl:template>
 
-    <xsl:template match="stories">
+    <xsl:template match="channel">
         <release version="UNKNOWN">
-            <xsl:for-each select="story">
-                <xsl:if test="story_type='release'">
-                    <xsl:attribute name="description">
-                        <xsl:value-of select="name" />
-                    </xsl:attribute>
-                    <!--<xsl:attribute name="date">FIX_ME <xsl:value-of select="accepted_at"/></xsl:attribute>-->
-                    <xsl:variable name="fulldate" select="concat(normalize-space(accepted_at), ' ')" />
-                    <xsl:variable name="date" select="substring-before($fulldate, ' ')" />
-                    <xsl:variable name="fixed" select="translate($date,'/','-')"/>
-                    <xsl:attribute name="date"><xsl:value-of select="$fixed"/></xsl:attribute>
-                </xsl:if>
-            </xsl:for-each>
-            <xsl:for-each select="story">
+            <xsl:for-each select="item">
                 <xsl:choose>
-                    <xsl:when test="story_type='release'">
-                    </xsl:when>
-                    <!-- Features/Bugs that have been accepted, or Chores -->
-                    <xsl:when test="current_state='accepted'">
+                    <xsl:when test="resolution='Fixed'">
                         <action>
                             <xsl:choose>
-                                <xsl:when test="story_type='feature'">
+                                <xsl:when test="type='New Feature'">
                                     <xsl:attribute name="type">add</xsl:attribute>
                                 </xsl:when>
+                                <!--
                                 <xsl:when test="story_type='chore'">
                                     <xsl:attribute name="type">update</xsl:attribute>
                                 </xsl:when>
-                                <xsl:when test="story_type='bug'">
+                                -->
+                                <xsl:when test="type='Bug'">
                                     <xsl:attribute name="type">fix</xsl:attribute>
                                 </xsl:when>
                             </xsl:choose>
-                            <xsl:attribute name="dev"><xsl:value-of select="owned_by" /></xsl:attribute>
-                            <xsl:value-of select="name" />
+                            <xsl:attribute name="dev"><xsl:value-of select="assignee" /></xsl:attribute>
+                            <xsl:value-of select="summary" />
                         </action>
                     </xsl:when>
-                    <!-- QA process has changed. They will not accept before this report has been run -->
-                    <xsl:when test="current_state='delivered'">
+                    <xsl:when test="resolution='Duplicate'">
                         <action>
                             <xsl:choose>
-                                <xsl:when test="story_type='feature'">
+                                <xsl:when test="type='New Feature'">
                                     <xsl:attribute name="type">add</xsl:attribute>
                                 </xsl:when>
+                                <!--
                                 <xsl:when test="story_type='chore'">
                                     <xsl:attribute name="type">update</xsl:attribute>
                                 </xsl:when>
-                                <xsl:when test="story_type='bug'">
+                                -->
+                                <xsl:when test="type='Bug'">
                                     <xsl:attribute name="type">fix</xsl:attribute>
                                 </xsl:when>
                             </xsl:choose>
-                            <xsl:attribute name="dev"><xsl:value-of select="owned_by" /></xsl:attribute>
-                            <xsl:value-of select="name" />
+                            <xsl:attribute name="dev"><xsl:value-of select="assignee" /></xsl:attribute>
+                            <xsl:value-of select="summary" />
                         </action>
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:comment>
-                            NOT DELIVERED: <xsl:value-of select="name" />
+                            NOT DELIVERED: <xsl:value-of select="summary" />
                         </xsl:comment>
                     </xsl:otherwise>
                 </xsl:choose>

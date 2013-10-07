@@ -24,16 +24,13 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
 import android.webkit.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.cache.Cache;
 import com.playhaven.android.data.*;
 import com.playhaven.android.req.UrlRequest;
-import com.playhaven.android.req.model.ClientApiResponseModel;
-import com.playhaven.android.req.model.PPUParams;
-import com.playhaven.android.req.model.RewardParam;
+import com.playhaven.android.util.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -126,9 +123,9 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
         }
 
         @Override
-        protected void handleResponse(ClientApiResponseModel model) {
-            mPlacement.setModel(model);
-            load(mPlacement.getModel().getResponse().getUrl());
+        protected void handleResponse(String json) {
+            mPlacement.setModel(json);
+            load(JsonUtil.<String>getPath(mPlacement.getModel(), "$.response.url"));
         }
     }
 
@@ -156,8 +153,9 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
 
         @Override
 	    public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-	        // Load images or the content template from the cache. 
-	        if(mImages.contains(url) || url.equals(mPlacement.getModel().getResponse().getUrl())){
+	        // Load images or the content template from the cache.
+            if(mImages.contains(url) || url.equals(JsonUtil.<String>getPath(mPlacement.getModel(), "$.response.url")))
+            {
 	            try {
 	            	// TODO: spaces will break Cache, fix encoding before now. 
 	            	url = url.replace(" ", "%20"); 
@@ -199,6 +197,8 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
     /**
      * This switches on the host portion of a request prefixed with
      * DISPATCH_PREFIX in order to handle events from the content templates.
+     *
+     * @TODO this would be a good candidate for factoring out to a cleaner custom WebViewClient
      * 
      * @param dispatchUrl
      */
@@ -206,7 +206,7 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
         Uri callbackUri = Uri.parse(dispatchUrl);
         String callbackId = callbackUri.getQueryParameter("callback");
         String callbackString = callbackUri.getHost();
-
+        String dispatchContext = callbackUri.getQueryParameter("context");
         PlayHaven.d("Handling dispatch: %s of type %s", dispatchUrl, callbackString);
 
         switch (Dispatches.valueOf(callbackString)) {
@@ -217,7 +217,6 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
             case closeButton:
                 String hidden = "true";
                 try {
-                    String dispatchContext = callbackUri.getQueryParameter("context");
                     hidden = new JSONObject(dispatchContext).getString("hidden");
                 } catch (JSONException jse) {
                     // Default to NOT hiding the emergency close button
@@ -235,28 +234,17 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
              * dismiss triggers the contentDismissed listener
              */
             case dismiss:
-                Bundle data = null;
                 PlayHavenView.DismissType dismiss = PlayHavenView.DismissType.NoThanks;
-
-                if(mRewards != null) {
-                    if(data == null) data = new Bundle();
+                if(mRewards != null)
                     dismiss = PlayHavenView.DismissType.Reward;
-                    data.putParcelableArrayList(PlayHavenView.BUNDLE_DATA_REWARD, mRewards);
-                }
 
-                if(mDataFields != null) {
-                    if(data == null) data = new Bundle();
+                if(mDataFields != null)
                     dismiss = PlayHavenView.DismissType.OptIn;
-                    data.putParcelableArrayList(PlayHavenView.BUNDLE_DATA_OPTIN, mDataFields);
-                }
 
-                if(mPurchases != null) {
-                    if(data == null) data = new Bundle();
+                if(mPurchases != null)
                     dismiss = PlayHavenView.DismissType.Purchase;
-                    data.putParcelableArrayList(PlayHavenView.BUNDLE_DATA_PURCHASE, mPurchases);
-                }
 
-                mPlacement.getListener().contentDismissed(mPlacement, dismiss, data);
+                mPlacement.getListener().contentDismissed(mPlacement, dismiss, generateResponseBundle());
                 
                 // Unregister the web view client so that any future dispatches will be ignored. 
                 HTMLView.this.setWebViewClient(null);
@@ -275,7 +263,6 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
                  */
                 String url;
                 try {
-                    String dispatchContext = callbackUri.getQueryParameter("context");
                     url = new JSONObject(dispatchContext).getString("url");
                 } catch (JSONException jse) {
                     PlayHaven.e("Could not parse launch URL.");
@@ -304,8 +291,13 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
 
                         // Launch whatever it is. It might be a Play, web, or other link 
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        HTMLView.this.getContext().startActivity(intent);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+                        try {
+                            HTMLView.this.getContext().startActivity(intent);
+                        } catch (Exception e) {
+                        	PlayHaven.e("Unable to launch URI from template.");
+                        	e.printStackTrace();
+                        }
                     }
                 }).start();
                 break;
@@ -315,12 +307,7 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
              */
             case loadContext:
                 this.loadUrl(DISPATCH_PROTOCOL_TEMPLATE);
-                String context = null;
-                try {
-                    context = (new DataboundMapper()).writeValueAsString(mPlacement.getModel().getResponse().getContext());
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
+                net.minidev.json.JSONObject context = JsonUtil.getPath(mPlacement.getModel(), "$.response.context");
                 this.loadUrl(String.format(CALLBACK_TEMPLATE, callbackId, context, null));
                 break;
             /**
@@ -328,36 +315,21 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
              * content template) as mPurchases, for use with dismiss dispatch
              */
             case purchase:
-                PPUParams params;
-                try {
-                    params = mPlacement.getModel().getResponse().getContext().getContent().getButtonDispatch().getParameters();
-                } catch(NullPointerException e) {
-                    params = new PPUParams();
-                }
-                mPurchases = Purchase.fromParameters(params);
+                collectAttachments(dispatchContext);
                 break;
             /**
              * reward stores the reward object (which is generated by the
              * content template) as mRewards, for use with dismiss dispatch
              */
             case reward:
-                RewardParam rewardParam = null;
-                try {
-                    rewardParam = mPlacement.getModel().getResponse().getContext().getContent().getOpenDispatch().getParameters();
-                } catch (NullPointerException e) {
-                    // Sometimes the dispatch is sent though no open_dispatch
-                    // (with reward parameters) was in the original server response.
+                net.minidev.json.JSONObject rewardParam = JsonUtil.getPath(mPlacement.getModel(), "$.response.context.content.open_dispatch.parameters");
+                if(rewardParam == null || rewardParam.size() == 0) {
                     // data_collection template sends a reward dispatch when it submits form data ...
-                    try{
-                        rewardParam = (new DataboundMapper()).readValue(callbackUri.getQueryParameter("context"), RewardParam.class);
-                        // TODO: have templates return more than key/value pairs (eg class, pattern)
-                        this.loadUrl(COLLECT_FORM_DATA);
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-                    }
+                    // @TODO: have templates return more than key/value pairs (eg class, pattern)
+                    this.loadUrl(COLLECT_FORM_DATA);
                 }
 
-                mRewards = Reward.fromParameters(rewardParam);
+                collectAttachments(dispatchContext);
                 break;
             /**
              * subcontent takes a JSON blob generated by the content template
@@ -365,11 +337,10 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
              * more_games widget that follows a featured ad
              */
             case subcontent:
-				String dispatchContext = callbackUri.getQueryParameter("context");
 				SubcontentRequest subcontentRequest = new SubcontentRequest(dispatchContext);
 				subcontentRequest.send(getContext());
                 break;
-            /**  TODO: Find out why this dispatch was abandoned in 1.12 */
+            /**  @TODO Find out why this dispatch was abandoned in 1.12 */
             case track:
                 PlayHaven.d("track callback not implemented.");
                 break;
@@ -387,6 +358,18 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
             default:
                 break;
         }
+    }
+
+    /**
+     * Parses rewards and purchases out of the model and stores them for
+     * disbursal upon dismiss dispatch
+    */
+    public void collectAttachments(String dispatchContext) {
+        if(JsonUtil.hasPath(dispatchContext, "$.purchases"))
+            mPurchases = Purchase.fromJson(dispatchContext);
+
+        if(JsonUtil.hasPath(dispatchContext, "$.rewards"))
+            mRewards = Reward.fromJson(dispatchContext);
     }
 
     /**
@@ -443,12 +426,38 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
         	if(Build.VERSION.SDK_INT >= 11) {
         		mImages = JsonUrlExtractor.getImages(mPlacement.getModel());
         	}
-		} catch (JsonProcessingException e) {
-			PlayHaven.e(e);
 		} finally {
 			if(mImages == null) mImages = new ArrayList<String>();
 		}
-        
-        load(mPlacement.getModel().getResponse().getUrl());
+
+        load(JsonUtil.<String>getPath(mPlacement.getModel(), "$.response.url"));
     }
+
+    /**
+     * Create a response bundle for passing back to the publisher
+     *
+     * @return bundle containing data
+     */
+    @Override
+    public Bundle generateResponseBundle() {
+        Bundle data = null;
+
+        if(mRewards != null) {
+            data = new Bundle();
+            data.putParcelableArrayList(PlayHavenView.BUNDLE_DATA_REWARD, mRewards);
+        }
+
+        if(mDataFields != null) {
+            if(data == null) data = new Bundle();
+            data.putParcelableArrayList(PlayHavenView.BUNDLE_DATA_OPTIN, mDataFields);
+        }
+
+        if(mPurchases != null) {
+            if(data == null) data = new Bundle();
+            data.putParcelableArrayList(PlayHavenView.BUNDLE_DATA_PURCHASE, mPurchases);
+        }
+
+        return data;
+    }
+
 }

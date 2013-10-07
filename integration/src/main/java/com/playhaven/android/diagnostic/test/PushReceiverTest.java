@@ -49,7 +49,7 @@ public class PushReceiverTest extends InstrumentationTestCase {
         type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.PLACEMENT); // This is not a typo. 
         
-        uri = Uri.parse("playhaven://com.playhaven.android.diagnostic");
+        uri = Uri.parse("phdiagnostic://com.playhaven.android.diagnostic");
         type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.CUSTOM);
         
@@ -61,12 +61,12 @@ public class PushReceiverTest extends InstrumentationTestCase {
         type = receiver.checkUri(uri, context);
         assertEquals(type, UriTypes.INVALID);
         
-        uri = Uri.parse("market://com.foo.bar");
+        uri = Uri.parse("market://details?id=com.foo.bar");
         type = receiver.checkUri(uri, context);
-        assertEquals(type, UriTypes.SYSTEM_ACTIVITY);
+        assertEquals(type, UriTypes.CUSTOM);
         
         uri = Uri.parse("http://www.google.com");
         type = receiver.checkUri(uri, context);
-        assertEquals(type, UriTypes.SYSTEM_ACTIVITY);
+        assertEquals(type, UriTypes.CUSTOM);
     }
 }

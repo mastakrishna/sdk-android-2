@@ -19,10 +19,43 @@ limitations under the License.
 
     <properties>
         <title>PlayHaven Android SDK Changes Report</title>
-        <author email="scott@playhaven.com">Scott Worley</author>
+        <author email="scottb@playhaven.com">Scott Bigelow</author>
     </properties>
 
     <body>
+<release version="2.1.1" description="Release 2.1.1" date="2013-10-03">
+  <action dev="Malachi de Ælfweald">Create example showing Dialog + Preloading</action>
+  <action type="fix" dev="Malachi de Ælfweald">Diagnostic app crashes when preloading and then requesting a placement with no content units</action>
+  <action type="fix" dev="Malachi de Ælfweald">User does not receive reward if reward content unit is dismissed</action>
+  <action type="fix" dev="Malachi de Ælfweald">Custom test app crashes with latest 2.1.1-SNAPSHOT</action>
+  <action type="fix" dev="Malachi de Ælfweald">VGP Purchase made with Image only Content Not Showing Purchase request in logs</action>
+  <action type="fix" dev="Malachi de Ælfweald">Launching app from recently opened apps launches recently opened content unit</action>
+  <action dev="Malachi de Ælfweald">data not forwarded to app post-push</action>
+  <action dev="Malachi de Ælfweald">Reward, Purchase, DataCollectionField need toString methods</action>
+  <action dev="Malachi de Ælfweald">When receiving a Push, the SDK should attempt to resume the previous session of a game</action>
+  <action type="fix" dev="Malachi de Ælfweald">Launching Push while in Diagnostic app launches new activity of application</action>
+  <action dev="Christa Mabee">Android SDK should show Status Bar notification for all push notifications </action>
+  <action type="fix" dev="Christa Mabee">App Crashes when lauching Invalid URI</action>
+  <action dev="Malachi de Ælfweald">Deprecate API&lt;10 support</action>
+  <action type="fix" dev="Malachi de Ælfweald">framed content units don't look right on gingerbread</action>
+  <action type="fix" dev="Malachi de Ælfweald">View.OnLayoutChangeListener is not available &lt;API11</action>
+</release>
+
+
+<release version="2.1.0" description="SDK release" date="2013-09-18" >
+  <action type="fix" dev="Christa Mabee">Error calling server: java.lang.String cannot be cast to java.lang.Integer</action>
+  <action type="fix" dev="Christa Mabee">"The request was successful but did not contain any displayable content" error when calling content that does exist.</action>
+  <action type="fix" dev="Christa Mabee">Diagnostic App. Crashes when trying to make URI Request</action>
+  <action type="fix" dev="Christa Mabee">Android Diagnostic App. API status failing </action>
+  <action type="add" dev="Malachi de Ælfweald">[hyde-park] rework json parsing</action>
+  <action type="add" dev="Christa Mabee">[coppa-truste-android] As a publisher, I'd like to set the opt-out status for my users so that I can comply with COPPA and TRUSTe.</action>
+  <action type="add" dev="Christa Mabee">[walnut-springs] Find workaround for fullscreen + adjustResize</action>
+  <action type="add" dev="Malachi de Ælfweald">[framed] Use "frame" element in JSON in layout</action>
+  <action type="add" dev="Malachi de Ælfweald">[woodrow] Ensure new android SDK supports v4 signature format for all requests and responses</action>
+  <action type="add" dev="Malachi de Ælfweald">[remove-identifiers-android] Remove deprecated identifiers from Android SDK</action>
+  <action type="fix" dev="Malachi de Ælfweald">[friedens] Images uploaded to android content unit sizes are distorted  and stretched (Android SDK 2.0.6)</action>
+</release>
+
 
 <release version="2.0.8" description="SDK release" date="2013-08-08" >
   <action type="add" dev="Christa Mabee">[mahopac] allow custom URI prefixes on push notifications</action>

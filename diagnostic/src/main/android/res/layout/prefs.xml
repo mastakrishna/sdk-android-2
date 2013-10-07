@@ -45,5 +45,6 @@ limitations under the License.
         <EditTextPreference android:key="pref_sdkversion" android:title="@string/pref_sdkversion" android:enabled="false"/>
         <EditTextPreference android:key="pref_osversion" android:title="@string/pref_osversion" android:enabled="false"/>
         <EditTextPreference android:key="pref_osapi" android:title="@string/pref_osapi" android:enabled="false"/>
+        <EditTextPreference android:key="pref_gcmacct" android:title="@string/pref_gcmacct" android:enabled="false"/>
     </PreferenceCategory>
 </PreferenceScreen>

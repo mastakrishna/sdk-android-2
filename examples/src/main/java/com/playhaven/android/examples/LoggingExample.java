@@ -22,7 +22,6 @@ import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.req.OpenRequest;
 import com.playhaven.android.req.RequestListener;
-import com.playhaven.android.req.model.ClientApiResponseModel;
 import com.playhaven.android.view.FullScreen;
 
 /**
@@ -66,7 +65,7 @@ public class LoggingExample extends Activity
             OpenRequest request = new OpenRequest();
             request.setResponseHandler(new RequestListener() {
                 @Override
-                public void handleResponse(ClientApiResponseModel model) {
+                public void handleResponse(String json) {
                     PlayHaven.setLogLevel(Log.INFO);
                 }
 

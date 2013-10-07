@@ -19,16 +19,17 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.jayway.jsonpath.InvalidPathException;
+import com.jayway.jsonpath.JsonPath;
 import com.playhaven.android.cache.Cache;
 import com.playhaven.android.cache.CacheResponseHandler;
 import com.playhaven.android.cache.CachedInfo;
-import com.playhaven.android.data.DataboundMapper;
 import com.playhaven.android.data.JsonUrlExtractor;
 import com.playhaven.android.req.ContentRequest;
 import com.playhaven.android.req.NoContentException;
 import com.playhaven.android.req.RequestListener;
-import com.playhaven.android.req.model.ClientApiResponseModel;
-import com.playhaven.android.req.model.Response;
+import com.playhaven.android.util.JsonUtil;
 
 import java.io.IOException;
 import java.net.URL;
@@ -48,9 +49,9 @@ implements Parcelable, CacheResponseHandler, RequestListener
     protected String placementTag;
 
     /**
-     * Databound model returned from the server
+     * Json model returned from the server
      */
-    private ClientApiResponseModel model;
+    private String model;
 
     /**
      * Listener for successful loading of the content
@@ -116,7 +117,7 @@ implements Parcelable, CacheResponseHandler, RequestListener
      *
      * @return model
      */
-    public ClientApiResponseModel getModel() {
+    public String getModel() {
         return model;
     }
 
@@ -125,7 +126,7 @@ implements Parcelable, CacheResponseHandler, RequestListener
      *
      * @param model to set
      */
-    public void setModel(ClientApiResponseModel model) {
+    public void setModel(String model) {
         this.model = model;
     }
 
@@ -181,7 +182,7 @@ implements Parcelable, CacheResponseHandler, RequestListener
             dest.writeString(null);
         }else{
             try{
-                dest.writeString((new DataboundMapper()).writeValueAsString(model));
+                dest.writeString(model);
             }catch(Exception e){
                 PlayHaven.w(e);
                 dest.writeString(null);
@@ -198,15 +199,7 @@ implements Parcelable, CacheResponseHandler, RequestListener
     {
         setPlacementTag(in.readString());
 
-        String modelStr = in.readString();
-        if(modelStr != null)
-        {
-            try{
-                model = (new DataboundMapper()).readValue(modelStr, ClientApiResponseModel.class);
-            }catch(Exception e){
-                PlayHaven.w(e);
-            }
-        }
+        model = in.readString();
     }
 
     /**
@@ -291,6 +284,24 @@ implements Parcelable, CacheResponseHandler, RequestListener
     {
         return isLoaded() && !isEmpty();
     }
+    
+    /**
+     * Can this placement be displayed fullscreen? 
+     * http://code.google.com/p/android/issues/detail?id=5497 
+     * @return true if the placement is not known to be fullscreen incompatible 
+     */
+    public boolean isFullscreenCompatible()
+    {
+    	Integer jsonSays = 1;
+    	try {
+    		jsonSays = JsonUtil.asInteger(model, "$.response.resizable");
+    	} catch (ClassCastException e) {
+    		PlayHaven.v("Unable to ascertain fullscreen compatibility from JSON, invalid value.");
+    	} catch (InvalidPathException e){
+    		PlayHaven.v("Unable to ascertain fullscreen compatibility from JSON, missing value.");
+    	}
+    	return (jsonSays == 1);
+    }
 
     /**
      * Is this placement empty?
@@ -300,7 +311,7 @@ implements Parcelable, CacheResponseHandler, RequestListener
     public boolean isEmpty()
     {
         if(!isLoaded()) return true;
-        return (model.getResponse() == null);
+        return JsonUtil.getPath(model, "$.response") == null;
     }
 
     /**
@@ -331,40 +342,39 @@ implements Parcelable, CacheResponseHandler, RequestListener
     }
 
     /**
-     * Handle the databound model returned from the server call
+     * Handle the model returned from the server call
      *
-     * @param model bound to the json response from the server
+     * @param json response from the server
      */
     @Override
-    public void handleResponse(ClientApiResponseModel model) {
-        setModel(model);
-        if(model == null)
+    public void handleResponse(String json) {
+        setModel(json);
+        if(json == null)
         {
             contentFailed(new PlayHavenException("No returned model"));
             return;
         }
 
-        Object err = model.getError();
+        String err = JsonUtil.getPath(json, "$.error");
         if(err != null)
         {
-            contentFailed(new PlayHavenException(err.toString()));
+            contentFailed(new PlayHavenException(err));
             return;
         }
 
         try{
-            Response response = model.getResponse();
-            if(response == null)
+            if(!JsonUtil.hasPath(json, "$.response.context.content"))
             {
                 contentFailed(new NoContentException());
                 return;
             }
 
             ArrayList<String> urls = new ArrayList<String>();
-            urls.addAll(JsonUrlExtractor.getContentTemplates(model));
+            urls.addAll(JsonUrlExtractor.getContentTemplates(json));
             // Pre API level 11 one cannot intercept resource requests, and 
             // so preloaded images aren't useful. 
             if(Build.VERSION.SDK_INT >= 11){
-                urls.addAll(JsonUrlExtractor.getImages(model));
+                urls.addAll(JsonUrlExtractor.getImages(json));
             }
             cache.bulkRequest(Placement.this, urls);
         }catch(PlayHavenException e){

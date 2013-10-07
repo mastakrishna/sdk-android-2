@@ -16,10 +16,13 @@
 package com.playhaven.android.diagnostic;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.widget.Toast;
+
 import com.playhaven.android.Version;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHaven.Config;
@@ -43,6 +46,7 @@ public class DiagnosticPreferences extends PreferenceActivity implements SharedP
         pref_sdkversion,
         pref_osversion,
         pref_osapi,
+        pref_gcmacct,
         pref_projectid;
 
         public String getString(SharedPreferences pref)
@@ -81,8 +85,14 @@ public class DiagnosticPreferences extends PreferenceActivity implements SharedP
         addPreferencesFromResource(R.layout.prefs);
         reset(getPreferenceScreen().getSharedPreferences());
         
-        // Check for easter eggs (provided by instrumentation test) 
-        easterEggs = getIntent().getStringExtra("easterEggs");
+        // Check for easter eggs. 
+        Uri originatingUri = getIntent().getData();
+        if(originatingUri != null) {
+            easterEggs = getIntent().getData().getQueryParameter("easterEggs");
+            if(easterEggs != null) {
+            	Toast.makeText(this, String.format("Found easter eggs: %s", easterEggs), Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -180,6 +190,21 @@ public class DiagnosticPreferences extends PreferenceActivity implements SharedP
 
         pref = findPreference(pref_osapi.toString());
         pref.setSummary(Build.VERSION.SDK_INT + "");
+
+        pref = findPreference(pref_gcmacct.toString());
+        android.accounts.AccountManager acctMgr = android.accounts.AccountManager.get(this);
+        final android.accounts.Account[] accounts = acctMgr.getAccounts();
+        if(accounts != null && accounts.length > 0)
+        {
+            for(final android.accounts.Account account : accounts)
+            {
+                if(account.type.equals("com.google"))
+                {
+                    pref.setSummary(account.name);
+                    break;
+                }
+            }
+        }
 
         preferences.registerOnSharedPreferenceChangeListener(this);
     }

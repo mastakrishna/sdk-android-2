@@ -21,7 +21,7 @@ limitations under the License.
           xmlns:android="http://schemas.android.com/apk/res/android"
           android:versionCode="2">
 
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17"/>
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17"/>
 
     <supports-screens android:smallScreens="true"
                       android:normalScreens="true"
@@ -107,6 +107,15 @@ limitations under the License.
 
         <!-- Preloading -->
         <activity android:name=".PreloadExample" android:label="Preloading Example"
+                  android:configChanges="orientation|keyboardHidden|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Preloading with Dialogs -->
+        <activity android:name=".PreloadDialogExample" android:label="Preload Dialog Example"
                   android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

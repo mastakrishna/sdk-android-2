@@ -84,10 +84,6 @@ public class RewardExample  extends Activity
         if(requestCode != EXAMPLE2_REQUEST_CODE)
             return;
 
-        String placementTag = data.getStringExtra(PlayHavenView.BUNDLE_PLACEMENT_TAG);
-        PlayHavenView.DismissType dismissType = (PlayHavenView.DismissType) data.getSerializableExtra(PlayHavenView.BUNDLE_DISMISS_TYPE);
-        if(dismissType != PlayHavenView.DismissType.Reward) return;
-
         Bundle adData = data.getBundleExtra(PlayHavenView.BUNDLE_DATA);
         if(adData == null) return;
 

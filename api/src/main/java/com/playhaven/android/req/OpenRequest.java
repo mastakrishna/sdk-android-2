@@ -23,7 +23,6 @@ import com.playhaven.android.cache.Cache;
 import com.playhaven.android.cache.CacheResponseHandler;
 import com.playhaven.android.cache.CachedInfo;
 import com.playhaven.android.data.JsonUrlExtractor;
-import com.playhaven.android.req.model.ClientApiResponseModel;
 import com.playhaven.android.util.TimeZoneFormatter;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -97,15 +96,15 @@ extends PlayHavenRequest
     // v4 support not yet enabled -- leaving here commented out so easy to switch
 
 //    @Override
-//    protected void addSignature(UriComponentsBuilder builder, SharedPreferences pref, String nonce, String mac) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-//        addV4Signature(builder, pref, nonce, mac);
+//    protected void addSignature(UriComponentsBuilder builder, SharedPreferences pref, String nonce) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+//        addV4Signature(builder, pref, nonce);
 //    }
 
-    protected void handleResponse(ClientApiResponseModel model)
+    protected void handleResponse(String json)
     {
         try{
             ArrayList<String> urls = new ArrayList<String>();
-            urls.addAll(JsonUrlExtractor.getContentTemplates(model));
+            urls.addAll(JsonUrlExtractor.getContentTemplates(json));
             cache.bulkRequest(new CacheResponseHandler() {
                 @Override
                 public void cacheSuccess(CachedInfo... cachedInfos) {
@@ -124,7 +123,7 @@ extends PlayHavenRequest
 
         RequestListener handler = getResponseHandler();
         if(handler != null)
-            handler.handleResponse(model);
+            handler.handleResponse(json);
     }
 
     @Override

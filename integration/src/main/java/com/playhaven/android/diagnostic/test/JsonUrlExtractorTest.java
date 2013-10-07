@@ -16,10 +16,8 @@
 package com.playhaven.android.diagnostic.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
-import com.playhaven.android.data.DataboundMapper;
 import com.playhaven.android.data.JsonUrlExtractor;
 import com.playhaven.android.diagnostic.Launcher;
-import com.playhaven.android.req.model.ClientApiResponseModel;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,10 +37,8 @@ public class JsonUrlExtractorTest
         Launcher launcher = doActivityTestSetup();
 
         String json = getJSON(R.raw.precache);
-        DataboundMapper mapper = new DataboundMapper();
-        ClientApiResponseModel model = mapper.readValue(json, ClientApiResponseModel.class);
 
-        List<String> urls = JsonUrlExtractor.getContentTemplates(model);
+        List<String> urls = JsonUrlExtractor.getContentTemplates(json);
         assertNotNull(urls);
         assertTrue(urls.size() == 4);
         for(String url : urls)

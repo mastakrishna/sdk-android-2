@@ -19,9 +19,11 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.playhaven.android.PlayHavenException;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -145,9 +147,19 @@ public class DataCollectionField implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("DataCollectionField: {type: %s, name: %s, cssClass: %s, value: %s}", mType, mName, mCssClass, mValue);
+        return ToStringBuilder.reflectionToString(this);
     }
-    
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return EqualsBuilder.reflectionEquals(this, other);
+    }
+
     /**
      * Unavailable in <11, so copied in. Difference is that names are not re-encoded in UTF-8. 
      * 

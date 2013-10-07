@@ -16,7 +16,6 @@
 package com.playhaven.android.req;
 
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.req.model.ClientApiResponseModel;
 
 /**
  * Handle response from server
@@ -24,11 +23,11 @@ import com.playhaven.android.req.model.ClientApiResponseModel;
 public interface RequestListener
 {
     /**
-     * Handle the databound model returned from the server call
+     * Handle the model returned from the server call
      *
-     * @param model bound to the json response from the server
+     * @param json response from the server
      */
-    public void handleResponse(ClientApiResponseModel model);
+    public void handleResponse(String json);
 
     /**
      * Handle the exception that occurred while trying to retrieve the model from the server

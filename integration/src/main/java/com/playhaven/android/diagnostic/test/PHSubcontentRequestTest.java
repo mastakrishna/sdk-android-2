@@ -18,19 +18,15 @@ package com.playhaven.android.diagnostic.test;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.test.suitebuilder.annotation.SmallTest;
+import com.jayway.jsonpath.JsonPath;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.req.SubcontentRequest;
-import com.playhaven.android.req.model.ClientApiResponseModel;
-import com.playhaven.android.req.model.Content;
-import com.playhaven.android.req.model.Item;
-import com.playhaven.android.req.model.Response;
-
-import java.util.List;
+import com.playhaven.android.util.JsonUtil;
 
 public class PHSubcontentRequestTest extends PHTestCase <Launcher> {
     public static final String DISPATCH_CONTEXT = "{ \"url\": \"\", \"additional_parameters\": { \"skip_featured\": \"\", \"placement_id\": \"more_games\", \"args\": \"skip_featured\", \"skip_content\": \"\" } }";
-    private ClientApiResponseModel mModel;
+    private String mModel;
     private Exception mE;
 
     public PHSubcontentRequestTest() {
@@ -62,15 +58,10 @@ public class PHSubcontentRequestTest extends PHTestCase <Launcher> {
         assertNotNull(mModel);
         // A subcontent request, as currently understood, will return a more_games CU (which
         // has the items() element) If PlayHaven starts chaining requests for other reasons then 
-        // the nature of the test will change. 
-        Response response = mModel.getResponse();
-        assertNotNull("If this assertion failed, make sure you did not get an empty response from the server", response);
-        com.playhaven.android.req.model.Context ctx = response.getContext();
-        assertNotNull(ctx);
-        Content content = ctx.getContent();
-        assertNotNull(content);
-        List<Item> items = content.getItems();
-        assertNotNull(items);
+        // the nature of the test will change.
+
+        assertNotNull("If this assertion failed, make sure you did not get an empty response from the server", JsonUtil.getPath(mModel, "$.response"));
+        assertNotNull(JsonUtil.getPath(mModel, "$.response.context.content.items"));
 
         launcher.finish();
     }
@@ -81,8 +72,8 @@ public class PHSubcontentRequestTest extends PHTestCase <Launcher> {
         }
 
         @Override
-        protected void handleResponse(ClientApiResponseModel model) {
-            mModel = model;
+        protected void handleResponse(String json) {
+            mModel = json;
             markReadyForTesting(this);
         }
 

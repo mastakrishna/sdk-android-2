@@ -22,6 +22,10 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.util.Log;
+
+import com.playhaven.android.cache.Cache;
+import com.playhaven.android.cache.CacheResponseHandler;
+import com.playhaven.android.cache.CachedInfo;
 import com.playhaven.android.compat.VendorCompat;
 
 import java.io.BufferedInputStream;
@@ -29,6 +33,8 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.lang.reflect.Constructor;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -146,19 +152,27 @@ public class PlayHaven
          * Device Identifer
          */
         DeviceId,
+        
         /** 
          * Project identifier for GCM 
          */ 
         PushProjectId,
+        
         /**
          * Device Model
          */
         DeviceModel,
-
+        
         /**
-         * MAC Address
+         * Whether to hide the Status Bar during Fullscreen placements or not. 
+         * (Placements with input fields will not hide the Status Bar.)
          */
-        MAC
+        FullScreen, 
+        
+        /**
+         * Opt-in or opt-out of targeted behaviors
+         */
+        OptOut, 
     }
 
     /**
@@ -311,59 +325,94 @@ public class PlayHaven
     }
 
     /**
-     * Configure PlayHaven
-     *
+     * Configure PlayHaven. 
+     * Note: if a network address is provided, the configuration will occur asynchronously. 
+     * 
      * @param context of the application
      * @param fileName property file containing the configuration parameters
      * @throws PlayHavenException if a problem occurs
      * @see PlayHaven.Config for configuration key names
      * @see <a href="https://dashboard.playhaven.com/">https://dashboard.playhaven.com/</a>
      */
-    public static void configure(Context context, String fileName) throws PlayHavenException
+    public static void configure(final Context context, String fileName) throws PlayHavenException
     {
-        // Setup default configuration values
-        SharedPreferences.Editor editor = defaultConfiguration(context);
+    	if(fileName != null && fileName.startsWith("http")) 
+    	{
+        	Cache cache = new Cache(context);
+        	CacheResponseHandler handler = new CacheResponseHandler() 
+        	{
+    			@Override
+    			public void cacheSuccess(CachedInfo... cachedInfos) 
+    			{
+    				try {
+    					configure(context, cachedInfos[0].getFile().getAbsolutePath());
+    				} 
+    				catch (PlayHavenException exception) {
+    					PlayHaven.e(exception);
+    				}
+    			}
 
-        try{
-            // Load the file
-            Properties p = new Properties();
+    			@Override
+    			public void cacheFail(URL url, PlayHavenException exception) 
+    			{
+    				// @TODO should CacheResponseHandler throw exceptions on failure? 
+    				PlayHaven.e(exception);
+    			} 
+        	};
+        	
+    		try {
+				cache.request(fileName, handler);
+			} 
+    		catch (MalformedURLException e) {
+    			throw new PlayHavenException("Failed to configure PlayHaven", e);
+			} 
+    	}
+    	else {
+            // Setup default configuration values
+            SharedPreferences.Editor editor = defaultConfiguration(context);
 
-            if(Build.VERSION.SDK_INT >= 9)
-            {
-                p.load(new FileReader(fileName));
-                for(String key : p.stringPropertyNames())
+            try {
+                // Load the file
+                Properties p = new Properties();
+
+                if(Build.VERSION.SDK_INT >= 9)
                 {
-                    Config param = Config.valueOf(key);
-                    editor.putString(param.toString(), p.getProperty(key));
+                    p.load(new FileReader(fileName));
+                    for(String key : p.stringPropertyNames())
+                    {
+                        Config param = Config.valueOf(key);
+                        editor.putString(param.toString(), p.getProperty(key));
+                    }
+                } 
+                else {
+                    // @playhaven.apihack API8 does not support load(Reader)
+                    p.load(new BufferedInputStream(new FileInputStream(fileName)));
+                    // @playhaven.apihack API8 support does not have stringPropertyNames
+                    Enumeration keys = p.propertyNames();
+                    while(keys.hasMoreElements())
+                    {
+                        String key = (String)keys.nextElement();
+                        Config param = Config.valueOf(key);
+                        editor.putString(param.toString(), p.getProperty(key));
+                    }
                 }
-            }else{
-                // @playhaven.apihack API8 does not support load(Reader)
-                p.load(new BufferedInputStream(new FileInputStream(fileName)));
-                // @playhaven.apihack API8 support does not have stringPropertyNames
-                Enumeration keys = p.propertyNames();
-                while(keys.hasMoreElements())
-                {
-                    String key = (String)keys.nextElement();
-                    Config param = Config.valueOf(key);
-                    editor.putString(param.toString(), p.getProperty(key));
-                }
+
+                // And commit it
+                editor.commit();
+
+                /**
+                 * This will generate a log that looks like this:
+                 * <pre>D/PlayHaven(  754): PlayHaven initialized: 2.0.0-SNAPSHOT-fe5c52f** 2012-11-21 08:45</pre>
+                 *
+                 * Which can then be used to find the actual commit the version was against:
+                 * <code>git log -n 1 fe5c52f</code>
+                 */
+                i("PlayHaven initialized: %s", Version.BANNER);
+                debugConfig(context);
+            } catch (Exception e) {
+                throw new PlayHavenException("Failed to configure PlayHaven", e);
             }
-
-            // And commit it
-            editor.commit();
-
-            /**
-             * This will generate a log that looks like this:
-             * <pre>D/PlayHaven(  754): PlayHaven initialized: 2.0.0-SNAPSHOT-fe5c52f** 2012-11-21 08:45</pre>
-             *
-             * Which can then be used to find the actual commit the version was against:
-             * <code>git log -n 1 fe5c52f</code>
-             */
-            i("PlayHaven initialized: %s", Version.BANNER);
-            debugConfig(context);
-        } catch (Exception e) {
-            throw new PlayHavenException("Failed to configure PlayHaven", e);
-        }
+    	}
     }
 
     /**
@@ -473,6 +522,30 @@ public class PlayHaven
             this.level = level;
         }
         private int level;
+    }
+    
+    /**
+     * Set the opt-out status.
+     * @param context  
+     * @param option true if opted-out, false otherwise (the default) 
+     * @throws PlayHavenException 
+     */
+    public static void setOptOut(Context context, boolean option) throws PlayHavenException
+    {
+        SharedPreferences.Editor editor = defaultConfiguration(context);
+        editor.putString(Config.OptOut.name(), option ? "1" : "0");
+        editor.commit();
+    }
+    
+    /**
+     * Get the opt-out status.
+     * @return true if opted out 
+     * @throws PlayHavenException 
+     */
+    public static boolean getOptOut(Context context) throws PlayHavenException
+    {
+        SharedPreferences pref = PlayHaven.getPreferences(context);
+    	return "1".equals(pref.getString(PlayHaven.Config.OptOut.name(), "0"));
     }
 
     /**

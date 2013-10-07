@@ -19,14 +19,14 @@ import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import com.jayway.jsonpath.JsonPath;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.req.MetadataRequest;
 import com.playhaven.android.req.RequestListener;
-import com.playhaven.android.req.model.ClientApiResponseModel;
-import com.playhaven.android.req.model.Notification;
-import com.playhaven.android.req.model.Response;
+import com.jayway.jsonpath.InvalidPathException;
+import com.playhaven.android.util.JsonUtil;
 
 import static com.playhaven.android.compat.VendorCompat.DRAWABLE.playhaven_badge;
 
@@ -204,18 +204,21 @@ extends Drawable implements RequestListener {
     /**
      * Handle the databound model returned from the server call
      *
-     * @param model bound to the json response from the server
+     * @param json response from the server
      */
     @Override
-    public void handleResponse(ClientApiResponseModel model) {
-        Response response = model.getResponse();
-        if(response == null) return;
-        Notification notif = response.getNotification();
-        if(notif == null) return;
-        String text = notif.getValue();
-        if(text == null || text.length() == 0) return;
-        this.badgeNum = text;
-        invalidateOnUiThread();
+    public void handleResponse(String json) {
+        try{
+            String text = JsonUtil.getPath(json, "$.response.notification.value");
+            if(text == null || text.length() == 0) return;
+
+            this.badgeNum = text;
+            invalidateOnUiThread();
+        }catch(InvalidPathException e){
+            /**
+             * If no metadata is returned, don't update the UI
+             */
+        }
     }
 
     /**

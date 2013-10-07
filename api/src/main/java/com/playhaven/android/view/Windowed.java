@@ -17,9 +17,11 @@ package com.playhaven.android.view;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.OrientationEventListener;
+import android.view.View;
 import android.view.WindowManager;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlayHaven;
@@ -176,12 +178,29 @@ implements PlayHavenListener
         orientation.enable();
     }
 
+    protected void resetWindow(double factor)
+    {
+        DisplayMetrics dm = new DisplayMetrics();
+        Windowed.this.getWindow().getWindowManager().getDefaultDisplay().getMetrics(dm);
+        WindowManager.LayoutParams lp=getWindow().getAttributes();
+        lp.dimAmount=0.6f;
+        lp.width = (int)(dm.widthPixels * factor);
+        lp.height = (int)(dm.heightPixels * factor);
+        getWindow().setAttributes(lp);
+    }
+
+    private int savedLeft = -1;
+    private int savedTop = -1;
+
 
     /**
      * Configure sizing
      */
     protected void configureSize()
     {
+        // If we are no longer marginalized, let the layout change listener have control instead
+        if(savedLeft >= 0 && savedTop >= 0) return;
+
         VendorCompat compat = PlayHaven.getVendorCompat(getContext());
         int dialogLayoutId = compat.getLayoutId(getContext(), playhaven_dialog);
         int dialogViewId = compat.getId(getContext(), playhaven_dialog_view);
@@ -190,14 +209,28 @@ implements PlayHavenListener
         playHavenView = (PlayHavenView) layout.findViewById(dialogViewId);
 
         // Adjust the size of the dialog to be 90%
-        DisplayMetrics dm = new DisplayMetrics();
-        this.getWindow().getWindowManager().getDefaultDisplay().getMetrics(dm);
-        WindowManager.LayoutParams lp=getWindow().getAttributes();
-        lp.dimAmount=0.6f;
-        lp.width = (int) (dm.widthPixels * 0.9);
-        lp.height =  (int) (dm.heightPixels * 0.9);
-        getWindow().setAttributes(lp);
+        resetWindow(0.90);
+
+        if(Build.VERSION.SDK_INT >= 11)
+        {
+            // @playhaven.apihack View.OnLayoutChangeListener was added in API11
+            playHavenView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    // If we aren't being asked to 'frame' it, ignore this
+                    if(left == 0 && top == 0) return;
+
+                    // if the values haven't changed, ignore this
+                    if( (left == savedLeft) && (top == savedTop) ) return;
+
+                    resetWindow(1.00);
+                    savedLeft = left;
+                    savedTop = top;
+                }
+            });
+        }
     }
+
 
 
     /**
@@ -288,7 +321,8 @@ implements PlayHavenListener
      */
     @Override
     public void onBackPressed() {
-        viewDismissed(playHavenView, PlayHavenView.DismissType.BackButton, null);
+        if(playHavenView != null)
+            playHavenView.dismissView(PlayHavenView.DismissType.BackButton);
     }
 
     /**

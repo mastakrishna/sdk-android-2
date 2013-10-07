@@ -182,7 +182,7 @@ extends ActivityInstrumentationTestCase2<ACTIVITY>
     }
 
     protected byte[] readFile(File file) throws IOException {
-        Log.d(TAG, "reading file: " + file.getAbsolutePath());
+        PlayHaven.d("reading file: " + file.getAbsolutePath());
         BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
         ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
         byte[] buf = new byte[1024];

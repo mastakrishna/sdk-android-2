@@ -3,6 +3,7 @@
 require "rubygems"
 require "json"
 require "typhoeus"
+require 'zip/zip'
 
 APPTHWACK_API_KEY=ENV['APPTHWACK_API_KEY']
 if APPTHWACK_API_KEY == nil
@@ -174,6 +175,8 @@ def download_results(projectId, runId)
 	request.on_complete do |response|
 		if response.code == 303
 			return download_url response.headers_hash['Location'], name
+		else
+			print "Err #{response.code}: #{response.body}\n"
 		end
 	end
 	request.run
@@ -182,30 +185,35 @@ end
 projectId = get_project_id "Playhaven Android Diagnostic App"
 print "Project ID: #{projectId}\n"
 if projectId == nil
+	print "Unable to locate project\n"
 	exit 1
 end
 
-poolId = get_device_pool projectId, "Top 10 devices (10)"
+poolId = get_device_pool projectId, "Top 10 devices"
 print "Pool ID: #{poolId}\n"
 if poolId == nil
+	print "Unable to locate pool\n"
 	exit 2
 end
 
 diagAppId = upload_diagnostic_app
 print "Diagnostic APK ID: #{diagAppId}\n"
 if diagAppId == nil
+	print "Unable to upload diagnostic app\n"
 	exit 3
 end
 
 integAppId = upload_integration_app
 print "Integration APK ID: #{integAppId}\n"
 if integAppId == nil
+	print "Unable to upload integration app\n"
 	exit 4
 end
 
-runId = start_test "ruby test 3", projectId, diagAppId, integAppId, poolId
+runId = start_test "Android SDKv2", projectId, diagAppId, integAppId, poolId
 print "Run ID: #{runId}\n"
 if runId == nil
+	print "Unable to start tests\n"
 	exit 5
 end
 
@@ -216,7 +224,22 @@ while test_running projectId, runId
 end
 print "\n"
 
+sleep 60 # quiet to cut down on Err 500: {"message": "The results archive cannot be downloaded until testing is completed"}
 zip = download_results projectId, runId
-print "ZIP: #{zip}"
+if zip == nil
+	print "Unable to download results\n"
+	exit 6
+end
+print "ZIP: #{zip}\n\n"
+Zip::ZipFile.foreach(File.expand_path("#{zip}")) do |entry|
+	if /\.instrtxt$/.match(entry.name) then
+	    istream = entry.get_input_stream
+	    data = istream.read
+	    segment=/Time.*\n\n(.*)/.match(data)
+	    if /^FAIL/.match(segment[1]) then
+			print "#{segment[1]} #{entry.name}\n"
+		end
+	end
+end
 
 

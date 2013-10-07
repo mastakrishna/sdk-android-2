@@ -20,6 +20,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.diagnostic.test.req.TestableContentRequest;
 import com.playhaven.android.req.OpenRequest;
+import com.playhaven.android.util.JsonUtil;
 
 /**
  * Verify that the application dismisses the dialog if we receive bad content from the (mock) server
@@ -52,8 +53,7 @@ public class BadContentTest
         req.send(ctx);
         waitForReady(req);
 
-        assertNull(req.getReturnedModel());
-        assertNotNull(req.getReturnedException());
+        assertFalse(JsonUtil.hasPath(req.getReturnedModel(), "$.response.context.content"));
 
         launcher.finish();
     }

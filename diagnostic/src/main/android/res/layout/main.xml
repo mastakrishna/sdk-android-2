@@ -30,13 +30,15 @@ limitations under the License.
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/viewtype_spinner"/>
+        android:layout_toLeftOf="@+id/viewtype_spinner"
+        android:contentDescription="requestSpinner"/>
 
     <Spinner
         android:id="@+id/viewtype_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/go"/>
+        android:layout_toLeftOf="@+id/go"
+        android:contentDescription="viewtypeSpinner"/>
 
     <Button
         android:text="@string/go"
@@ -90,6 +92,16 @@ limitations under the License.
         android:layout_marginRight="15dp"
         android:layout_marginLeft="5dp"/>
 
+    <Spinner
+        android:id="@+id/output_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/animation"
+        android:layout_below="@+id/placementTag"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="5dp"
+        android:contentDescription="outputSpinner"/>
+    
     <com.playhaven.android.view.MoreGames
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -110,9 +122,9 @@ limitations under the License.
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:background="#222222">
-        <TextView
+        <com.playhaven.android.diagnostic.OutputBox
                 android:id="@+id/output"
-                android:hint="Nothing yet..."
+                android:hint="@string/output_hint_text"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 />

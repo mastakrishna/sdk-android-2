@@ -21,7 +21,6 @@ import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.data.Purchase;
 import com.playhaven.android.diagnostic.test.PHTestCase;
 import com.playhaven.android.req.PurchaseTrackingRequest;
-import com.playhaven.android.req.model.ClientApiResponseModel;
 
 /**
  * A PurchaseTrackingRequest designed to work with ActivityInstrumentationTestCase2
@@ -35,7 +34,7 @@ public class TestablePurchaseTrackingRequest<ACTIVITY extends Activity>
      * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
      * Save the model for later processing.
      */
-    private ClientApiResponseModel returnedModel;
+    private String returnedModel;
 
     /**
      * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
@@ -48,7 +47,7 @@ public class TestablePurchaseTrackingRequest<ACTIVITY extends Activity>
         this.testCase = testCase;
     }
 
-    public ClientApiResponseModel getReturnedModel() {
+    public String getReturnedModel() {
         return returnedModel;
     }
 
@@ -57,9 +56,9 @@ public class TestablePurchaseTrackingRequest<ACTIVITY extends Activity>
     }
 
     @Override
-    protected void handleResponse(ClientApiResponseModel model) {
+    protected void handleResponse(String json) {
         Log.d(testCase.getTag(), "handleResponse: model");
-        this.returnedModel = model;
+        this.returnedModel = json;
         testCase.markReadyForTesting(this);
     }
 

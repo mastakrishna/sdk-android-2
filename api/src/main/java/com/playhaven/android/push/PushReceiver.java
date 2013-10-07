@@ -23,15 +23,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 
 import com.playhaven.android.*;
-import com.playhaven.android.Placement;
-import com.playhaven.android.PlacementListener;
-import com.playhaven.android.PlayHaven;
-import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.PushPlacement;
 import com.playhaven.android.push.NotificationBuilder.Keys;
 import com.playhaven.android.req.PushTrackingRequest;
 import com.playhaven.android.view.FullScreen;
@@ -49,7 +45,6 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 	public enum UriTypes {
 		DEFAULT,
 		CUSTOM,
-		SYSTEM_ACTIVITY,
 		INVALID,
 		PLACEMENT,
 		ACTIVITY
@@ -110,9 +105,6 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 			return;
 		}
 		
-    	//PushTrackingRequest trackingRequest = new PushTrackingRequest(getApplicationContext(), message_id, content_id);
-    	//trackingRequest.send(getApplicationContext());
-		
 		Uri uri = Uri.parse(bundle.getString(NotificationBuilder.Keys.URI.name()));
 		Intent nextIntent = null;
 		switch(checkUri(uri, context)){
@@ -125,10 +117,6 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 					PlayHaven.e(e);
 				}
 				break;
-			case SYSTEM_ACTIVITY:
-				// Launch Google Play or Android Browser. 
-				nextIntent = new Intent(Intent.ACTION_VIEW, uri);
-				break;
 			case DEFAULT:
 				// The default is to invoke the Application's default launcher after a notification. 
 	    		PackageManager pm = context.getPackageManager();
@@ -139,6 +127,8 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 				Placement placement = intent.getParcelableExtra(PlayHavenView.BUNDLE_PLACEMENT);
 				nextIntent = FullScreen.createIntent(context, placement, PlayHavenView.AUTO_DISPLAY_OPTIONS);
 				break;
+			case CUSTOM:
+				nextIntent = new Intent(Intent.ACTION_VIEW, uri);
 			default:
 				break;
 		}
@@ -151,8 +141,13 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 		
 		if(nextIntent != null) {
 			nextIntent.putExtras(bundle);
-			nextIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			context.startActivity(nextIntent);
+            nextIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			try {
+				context.startActivity(nextIntent);
+			} catch (Exception e) {
+				PlayHaven.e("Unable to launch URI provided from push notification: \"%s\".", uri);
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -174,6 +169,7 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 		
 		switch(checkUri(uri, mContext)){
 			case DEFAULT:
+			case CUSTOM: 
 				notification = new NotificationBuilder(mContext).makeNotification(mBundle, pendingIntent);
 		    	break;
 			case PLACEMENT:
@@ -187,15 +183,19 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 				placement.setListener(PushReceiver.this);
 				placement.preload(mContext); 
 				break;
+			/* removed in [and-41] 
 			case CUSTOM:
 				// The publisher has provided a Uri to broadcast. 
 				PlayHaven.v("Broadcasting custom intent: %s.", uri);
 				Intent customIntent = new Intent(Intent.ACTION_VIEW, uri);
-				mContext.sendBroadcast(customIntent);
+				try {
+					mContext.sendBroadcast(customIntent);
+				} catch (Exception e) {
+					PlayHaven.v("Could not broadcast URI: %s.", uri);
+					e.printStackTrace();
+				}
 				break;
-			case SYSTEM_ACTIVITY: 
-				notification = new NotificationBuilder(mContext).makeNotification(mBundle, pendingIntent);
-				break;
+			*/ 
 			case ACTIVITY: 
 				notification = new NotificationBuilder(mContext).makeNotification(mBundle, pendingIntent);
 				break;
@@ -226,10 +226,8 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 	}
     
     /**
-     *  Determine the desired behavior. Besides, custom, we support: 
-     *   
-     * 	market://<...>
-     * 	playhaven://com.playhaven.android/?<activity=x>|<placement=y>|<content_id=z>
+     * Determine the desired behavior. Besides, custom, we support: 
+     * playhaven://com.playhaven.android/?<activity=x>|<placement=y>|<content_id=z>
      * 
      * There may, in the future, be restrictions on allowed custom URIs. 
      */
@@ -237,7 +235,8 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
     	String host = uri.getHost();
     	String scheme = uri.getScheme();
     	
-    	if(host == null || scheme == null || "".equals(host) || "".equals(scheme)){
+    	if((host == null && scheme == null) || ("".equals(host) && "".equals(scheme))){
+    		PlayHaven.e("Invalid URI, host or scheme is null: %s.", uri);
     		return UriTypes.INVALID;
     	}
 		
@@ -252,13 +251,20 @@ public class PushReceiver extends BroadcastReceiver implements PlacementListener
 				return UriTypes.PLACEMENT;
 			}
 			return UriTypes.DEFAULT;
-    	} else if("market".equals(scheme)){
-    		return UriTypes.SYSTEM_ACTIVITY;
-    	} else if("http".equals(scheme) || "https".equals(scheme)){
-    		return UriTypes.SYSTEM_ACTIVITY;
+    	}
+    	
+    	// Make sure that any custom URI has something to receive it, before 
+    	// we create a notification. 
+    	ResolveInfo info = null;
+    	try {
+        	Intent testIntent = new Intent().setData(uri);
+        	info = context.getPackageManager().resolveActivity(testIntent, 0);
+    	} catch (Exception e) {
+    		PlayHaven.e("Nothing registered for %s", uri);
+    		return UriTypes.INVALID;
     	}
 
-    	return UriTypes.CUSTOM;
+    	return info == null ? UriTypes.INVALID : UriTypes.CUSTOM;
     }
     
     /**

@@ -24,7 +24,7 @@ PlayHaven.setLogLevel(Log.VERBOSE);
 OpenRequest request = new OpenRequest();
 request.setResponseHandler(new RequestListener() {
     @Override
-    public void handleResponse(ClientApiResponseModel model) {
+    public void handleResponse(String json) {
         PlayHaven.setLogLevel(Log.INFO);
     }
 

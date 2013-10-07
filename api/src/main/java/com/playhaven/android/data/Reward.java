@@ -17,11 +17,11 @@ package com.playhaven.android.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.playhaven.android.req.model.RewardParam;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
+import com.jayway.jsonpath.JsonPath;
+import com.playhaven.android.util.JsonUtil;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,18 +34,16 @@ public class Reward
     /**
      * Construct a list of Reward objects from the JSON databound model
      *
-     * @param param from the json model
+     *
+     * @param json model
      * @return a list of Reward objects
      */
-    public static ArrayList<Reward> fromParameters(RewardParam param)
+    public static ArrayList<Reward> fromJson(String json)
     {
-        if(param == null) return new ArrayList<Reward>(0);
+        if(json == null) return new ArrayList<Reward>(0);
 
-        List<com.playhaven.android.req.model.Reward> fromJson = param.getRewards();
-        if(fromJson == null || fromJson.size() == 0) return new ArrayList<Reward>(0);
-
-        ArrayList<Reward> toReturn = new ArrayList<Reward>(fromJson.size());
-        for(com.playhaven.android.req.model.Reward jsonReward : fromJson)
+        ArrayList<Reward> toReturn = new ArrayList<Reward>();
+        for(String jsonReward : JsonUtil.forEach(json, "$.rewards"))
             toReturn.add(new Reward(jsonReward));
 
         return toReturn;
@@ -58,16 +56,16 @@ public class Reward
     private String signature;
 
     /**
-     * Construct a Reward from the JSON databound model
+     * Construct a Reward from the JSON model
      *
-     * @param reward from the json model
+     * @param json model
      */
-    public Reward(com.playhaven.android.req.model.Reward reward)
+    public Reward(String json)
     {
-        this.quantity = reward.getQuantity();
-        this.receipt = reward.getReceipt();
-        this.tag = reward.getReward();
-        this.signature = reward.getSignature();
+        this.quantity = JsonUtil.asDouble(json, "$.quantity");
+        this.receipt = JsonUtil.asDouble(json, "$.receipt");
+        this.tag = JsonUtil.getPath(json, "$.reward");
+        this.signature = JsonUtil.getPath(json, "$.sig4");
     }
 
     /**

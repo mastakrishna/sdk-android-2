@@ -21,7 +21,6 @@ import android.util.Log;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.diagnostic.test.PHTestCase;
 import com.playhaven.android.req.ContentRequest;
-import com.playhaven.android.req.model.ClientApiResponseModel;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -36,7 +35,7 @@ public class TestableContentRequest<ACTIVITY extends Activity>
      * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
      * Save the model for later processing.
      */
-    private ClientApiResponseModel returnedModel;
+    private String returnedModel;
 
     /**
      * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
@@ -54,7 +53,7 @@ public class TestableContentRequest<ACTIVITY extends Activity>
         this.testCase = testCase;
     }
 
-    public ClientApiResponseModel getReturnedModel() {
+    public String getReturnedModel() {
         return returnedModel;
     }
 
@@ -63,9 +62,9 @@ public class TestableContentRequest<ACTIVITY extends Activity>
     }
 
     @Override
-    protected void handleResponse(ClientApiResponseModel model) {
+    protected void handleResponse(String json) {
         Log.d(testCase.getTag(), "handleResponse: model");
-        this.returnedModel = model;
+        this.returnedModel = json;
         testCase.markReadyForTesting(this);
     }
 

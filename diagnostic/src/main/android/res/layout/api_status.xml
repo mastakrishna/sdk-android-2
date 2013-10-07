@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2013 Medium Entertainment, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:playhaven="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+            
+            <LinearLayout
+                android:id="@+id/placementRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                
+                <EditText
+                    android:id="@+id/placementBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/go_hint" />
+                
+                <Button
+                    android:id="@+id/goBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/go_btn" 
+                    android:onClick="startRequests"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/open_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new"
+                android:onClick="doRequest" />
+
+            <Button
+                android:id="@+id/content_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new"
+                android:onClick="doRequest" />
+
+            <Button
+                android:id="@+id/content_unit_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new"
+                android:onClick="doRequest" />
+
+            <Button
+                android:id="@+id/gcm_reg_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new"
+                android:onClick="doRequest" />
+
+            <Button
+                android:id="@+id/gcm_dereg_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new"
+                android:onClick="doRequest" />
+
+            <Button
+                android:id="@+id/purchase_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new"
+                android:onClick="doRequest" />
+
+            <Button
+                android:id="@+id/metadata_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new"
+                android:onClick="doRequest" />
+
+            <Button
+                android:id="@+id/sub_content_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new"
+                android:onClick="doRequest" />
+            
+            <Button
+                android:id="@+id/sub_content_unit_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new" 
+                android:onClick="doRequest"/>
+            
+            <Button
+                android:id="@+id/url_req"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/test_new" 
+                android:onClick="doRequest"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

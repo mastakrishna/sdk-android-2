@@ -168,11 +168,18 @@ public void contentFailed(Placement placement, PlayHavenException e) {
 }
 ```
 
+What about Windowed mode?
+----
+
+You can easily use Windowed mode instead by replacing ```startActivity``` with the appropriate ```dialog.show``` method.
+An example combining preloading with Windowed mode is provided below.
 
 References
 ----------
 
-Source code: [PreloadExample.java](xref/com/playhaven/android/examples/PreloadExample.html)
+FullScreen Source code: [PreloadExample.java](xref/com/playhaven/android/examples/PreloadExample.html)
+
+Windowed Source code: [PreloadDialogExample.java](xref/com/playhaven/android/examples/PreloadDialogExample.html)
 
 AndroidManifest.xml: [AndroidManifest.xml](${config.githubtag.value}/examples/src/AndroidManifest.xml)
 

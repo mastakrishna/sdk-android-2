@@ -16,6 +16,7 @@
 package com.playhaven.android.view;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
 import com.playhaven.android.Placement;
@@ -80,5 +81,15 @@ implements ChildView<NativeView>
     @Override
     public void setPlacement(Placement placement) {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /**
+     * Create a response bundle for passing back to the publisher
+     *
+     * @return bundle containing data
+     */
+    @Override
+    public Bundle generateResponseBundle() {
+        return null;
     }
 }

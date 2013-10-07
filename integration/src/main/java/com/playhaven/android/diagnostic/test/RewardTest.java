@@ -17,16 +17,13 @@ package com.playhaven.android.diagnostic.test;
 
 import android.content.Context;
 import android.test.suitebuilder.annotation.SmallTest;
-import com.playhaven.android.data.Reward;
+import com.jayway.jsonpath.JsonPath;
 import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.diagnostic.test.req.TestableContentRequest;
 import com.playhaven.android.req.OpenRequest;
-import com.playhaven.android.req.model.Content;
-import com.playhaven.android.req.model.OpenDispatch;
-import com.playhaven.android.req.model.Response;
-import com.playhaven.android.req.model.RewardParam;
+import com.playhaven.android.util.JsonUtil;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Validate Reward serialization
@@ -60,26 +57,16 @@ public class RewardTest
         if(req.getReturnedException() != null)
             fail(req.getReturnedException().getMessage());
 
-        assertNotNull(req.getReturnedModel());
-        assertNull(req.getReturnedModel().getError());
-        Response response = req.getReturnedModel().getResponse();
-        assertNotNull(response);
-        com.playhaven.android.req.model.Context mCtx = response.getContext();
-        assertNotNull(mCtx);
-        Content cnt = mCtx.getContent();
-        assertNotNull(cnt);
-        OpenDispatch dispatch = cnt.getOpenDispatch();
-        assertNotNull(dispatch);
-        RewardParam param = dispatch.getParameters();
-        assertNotNull(param);
-        ArrayList<Reward> rewards = Reward.fromParameters(param);
+        String model = req.getReturnedModel();
+        assertNotNull(model);
+        assertNull(JsonUtil.getPath(model, "$.error"));
+        assertNotNull(JsonUtil.getPath(model, "$.response"));
+        List<net.minidev.json.JSONObject> rewards = JsonUtil.getPath(model, "$.response.context.content.open_dispatch.parameters.rewards");
         assertNotNull(rewards);
         assertEquals(1, rewards.size());
-        Reward reward = rewards.get(0);
-        assertEquals("coins", reward.getTag());
-        assertEquals(Double.valueOf(50), reward.getQuantity());
-
-
+        net.minidev.json.JSONObject reward = rewards.get(0);
+        assertEquals("coins", JsonUtil.getPath(reward, "$.reward"));
+        assertEquals(50, JsonUtil.<Double>getPath(reward, "$.quantity"));
         launcher.finish();
 
     }

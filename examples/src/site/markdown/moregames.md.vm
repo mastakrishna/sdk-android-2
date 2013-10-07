@@ -51,7 +51,7 @@ First, we want to know when the Open request is finished.  We'll implement the R
 implements RequestListener
 ...
 @Override
-public void handleResponse(ClientApiResponseModel model) {
+public void handleResponse(String json) {
 }
 
 @Override

@@ -21,7 +21,7 @@ import android.util.Log;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.req.OpenRequest;
-import com.playhaven.android.req.model.ClientApiResponseModel;
+import com.playhaven.android.req.SignatureException;
 
 public class XPhDigestTest
 extends PHTestCase<Launcher>
@@ -38,7 +38,7 @@ extends PHTestCase<Launcher>
          * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
          * Save the model for later processing.
          */
-        private ClientApiResponseModel returnedModel;
+        private String returnedModel;
 
         /**
          * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
@@ -46,7 +46,7 @@ extends PHTestCase<Launcher>
          */
         private Exception returnedException;
 
-        public ClientApiResponseModel getReturnedModel() {
+        public String getReturnedModel() {
             return returnedModel;
         }
 
@@ -55,9 +55,9 @@ extends PHTestCase<Launcher>
         }
 
         @Override
-        protected void handleResponse(ClientApiResponseModel model) {
+        protected void handleResponse(String json) {
             Log.d(XPhDigestTest.this.getTag(), "handleResponse: model");
-            this.returnedModel = model;
+            this.returnedModel = json;
             XPhDigestTest.this.markReadyForTesting(this);
         }
 
@@ -69,18 +69,18 @@ extends PHTestCase<Launcher>
         }
 
         @Override
-        protected void validateSignature(String xPhDigest, String json) throws PlayHavenException {
-            super.validateSignature(xPhDigest, json);
+        protected void validateSignatures(Context context, String xPhDigest, String json) throws SignatureException {
+            super.validateSignatures(context, xPhDigest, json);
         }
     }
 
     private class BadOpenRequest extends GoodOpenRequest
     {
         @Override
-        protected void validateSignature(String xPhDigest, String json) throws PlayHavenException {
+        protected void validateSignatures(Context context, String xPhDigest, String json) throws SignatureException {
             char first = xPhDigest.charAt(0);
             xPhDigest = xPhDigest.replace(first, (char)(first+1));
-            super.validateSignature(xPhDigest, json);
+            super.validateSignatures(context, xPhDigest, json);
         }
     }
 

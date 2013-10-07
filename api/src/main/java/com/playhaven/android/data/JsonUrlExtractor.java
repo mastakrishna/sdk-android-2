@@ -15,9 +15,6 @@
  */
 package com.playhaven.android.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.playhaven.android.req.model.ClientApiResponseModel;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -34,20 +31,18 @@ public class JsonUrlExtractor
     // Capture group for the pattern to grab the URLs
     private static final int urlPatternGroup = 2;
 
-    private static final DataboundMapper mapper = new DataboundMapper();
-
     // Pattern for pulling content templates out of the json
     private static final Pattern ctPattern = Pattern.compile(URL_PT1 + "gz" + URL_PT2, flags);
 
     // Pattern for pulling images out of the json
     private static final Pattern imgPattern = Pattern.compile(URL_PT1 + "jpg|gif|png" + URL_PT2, flags);
 
-    public static List<String> getContentTemplates(ClientApiResponseModel model) throws JsonProcessingException {
-        return getForPattern(ctPattern, mapper.writeValueAsString(model));
+    public static List<String> getContentTemplates(String json) {
+        return getForPattern(ctPattern, json);
     }
 
-    public static List<String> getImages(ClientApiResponseModel model) throws JsonProcessingException {
-        return getForPattern(imgPattern, mapper.writeValueAsString(model));
+    public static List<String> getImages(String json) {
+        return getForPattern(imgPattern, json);
     }
 
     private static List<String> getForPattern(Pattern pattern, String json)

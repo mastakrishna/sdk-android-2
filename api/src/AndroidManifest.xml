@@ -24,7 +24,7 @@ limitations under the License.
 
     <application>
         <activity
-            android:name=".view.FullScreen" 
+            android:name=".view.FullScreen"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|keyboardHidden|screenSize">

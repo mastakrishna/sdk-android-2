@@ -15,26 +15,37 @@
  */
 package com.playhaven.android.view;
 
+import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_displayOptions;
+import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_placementTag;
+import static com.playhaven.android.compat.VendorCompat.ID.com_playhaven_android_view_Exit;
+import static com.playhaven.android.compat.VendorCompat.ID.com_playhaven_android_view_Exit_button;
+import static com.playhaven.android.compat.VendorCompat.ID.com_playhaven_android_view_LoadingAnimation;
+import static com.playhaven.android.compat.VendorCompat.ID.com_playhaven_android_view_Overlay;
+import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_exit;
+import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_loadinganim;
+import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_overlay;
+
+import android.os.Build;
+import android.util.Log;
+import android.view.*;
+import com.playhaven.android.util.JsonUtil;
+import net.minidev.json.JSONObject;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import com.jayway.jsonpath.InvalidPathException;
+import com.jayway.jsonpath.JsonPath;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlacementListener;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.util.MemoryReporter;
-
-import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_displayOptions;
-import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_placementTag;
-import static com.playhaven.android.compat.VendorCompat.ID.*;
-import static com.playhaven.android.compat.VendorCompat.LAYOUT.*;
 
 /**
  * A PlayHaven container view.  This view wraps the logic
@@ -87,6 +98,8 @@ implements PlacementListener
     /** Notification listener */
     private PlayHavenListener phListener;
 
+    private OrientationEventListener orientation;
+
     /**
      * How the view was dismissed
      */
@@ -125,6 +138,11 @@ implements PlacementListener
      * Vendor compat lib for wrappers
      */
     private VendorCompat compat;
+
+    /**
+     * Child View that contains the content units
+     */
+    private ChildView<? extends View> childView;
 
     /**
      * Simple constructor to use when creating a PlayHavenView from code.
@@ -182,9 +200,7 @@ implements PlacementListener
         return new OnClickListener() {
             @Override
             public void onClick(android.view.View v) {
-                if(phListener == null) return;
-
-                phListener.viewDismissed(PlayHavenView.this, DismissType.Emergency, null);
+                dismissView(DismissType.Emergency);
             }
         };
     }
@@ -469,6 +485,77 @@ implements PlacementListener
         this.phListener = listener;
     }
 
+    protected void setFrame()
+    {
+        try{
+            JSONObject frame = JsonUtil.getPath(placement.getModel(), "$.response.frame");
+            if(frame != null)
+            {
+                Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                boolean portrait = true;
+
+                if(Build.VERSION.SDK_INT >= 11)
+                {
+                    // @playhaven.apihack This was always returning 0 on API10
+                    int rotation = display.getRotation();
+                    portrait = (rotation % 180) == 0;
+                }else{
+                    int realX = display.getWidth();
+                    int realY = display.getHeight();
+                    portrait = (realX < realY);
+                }
+
+                JSONObject ph = JsonUtil.getPath(frame, (portrait ? "$.PH_PORTRAIT" : "$.PH_LANDSCAPE"));
+
+
+                MarginLayoutParams params = (MarginLayoutParams) getLayoutParams();
+                int x = JsonUtil.asInt(ph, "$.x", 0);
+                int y = JsonUtil.asInt(ph, "$.y", 0);
+                int w = JsonUtil.asInt(ph, "$.w", 0);
+                int h = JsonUtil.asInt(ph, "$.h", 0);
+
+                if( (x == 0 && params.topMargin == 0) && (y == 0 && params.leftMargin == 0))
+                {
+                    // Nothing to do as we are already full screen and we want to be
+                }else{
+                    params.height = h;
+                    params.width = w;
+                    params.leftMargin = x;
+                    params.topMargin = y;
+
+                    if(Build.VERSION.SDK_INT == 10)
+                    {
+                        // @playhaven.apihack gingerbread was not centering
+
+                        if(params instanceof LinearLayout.LayoutParams)
+                        {
+                            ((LinearLayout.LayoutParams)params).gravity = Gravity.TOP;
+                        }else if(params instanceof FrameLayout.LayoutParams){
+                            ((FrameLayout.LayoutParams)params).gravity = Gravity.TOP;
+                        }
+                    }
+
+                    requestLayout();
+                }
+
+                if(orientation == null)
+                {
+                    orientation = new OrientationEventListener(getContext()) {
+                        @Override
+                        public void onOrientationChanged(int i) {
+                            setFrame();
+                        }
+                    };
+                    orientation.enable();
+                }
+            }
+        }catch(ClassCastException e){
+            // no-op, just won't use the frame
+        }catch(InvalidPathException e){
+            // no-op
+        }
+    }
+
     /**
      * Content was loaded successfully
      *
@@ -477,14 +564,20 @@ implements PlacementListener
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void contentLoaded(final Placement placement) {
+    public void contentLoaded(final Placement placement) 
+    {
+    	setFullscreen(placement);
         setAnimationVisible(false);
         setOverlayVisible(false);
-//        setExitVisible(false);
+//      setExitVisible(false);
 
         post(new Runnable() {
             @Override
             public void run() {
+
+                // If necessary, resize before giving the webview a chance to measure anything
+                setFrame();
+
                 /**
                  * Do we load a native view or an html view?  Deciding factors:
                  * Did the server send only one of the URLs?
@@ -495,7 +588,7 @@ implements PlacementListener
                  *
                  * Currently, native views are not enabled, so we will default to the HTMLView
                  */
-                final ChildView<? extends View> childView = new HTMLView(getContext());
+                childView = new HTMLView(getContext());
                 childView.setPlacement(placement);
 
                 /**
@@ -512,7 +605,23 @@ implements PlacementListener
         });
     }
 
-    /**
+    private void setFullscreen(Placement pl) {
+		if (!pl.isFullscreenCompatible()) {
+			Object context = this.getContext();
+			if (context instanceof FullScreen) {
+				final FullScreen hostActivity = (FullScreen) context;
+				hostActivity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						hostActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+						PlayHaven.v("Placement should not be displayed fullscreen, clearing flag.");
+					}
+				});
+			}
+		}
+	}
+
+	/**
      * Content failed to load successfully
      *
      * @param placement that was attempted
@@ -541,11 +650,24 @@ implements PlacementListener
             phListener.viewDismissed(this, dismissType, data);
     }
 
+    protected void dismissView(DismissType dismissType)
+    {
+        if(phListener == null) return;
+        Bundle bundle = null;
+        if(childView != null)
+            bundle = childView.generateResponseBundle();
+
+        phListener.viewDismissed(this, dismissType, bundle);
+    }
+
     /**
      * This is called when the view is detached from a window. At this point it no longer has a surface for drawing.
      */
     @Override
     protected void onDetachedFromWindow() {
+        if(orientation != null)
+            orientation.disable();
+
         MemoryReporter.report();
         super.onDetachedFromWindow();
     }

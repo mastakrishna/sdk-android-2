@@ -1,15 +1,32 @@
-PlayHaven Android SDK
-====================
-PlayHaven is a mobile game buisness engine which helps you manage your players at every point in your relationship — before install, in-game and after they've left.
+# PlayHaven Android SDK
 
-Acquire, retain, re-engage, and monetize your players with the help of PlayHaven's powerful marketing platform. Integrate once and embrace the flexibility of the web as you build, schedule, deploy, and analyze your in-game promotions and monetization in real-time through PlayHaven's easy-to-use, web-based dashboard. 
 
-## Account Setup
+## About PlayHaven
 
-<P> An API token and secret is required to use this SDK. These tokens uniquely identify your app to PlayHaven and prevent others from making requests to the API on your behalf. To get a token and secret, please visit the [PlayHaven Dashboard](https://dashboard.playhaven.com).
+PlayHaven helps you acquire, engage, and monetize your players. Built specifically for game developers, we offer an easy to integrate SDK for both iOS and Android with plugins available for Unity, Adobe Air and now Marmalade. And we offer powerful user segmentation and targeting tools that you can use to take action in real time based on relevant information on our web dashboard.
 
-##Documentation
+PlayHaven’s network spans thousands of games, 523 million unique users, 130 active monthly users, and 2.5 billion monthly game sessions. Some of the most successful mobile studios rely on PlayHaven, including Cartoon Network, Digital Chocolate, Glu Mobile, Game Circus, Namco Bandai, Natural Motion, Nickelodeon, Playtika, and Sega. 
 
-<P> A Getting Started Guide is available [here](http://playhaven-release.s3.amazonaws.com/push-docs/PlayHaven%20Android%20Getting%20Started%20Guide%20v2%20Beta.pdf) 
+## Documentation
 
-If you have any questions, visit the [Help Center](http://help.playhaven.com) or contact us at [support@playhaven.com](mailto:support@playhaven.com).  We also recommend reviewing our [Optimization Guides](http://help.playhaven.com/customer/portal/topics/113947-optimization-guides/articles) to learn the best practices and get the most out of your PlayHaven integration.
+For the PlayHaven Getting Started Guide and other documentation, go to the [PlayHaven Help Center](http://help.playhaven.com/customer/portal/articles/1136122-android-sdk-getting-started-guide). 
+
+NOTE: Android SDK v2 is completely rewritten, so you'll need to do a complete new integration.
+
+### Features
+
+Here are some of the new features!
+
+- Designed specifically for Android!
+- Dialog support (Does not pause your game)
+- Embedded support (Put it in your game or pause menus)
+- Diagnostic application to help you troubleshoot your placements
+- Immediate access to opt-in data (Use their name in your game!)
+- Push Notifications
+- More Games Badge *and* a More Games Button
+- Ability to control quantity of logs
+- Ability to detect that no content was available for your placement
+- A Maven Quickstart Archetype to get you up and running quickly
+- Better Performance
+- Lots of Standalone Examples
+- Extensive Documentation

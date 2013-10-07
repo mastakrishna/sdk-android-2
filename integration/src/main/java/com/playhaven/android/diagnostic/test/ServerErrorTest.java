@@ -17,6 +17,8 @@ package com.playhaven.android.diagnostic.test;
 
 import android.content.Context;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
+import android.util.Log;
 import com.playhaven.android.data.Purchase;
 import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.diagnostic.test.req.TestablePurchaseTrackingRequest;
@@ -35,6 +37,7 @@ public class ServerErrorTest
     }
 
     @SmallTest
+    @Suppress // disabled until IAP v4 updated in prod
     public void testBadIAPQty() throws Throwable{
         Launcher launcher = doActivityTestSetup();
         clearAndConfigurePlayHaven();
@@ -60,6 +63,7 @@ public class ServerErrorTest
         assertNotNull(req.getReturnedException());
 
         String msg = req.getReturnedException().getMessage();
+        Log.v("MALACHI", msg);
         assertNotNull(msg);
         assertTrue(msg.contains("quantity"));
 

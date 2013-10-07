@@ -34,8 +34,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.provider.Browser;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.Suppress;
 import android.util.Log;
 
 import com.playhaven.android.push.GCMBroadcastReceiver;
@@ -54,7 +56,7 @@ public class PushTest extends PHTestCase<Launcher> {
     String[] URIS = {
     		"market://details?id=com.bitwisedesign.SolRunner", // MARKET
     		"playhaven://com.playhaven.android", // DEFAULT
-    		"phdiagnostic://com.playhaven.android.diagnostic?easterEggs=15", // CUSTOM 
+    		"phdiagnostic://com.playhaven.android.diagnostic", // CUSTOM 
     		"playhaven://com.playhaven.android/?placement=more_games", // PLACEMENT 
     		"playhaven://com.playhaven.android/?activity=Preferences", // ACTIVITY 
     };
@@ -63,7 +65,7 @@ public class PushTest extends PHTestCase<Launcher> {
         super(Launcher.class);
     }
     
-    @MediumTest
+    @MediumTest @Suppress
     public void test_a_start() throws Throwable {
     	clearAndConfigurePlayHaven();
     	
@@ -92,7 +94,7 @@ public class PushTest extends PHTestCase<Launcher> {
         assertNotNull(regId);
     }
     
-    @SmallTest
+    @SmallTest  @Suppress
     public void test_b_default() throws Throwable {
     	int testId = 40;
         Context context = getTargetContext();
@@ -109,7 +111,7 @@ public class PushTest extends PHTestCase<Launcher> {
         verifyActivity(Launcher.class.getName(), pending);
     }
     
-    @SmallTest
+    @SmallTest  @Suppress
     public void test_c_market() throws Throwable {
     	int testId = 41;
         Context context = getTargetContext();
@@ -128,27 +130,23 @@ public class PushTest extends PHTestCase<Launcher> {
         poseForScreenshotNamed(TAG + ": market appearance");
     }
     
-    @SmallTest
+    @SmallTest   @Suppress
     public void test_d_custom() throws Throwable {
     	int testId = 42;
         Context context = getTargetContext();
-        
-        ActivityMonitor monitor = getInstrumentation().addMonitor(DiagnosticPreferences.class.getName(), null, false);
-        
-        // Send a push *TO* GCM.There will be no Notification. 
+         
         boolean went = go(context, URIS[2], "Custom test.", testId);
         assertTrue(went);
+
+        // See if there is a notification with the identifier we just sent. 
+        PendingIntent pending = getPushReceiverIntent(context, testId);
+        assertNotNull(pending);
         
-        // Check to see if the DiagnosticPreferences Activity got launched. 
-        DiagnosticPreferences startedActivity = (DiagnosticPreferences) monitor.waitForActivityWithTimeout(20000);
-        assertNotNull(startedActivity);
-        
-        // Check to see if it got the easter eggs. 
-        assertNotNull(startedActivity.easterEggs);
-        assertTrue("15".equals(startedActivity.easterEggs));
+        // Watch to see if Preferences gets launched. 
+        verifyActivity(DiagnosticPreferences.class.getName(), pending);
     }
     
-    @SmallTest
+    @SmallTest  @Suppress
     public void test_e_placement() throws Throwable {
     	int testId = 43;
         Context context = getTargetContext();
@@ -161,7 +159,7 @@ public class PushTest extends PHTestCase<Launcher> {
         // placement to get downloaded. 
         PendingIntent pending = null;
         int count = 0;
-        while(pending == null && count < 4){
+        while(pending == null && count < 8){
         	count += 1;
         	pending = getPushReceiverIntent(context, testId); // This can take up to 30 seconds. 
         }
@@ -218,7 +216,7 @@ public class PushTest extends PHTestCase<Launcher> {
         return true;
     }
     
-    @SmallTest
+    @SmallTest @Suppress
     public void test_f_deregistration() throws Throwable {
         Context context = getTargetContext();
         (new GCMRegistrationRequest()).deregister(context);
@@ -249,7 +247,7 @@ public class PushTest extends PHTestCase<Launcher> {
 		} catch (CanceledException e) {
 			fail("Couldn't send PendingIntent.");
 		}
-        Activity startedActivity = monitor.waitForActivityWithTimeout(10000);
+        Activity startedActivity = monitor.waitForActivityWithTimeout(10 * 1000);
         assertNotNull(startedActivity);
         startedActivity.finish();
     }

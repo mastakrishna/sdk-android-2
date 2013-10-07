@@ -66,7 +66,7 @@ extends PHTestCase<Launcher>
         // Make sure we can look up a resource belonging to the instrumentation apk.
         int id = compat.getResourceId(instrumentation.getContext(), ResourceType.string, "instrumentation_token");
         assertEquals(com.playhaven.android.diagnostic.test.R.string.instrumentation_token, id);
-        
+
         // Now let's look up something in the PlayHaven SDK. 
         int apiServerResId = compat.getResourceId(instrumentation.getTargetContext(), ResourceType.string, "playhaven_public_api_server");
         assertEquals(com.playhaven.android.R.string.playhaven_public_api_server, apiServerResId);

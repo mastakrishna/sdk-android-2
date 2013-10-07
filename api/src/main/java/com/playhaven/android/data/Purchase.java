@@ -18,10 +18,11 @@ package com.playhaven.android.data;
 import android.net.UrlQuerySanitizer;
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.playhaven.android.req.model.PPUParams;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import com.jayway.jsonpath.JsonPath;
+import com.playhaven.android.util.JsonUtil;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,29 +68,27 @@ public class Purchase
     private String payload, orderId;
     private Result result = Result.Unset;
 
-    public static ArrayList<Purchase> fromParameters(PPUParams param)
+    public static ArrayList<Purchase> fromJson(String json)
     {
-        if(param == null) return new ArrayList<Purchase>(0);
+        if(json == null) return new ArrayList<Purchase>(0);
 
-        List<com.playhaven.android.req.model.Purchase> fromJson = param.getPurchases();
-        if(fromJson == null || fromJson.size() == 0) return new ArrayList<Purchase>(0);
-
-        UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(param.getUrl());
+        String url = JsonUtil.getPath(json, "$.url");
+        UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(url);
         final String placementTag = sanitizer.getValue("placement_tag");
 
-        ArrayList<Purchase> toReturn = new ArrayList<Purchase>(fromJson.size());
-        for(com.playhaven.android.req.model.Purchase jsonPurchase : fromJson)
+        ArrayList<Purchase> toReturn = new ArrayList<Purchase>();
+        for(String jsonPurchase : JsonUtil.forEach(json, "$.purchases"))
             toReturn.add(new Purchase(jsonPurchase, placementTag));
 
         return toReturn;
     }
 
-    public Purchase(com.playhaven.android.req.model.Purchase purchase, String placementTag)
+    public Purchase(String json, String placementTag)
     {
-        this.cookie = purchase.getCookie();
-        this.title = purchase.getName();
-        this.sku = purchase.getProduct();
-        this.signature = purchase.getSignature();
+        this.cookie = JsonUtil.getPath(json, "$.cookie");
+        this.title = JsonUtil.getPath(json, "$.name");
+        this.sku = JsonUtil.getPath(json, "$.product");
+        this.signature = JsonUtil.getPath(json, "$.sig4");
         this.price = null;
         this.store = null;
         this.placementTag = placementTag;
@@ -97,18 +96,11 @@ public class Purchase
         this.orderId = null;
 
         /**
-         * purchase.getQuantity() returns Double
          * Google/Amazon/Samsung all use Strings
          * client-api expects Integer
          */
-        Double qty = purchase.getQuantity();
-        if(qty != null)
-            this.quantity = "" + qty.intValue();
-
-        Double rcpt = purchase.getReceipt();
-        if(rcpt != null)
-            this.receipt = "" + rcpt;
-
+        this.quantity = JsonUtil.asString(json, "$.quantity");
+        this.receipt = JsonUtil.asString(json, "$.receipt");
     }
 
     public Purchase(Parcel in)

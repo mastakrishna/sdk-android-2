@@ -15,6 +15,7 @@
  */
 package com.playhaven.android.view;
 
+import android.os.Bundle;
 import android.view.View;
 import com.playhaven.android.Placement;
 
@@ -30,4 +31,11 @@ public interface ChildView<VIEW extends View>
      * @see <a href="https://dashboard.playhaven.com/">https://dashboard.playhaven.com/</a>
      */
     public void setPlacement(Placement placement);
+
+    /**
+     * Create a response bundle for passing back to the publisher
+     *
+     * @return bundle containing data
+     */
+    public Bundle generateResponseBundle();
 }

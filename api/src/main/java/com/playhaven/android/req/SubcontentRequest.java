@@ -63,7 +63,7 @@ public class SubcontentRequest extends PlayHavenRequest {
     }
 
     @Override
-    protected String getUrl(Context context) throws PlayHavenException {
+    public String getUrl(Context context) throws PlayHavenException {
         return createUrl(context).build().encode().toUriString();
     }
 

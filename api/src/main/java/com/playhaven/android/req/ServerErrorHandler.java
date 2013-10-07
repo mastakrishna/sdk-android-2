@@ -16,7 +16,6 @@
 package com.playhaven.android.req;
 
 import com.playhaven.android.PlayHavenException;
-import com.playhaven.android.data.DataboundMapper;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
@@ -30,12 +29,9 @@ import java.io.InputStream;
 public class ServerErrorHandler
 extends DefaultResponseErrorHandler
 {
-    private DataboundMapper mapper;
-
     public ServerErrorHandler()
     {
         super();
-        this.mapper = new DataboundMapper();
     }
 
     /**

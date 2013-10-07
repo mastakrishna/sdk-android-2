@@ -19,12 +19,12 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+import com.jayway.jsonpath.JsonPath;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.diagnostic.Launcher;
 import com.playhaven.android.req.ContentRequest;
 import com.playhaven.android.req.OpenRequest;
-import com.playhaven.android.req.model.ClientApiResponseModel;
-import com.playhaven.android.req.model.Response;
+import com.playhaven.android.util.JsonUtil;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static java.lang.Thread.sleep;
@@ -49,7 +49,7 @@ extends PHTestCase<Launcher>
          * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
          * Save the model for later processing.
          */
-        private ClientApiResponseModel returnedModel;
+        private String returnedModel;
 
         /**
          * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
@@ -62,10 +62,10 @@ extends PHTestCase<Launcher>
         }
 
         @Override
-        protected void handleResponse(ClientApiResponseModel model) {
+        protected void handleResponse(String json) {
             Log.d(TAG, "handleResponse: model");
-            super.handleResponse(model);
-            this.returnedModel = model;
+            super.handleResponse(json);
+            this.returnedModel = json;
             markReadyForTesting(this);
         }
 
@@ -98,9 +98,11 @@ extends PHTestCase<Launcher>
         if(req.returnedException != null)
             fail(req.returnedException.getMessage());
 
-        assertNotNull(req.returnedModel);
-        assertNull(req.returnedModel.getError());
-        assertNull(req.returnedModel.getResponse());
+        String model = req.returnedModel;
+
+        assertNotNull(model);
+        assertFalse(JsonUtil.hasPath(model, "$.error"));
+        assertFalse(JsonUtil.hasPath(model, "$.response.context.content"));
 
         launcher.finish();
     }
@@ -112,7 +114,7 @@ extends PHTestCase<Launcher>
          * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
          * Save the model for later processing.
          */
-        private ClientApiResponseModel returnedModel;
+        private String returnedModel;
 
         /**
          * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
@@ -133,9 +135,9 @@ extends PHTestCase<Launcher>
         }
 
         @Override
-        protected void handleResponse(ClientApiResponseModel model) {
+        protected void handleResponse(String json) {
             Log.d(TAG, "handleResponse: model");
-            this.returnedModel = model;
+            this.returnedModel = json;
             markReadyForTesting(this);
         }
 
@@ -167,11 +169,10 @@ extends PHTestCase<Launcher>
         if(req.returnedException != null)
             fail(req.returnedException.getMessage());
 
-        assertNotNull(req.returnedModel);
-        assertNull(req.returnedModel.getError());
-        Response response = req.returnedModel.getResponse();
-        assertNotNull(response);
-        assertEquals("more_games", response.getContent());
+        String model = req.returnedModel;
+        assertNotNull(model);
+        assertNull(JsonUtil.getPath(model, "$.error"));
+        assertEquals("more_games", JsonUtil.getPath(model, "$.response.content"));
 
         launcher.finish();
     }
