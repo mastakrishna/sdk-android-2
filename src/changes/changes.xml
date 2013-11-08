@@ -23,6 +23,13 @@ limitations under the License.
     </properties>
 
     <body>
+<release version="2.1.2" description="Release 2.1.2" date="2013-10-25">
+  <action type="fix" dev="Malachi de Ælfweald">scount=2 in diagnostic app</action>
+  <action type="fix" dev="Malachi de Ælfweald">Ice Cream Sandwich: Announcement linking to URL or URI throws exception</action>
+  <action type="fix" dev="Malachi de Ælfweald">Ice Cream Sandwich - announcement linking to diagnostic app URI failed</action>
+  <action type="fix" dev="Malachi de Ælfweald">Back button breaks in Windowed mode if device is being held</action>
+</release>
+
 <release version="2.1.1" description="Release 2.1.1" date="2013-10-03">
   <action dev="Malachi de Ælfweald">Create example showing Dialog + Preloading</action>
   <action type="fix" dev="Malachi de Ælfweald">Diagnostic app crashes when preloading and then requesting a placement with no content units</action>

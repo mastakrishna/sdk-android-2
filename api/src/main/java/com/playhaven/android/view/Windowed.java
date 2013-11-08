@@ -201,12 +201,15 @@ implements PlayHavenListener
         // If we are no longer marginalized, let the layout change listener have control instead
         if(savedLeft >= 0 && savedTop >= 0) return;
 
-        VendorCompat compat = PlayHaven.getVendorCompat(getContext());
-        int dialogLayoutId = compat.getLayoutId(getContext(), playhaven_dialog);
-        int dialogViewId = compat.getId(getContext(), playhaven_dialog_view);
+        if(playHavenView == null)
+        {
+            VendorCompat compat = PlayHaven.getVendorCompat(getContext());
+            int dialogLayoutId = compat.getLayoutId(getContext(), playhaven_dialog);
+            int dialogViewId = compat.getId(getContext(), playhaven_dialog_view);
 
-        android.view.View layout =  getLayoutInflater().inflate(dialogLayoutId, null);
-        playHavenView = (PlayHavenView) layout.findViewById(dialogViewId);
+            android.view.View layout =  getLayoutInflater().inflate(dialogLayoutId, null);
+            playHavenView = (PlayHavenView) layout.findViewById(dialogViewId);
+        }
 
         // Adjust the size of the dialog to be 90%
         resetWindow(0.90);
@@ -323,6 +326,8 @@ implements PlayHavenListener
     public void onBackPressed() {
         if(playHavenView != null)
             playHavenView.dismissView(PlayHavenView.DismissType.BackButton);
+
+        super.onBackPressed();
     }
 
     /**

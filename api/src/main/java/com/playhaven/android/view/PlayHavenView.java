@@ -336,7 +336,7 @@ implements PlacementListener
     public void setDisplayOptions(int displayOptions)
     {
         this.displayOptions = displayOptions;
-        PlayHaven.d(
+        PlayHaven.v(
             "displayOptions = %d (%s %s)",
             displayOptions,
             (isAnimationSet() ? "animation":""),

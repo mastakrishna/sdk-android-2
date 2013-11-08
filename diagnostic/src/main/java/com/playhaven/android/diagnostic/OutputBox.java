@@ -52,7 +52,7 @@ public class OutputBox extends TextView {
 	
 	public void updateRequest(PlayHavenRequest req) {
 		try {
-			updateRequest(req.getUrl(getContext()).toString());
+			updateRequest(req.getLastUrl().toString());
 		} catch (Exception e) {
 			updateRequest(e.getMessage());
 		}

@@ -282,9 +282,8 @@ public class HTMLView extends WebView implements ChildView<HTMLView> {
                         try {
                             url = uriFuture.get();
                         } catch (Exception e) {
-                            PlayHaven.e("Could not retrieve launch URL from server.");
-                            PlayHaven.e(e);
-                            
+                            PlayHaven.v("Could not retrieve launch URL from server. Using initial url.");
+
                             // If the redirect failed, proceed with the original url. 
                             url = initialUrl;
                         }
