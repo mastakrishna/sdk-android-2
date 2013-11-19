@@ -30,8 +30,7 @@ public class UnityCompat
         super(vendorId);
     }
 
-//    private static final String r_styleable = "R.styleable";
-    private static final String ph_r_styleable = "com.playhaven.android.R$styleable";
+    private static final String r_styleable = ".R$styleable";
 
     public TypedArray obtainStyledAttributes(Context context, AttributeSet attrs, STYLEABLE styleable)
     {
@@ -39,7 +38,7 @@ public class UnityCompat
         {
             case com_playhaven_android_view_Badge:
             case com_playhaven_android_view_PlayHavenView:
-                return context.obtainStyledAttributes(attrs, getResourceStyleableArray(styleable.name()), 0, 0);
+                return context.obtainStyledAttributes(attrs, getResourceStyleableArray(context, styleable.name()), 0, 0);
             default:
                 return null;
         }
@@ -58,14 +57,30 @@ public class UnityCompat
 
     /**                                                                                                                               ul
      * Needed to allow wrapping with Unity 4.1.5 and below.
+     * @param context of the application hosting the resources
      * @param name the name of the styleable to parse
      * @return the attrs identifiers of a declare-styleable element, or an empty array
      */
-    private int[] getResourceStyleableArray(String name)
+    private int[] getResourceStyleableArray(Context context, String name)
     {
+        if(STYLEABLE.com_playhaven_android_view_PlayHavenView.toString().equals(name))
+        {
+            return new int[]{
+                getAttrId(context, ATTR.com_playhaven_android_view_PlayHavenView_placementTag),
+                getAttrId(context, ATTR.com_playhaven_android_view_PlayHavenView_displayOptions)
+            };
+        }
+
+        if(STYLEABLE.com_playhaven_android_view_Badge.toString().equals(name))
+        {
+            return new int[]{
+                getAttrId(context, ATTR.com_playhaven_android_view_Badge_placementTag),
+                getAttrId(context, ATTR.com_playhaven_android_view_Badge_textColor)
+            };
+        }
 
         try {
-            Field field = Class.forName(ph_r_styleable).getField(name);
+            Field field = Class.forName(context.getPackageName() + r_styleable).getField(name);
             return (int[])field.get(null);
         } catch (Exception e) {
             PlayHaven.e(e);

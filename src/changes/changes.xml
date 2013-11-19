@@ -23,6 +23,11 @@ limitations under the License.
     </properties>
 
     <body>
+<release version="2.1.3" description="Release 2.1.3" date="2013-11-18">
+  <action type="fix" dev="Malachi de Ælfweald">Emergency "X" button (image only) does not show on Android 2.1.X</action>
+  <action type="update" dev="Malachi de Ælfweald">Glu feedback on Android SDK 2.1.1: they want .jar files; use getIdentifier()</action>
+</release>
+
 <release version="2.1.2" description="Release 2.1.2" date="2013-10-25">
   <action type="fix" dev="Malachi de Ælfweald">scount=2 in diagnostic app</action>
   <action type="fix" dev="Malachi de Ælfweald">Ice Cream Sandwich: Announcement linking to URL or URI throws exception</action>

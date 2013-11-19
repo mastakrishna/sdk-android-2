@@ -15,6 +15,8 @@
  */
 package com.playhaven.android.view;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_displayOptions;
 import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_placementTag;
 import static com.playhaven.android.compat.VendorCompat.ID.com_playhaven_android_view_Exit;
@@ -26,7 +28,6 @@ import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_loading
 import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_overlay;
 
 import android.os.Build;
-import android.util.Log;
 import android.view.*;
 import com.playhaven.android.util.JsonUtil;
 import net.minidev.json.JSONObject;
@@ -39,7 +40,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.jayway.jsonpath.InvalidPathException;
-import com.jayway.jsonpath.JsonPath;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlacementListener;
 import com.playhaven.android.PlayHaven;
@@ -218,13 +218,13 @@ implements PlacementListener
         // Bottom Layer is the Overlay
         int overlayId = compat.getLayoutId(getContext(), playhaven_overlay);
         LinearLayout overlay = (LinearLayout)inflater.inflate(overlayId, null);
-        overlay.setVisibility(android.view.View.GONE);
+        overlay.setVisibility(GONE);
         addView(overlay);
 
         // Next Layer is the Animation
         int animationId = compat.getLayoutId(getContext(), playhaven_loadinganim);
         RelativeLayout animation = (RelativeLayout)inflater.inflate(animationId, null);
-        animation.setVisibility(android.view.View.GONE);
+        animation.setVisibility(GONE);
         addView(animation);
 
         // Then the content unit
@@ -235,7 +235,7 @@ implements PlacementListener
         int exitBtnId = compat.getId(getContext(), com_playhaven_android_view_Exit_button);
         
         LinearLayout exit = (LinearLayout)inflater.inflate(exitId, null);
-        exit.setVisibility(android.view.View.GONE);
+        exit.setVisibility(VISIBLE);
         exit.findViewById(exitBtnId).setOnClickListener(createExitListener());
         addView(exit);
     }
@@ -415,7 +415,7 @@ implements PlacementListener
         post(new Runnable(){
             @Override
             public void run() {
-                overlay.setVisibility(visible ? android.view.View.VISIBLE : android.view.View.GONE);
+                overlay.setVisibility(visible ? VISIBLE : GONE);
             }
         });
     }
@@ -432,7 +432,7 @@ implements PlacementListener
         post(new Runnable() {
             @Override
             public void run() {
-                animation.setVisibility(visible ? android.view.View.VISIBLE : android.view.View.GONE);
+                animation.setVisibility(visible ? VISIBLE : GONE);
             }
         });
     }
@@ -449,7 +449,7 @@ implements PlacementListener
         post(new Runnable() {
             @Override
             public void run() {
-                exit.setVisibility(visible ? android.view.View.VISIBLE : android.view.View.GONE);
+                exit.setVisibility(visible ? VISIBLE : GONE);
             }
         });
     }
