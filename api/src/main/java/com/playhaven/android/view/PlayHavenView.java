@@ -29,6 +29,7 @@ import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_overlay
 
 import android.os.Build;
 import android.view.*;
+import android.widget.ImageView;
 import com.playhaven.android.util.JsonUtil;
 import net.minidev.json.JSONObject;
 import android.content.Context;
@@ -211,18 +212,27 @@ implements PlacementListener
     protected void createLayers()
     {
         MemoryReporter.report();
+
+        int overlayId = compat.getLayoutId(getContext(), playhaven_overlay);
+        int animationId = compat.getLayoutId(getContext(), playhaven_loadinganim);
+        int exitId = compat.getLayoutId(getContext(), playhaven_exit);
+        int exitBtnId = compat.getId(getContext(), com_playhaven_android_view_Exit_button);
+        if(overlayId <= 0 || animationId <= 0 || exitId <= 0 || exitBtnId <= 0)
+        {
+            failView(new PlayHavenException("createLayers was unable to locate a resource: %d / %d / %d / %d", overlayId, animationId, exitId, exitBtnId));
+            return;
+        }
+
         setMeasureAllChildren(true);
 
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // Bottom Layer is the Overlay
-        int overlayId = compat.getLayoutId(getContext(), playhaven_overlay);
         LinearLayout overlay = (LinearLayout)inflater.inflate(overlayId, null);
         overlay.setVisibility(GONE);
         addView(overlay);
 
         // Next Layer is the Animation
-        int animationId = compat.getLayoutId(getContext(), playhaven_loadinganim);
         RelativeLayout animation = (RelativeLayout)inflater.inflate(animationId, null);
         animation.setVisibility(GONE);
         addView(animation);
@@ -231,12 +241,10 @@ implements PlacementListener
         addView(new android.view.View(getContext()));
 
         // Then the top Layer is the close button
-        int exitId = compat.getLayoutId(getContext(), playhaven_exit);
-        int exitBtnId = compat.getId(getContext(), com_playhaven_android_view_Exit_button);
-        
         LinearLayout exit = (LinearLayout)inflater.inflate(exitId, null);
         exit.setVisibility(VISIBLE);
-        exit.findViewById(exitBtnId).setOnClickListener(createExitListener());
+        ImageView exitBtn = (ImageView) exit.findViewById(exitBtnId);
+        exitBtn.setOnClickListener(createExitListener());
         addView(exit);
     }
 

@@ -49,6 +49,13 @@ public class UnityCompat
         return getResourceId(context, ResourceType.attr, attr.name());
     }
 
+    public int getId(Context context, ID id)
+    {
+        /**
+         * Unity needs to look up by string name
+         */
+        return getResourceId(context, ResourceType.id, id.name());
+    }
 
     public int getResourceId(Context context, ID id)
     {

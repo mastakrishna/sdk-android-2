@@ -492,6 +492,9 @@ public class PlayHaven
         d("Configuration Parameters");
         for(String key : map.keySet())
         {
+            // don't output the Secret to the logs
+            if(key.equals(Config.Secret.toString())) continue;
+
             d("%s: %s", key, map.get(key));
         }
     }
@@ -781,7 +784,7 @@ public class PlayHaven
 
         // Set the property
         editor.putString(Config.PluginIdentifer.toString(), compat.getVendorId());
-        editor.putString(Config.PluginType.toString(), compat.getClass().toString());
+        editor.putString(Config.PluginType.toString(), compat.getClass().getCanonicalName());
 
         // And commit it
         editor.commit();
@@ -800,15 +803,15 @@ public class PlayHaven
         // PlayHaven specific configuration for this Application
         SharedPreferences pref = appContext.getSharedPreferences(SHARED_PREF_NAME, SHARED_PREF_MODE);
 
-        String pluginType = pref.getString(Config.PluginType.toString(), VendorCompat.class.toString());
+        String pluginType = pref.getString(Config.PluginType.toString(), VendorCompat.class.getCanonicalName());
         String pluginId = pref.getString(Config.PluginIdentifer.toString(), "android");
         VendorCompat compat = null;
         if(pluginId != null && pluginType != null)
         {
             try{
                 Class cls = Class.forName(pluginType);
-                @SuppressWarnings("unchecked") Constructor con = cls.getConstructor(String.class);
-                compat = (VendorCompat) con.newInstance(pluginId);
+                @SuppressWarnings("unchecked") Constructor con = cls.getConstructor(Context.class, String.class);
+                compat = (VendorCompat) con.newInstance(context, pluginId);
             } catch (Exception e) {
                 compat = new VendorCompat("android");
             }

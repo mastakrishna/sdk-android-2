@@ -72,6 +72,12 @@ public class VendorCompat
 
     private String vendorId;
 
+    public VendorCompat(Context context, String vendorId)
+    {
+        // We don't need the context, just ignore it
+        this(vendorId);
+    }
+
     public VendorCompat(String vendorId)
     {
         if(vendorId != null || vendorId.length() > 0)

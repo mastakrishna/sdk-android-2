@@ -383,7 +383,17 @@ public class Launcher extends Activity implements PlacementListener, AdapterView
                     placement.setListener(this);
                     placement.preload(this);
                     mOutputBox.updateRequest("Preloading: " + placementTag);
+                    return;
+                default:
+                    if(placement == null) break;
+                    if(placement.getPlacementTag().equals(placementTag)) break;
+                    // Clear outdated placement
+                    placement = null;
                     break;
+            }
+
+            switch(requestType)
+            {
                 case Content:
                     int displayOpts = PlayHavenView.NO_DISPLAY_OPTIONS;
 
