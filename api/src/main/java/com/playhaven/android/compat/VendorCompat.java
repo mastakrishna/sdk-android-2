@@ -40,9 +40,9 @@ public class VendorCompat
     public enum ATTR
     {
         com_playhaven_android_view_PlayHavenView_placementTag,
-        com_playhaven_android_view_PlayHavenView_displayOptions,
+        com_playhaven_android_view_PlayHavenView_cuDisplayOptions,
         com_playhaven_android_view_Badge_placementTag,
-        com_playhaven_android_view_Badge_textColor,
+        com_playhaven_android_view_Badge_badgeTextColor,
     }
 
     public enum STYLEABLE
@@ -122,14 +122,14 @@ public class VendorCompat
     {
         switch(attr)
         {
-            case com_playhaven_android_view_PlayHavenView_displayOptions:
-                return R.styleable.com_playhaven_android_view_PlayHavenView_displayOptions;
+            case com_playhaven_android_view_PlayHavenView_cuDisplayOptions:
+                return R.styleable.com_playhaven_android_view_PlayHavenView_cuDisplayOptions;
             case com_playhaven_android_view_PlayHavenView_placementTag:
                 return R.styleable.com_playhaven_android_view_PlayHavenView_placementTag;
             case com_playhaven_android_view_Badge_placementTag:
                 return R.styleable.com_playhaven_android_view_Badge_placementTag;
-            case com_playhaven_android_view_Badge_textColor:
-                return R.styleable.com_playhaven_android_view_Badge_textColor;
+            case com_playhaven_android_view_Badge_badgeTextColor:
+                return R.styleable.com_playhaven_android_view_Badge_badgeTextColor;
             default:
                 return getResourceId(context, ResourceType.attr, attr.name());
         }

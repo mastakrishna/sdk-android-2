@@ -60,7 +60,7 @@ extends Button
         TypedArray arr = compat.obtainStyledAttributes(context, attrs, VendorCompat.STYLEABLE.com_playhaven_android_view_Badge);
         try {
         	int badgeStyleableId = compat.getAttrId(context, VendorCompat.ATTR.com_playhaven_android_view_Badge_placementTag);
-        	int badgeColorId = compat.getAttrId(context, VendorCompat.ATTR.com_playhaven_android_view_Badge_textColor);
+        	int badgeColorId = compat.getAttrId(context, VendorCompat.ATTR.com_playhaven_android_view_Badge_badgeTextColor);
 
         	setPlacementTag(arr.getString(badgeStyleableId));
             setTextColor(arr.getColor(badgeColorId, Badge.DEFAULT_TEXT_COLOR));
@@ -87,7 +87,7 @@ extends Button
         TypedArray arr = compat.obtainStyledAttributes(context, attrs, VendorCompat.STYLEABLE.com_playhaven_android_view_Badge);
         try {
             int badgeStyleableId = compat.getAttrId(context, VendorCompat.ATTR.com_playhaven_android_view_Badge_placementTag);
-            int badgeColorId = compat.getAttrId(context, VendorCompat.ATTR.com_playhaven_android_view_Badge_textColor);
+            int badgeColorId = compat.getAttrId(context, VendorCompat.ATTR.com_playhaven_android_view_Badge_badgeTextColor);
 
         	setPlacementTag(arr.getString(badgeStyleableId));
             setTextColor(arr.getColor(badgeColorId, Badge.DEFAULT_TEXT_COLOR));

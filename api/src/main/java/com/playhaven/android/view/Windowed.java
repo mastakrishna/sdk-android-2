@@ -17,6 +17,7 @@ package com.playhaven.android.view;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -27,6 +28,9 @@ import com.playhaven.android.Placement;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.compat.VendorCompat;
+import com.playhaven.android.util.DisplayUtil;
+import com.playhaven.android.util.JsonUtil;
+import net.minidev.json.JSONObject;
 
 import static com.playhaven.android.compat.VendorCompat.ID.playhaven_dialog_view;
 import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_dialog;
@@ -36,8 +40,7 @@ import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_dialog;
  */
 public class Windowed
 extends Dialog
-implements PlayHavenListener
-{
+implements PlayHavenListener, FrameManager {
     private static final int DEFAULT_THEME = android.R.style.Theme_Translucent_NoTitleBar;
     private PlayHavenListener phListener;
     private PlayHavenView playHavenView;
@@ -172,7 +175,7 @@ implements PlayHavenListener
         orientation = new OrientationEventListener(context) {
             @Override
             public void onOrientationChanged(int i) {
-                configureSize();
+                updateFrame();
             }
         };
         orientation.enable();
@@ -189,18 +192,11 @@ implements PlayHavenListener
         getWindow().setAttributes(lp);
     }
 
-    private int savedLeft = -1;
-    private int savedTop = -1;
-
-
     /**
      * Configure sizing
      */
     protected void configureSize()
     {
-        // If we are no longer marginalized, let the layout change listener have control instead
-        if(savedLeft >= 0 && savedTop >= 0) return;
-
         if(playHavenView == null)
         {
             VendorCompat compat = PlayHaven.getVendorCompat(getContext());
@@ -209,6 +205,7 @@ implements PlayHavenListener
 
             android.view.View layout =  getLayoutInflater().inflate(dialogLayoutId, null);
             playHavenView = (PlayHavenView) layout.findViewById(dialogViewId);
+            playHavenView.setFrameManager(this);
         }
 
         // Adjust the size of the dialog to be 90%
@@ -220,20 +217,51 @@ implements PlayHavenListener
             playHavenView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
                 public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    // If we aren't being asked to 'frame' it, ignore this
-                    if(left == 0 && top == 0) return;
-
-                    // if the values haven't changed, ignore this
-                    if( (left == savedLeft) && (top == savedTop) ) return;
-
-                    resetWindow(1.00);
-                    savedLeft = left;
-                    savedTop = top;
+                    updateFrame();
                 }
             });
         }
     }
 
+    @Override
+    public void updateFrame() {
+        if(playHavenView == null) return; // not ready yet
+
+        Placement placement = playHavenView.getPlacement();
+        if(placement == null) return; // not ready yet
+
+        String json = placement.getModel();
+        if(json == null) return; // not ready yet
+
+        /**
+         * If the server didn't provide a frame element, we never adjust anything
+         */
+        JSONObject frame = JsonUtil.getPath(json, "$.response.frame");
+        if(frame == null) return;
+
+        boolean portrait = DisplayUtil.isPortrait(getContext());
+
+        JSONObject ph = JsonUtil.getPath(frame, (portrait ? "$.PH_PORTRAIT" : "$.PH_LANDSCAPE"));
+        int jsonX = JsonUtil.asInt(ph, "$.x", 0);
+        int jsonY = JsonUtil.asInt(ph, "$.y", 0);
+        if(jsonX == 0 && jsonY == 0)
+        {
+            resetWindow(0.90);
+            return;
+        }
+
+        /**
+         * If we got this far, we need to set some new margins
+         */
+        int jsonW = JsonUtil.asInt(ph, "$.w", 0);
+        int jsonH = JsonUtil.asInt(ph, "$.h", 0);
+
+        WindowManager.LayoutParams lp=getWindow().getAttributes();
+        lp.dimAmount=0.6f;
+        lp.width = jsonW;
+        lp.height = jsonH;
+        getWindow().setAttributes(lp);
+    }
 
 
     /**

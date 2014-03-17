@@ -15,9 +15,7 @@
  */
 package com.playhaven.android.view;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_displayOptions;
+import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_cuDisplayOptions;
 import static com.playhaven.android.compat.VendorCompat.ATTR.com_playhaven_android_view_PlayHavenView_placementTag;
 import static com.playhaven.android.compat.VendorCompat.ID.com_playhaven_android_view_Exit;
 import static com.playhaven.android.compat.VendorCompat.ID.com_playhaven_android_view_Exit_button;
@@ -28,10 +26,10 @@ import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_loading
 import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_overlay;
 
 import android.os.Build;
+import android.util.Log;
 import android.view.*;
+import android.webkit.WebView;
 import android.widget.ImageView;
-import com.playhaven.android.util.JsonUtil;
-import net.minidev.json.JSONObject;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -40,7 +38,6 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import com.jayway.jsonpath.InvalidPathException;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlacementListener;
 import com.playhaven.android.PlayHaven;
@@ -55,7 +52,7 @@ import com.playhaven.android.util.MemoryReporter;
  */
 public class PlayHavenView
 extends FrameLayout
-implements PlacementListener
+implements PlacementListener, FrameManager
 {
     /** Bundle extra parameter for the placement tag (also used for dataUri) */
     public static final String BUNDLE_PLACEMENT_TAG = "placementTag";
@@ -98,8 +95,6 @@ implements PlacementListener
 
     /** Notification listener */
     private PlayHavenListener phListener;
-
-    private OrientationEventListener orientation;
 
     /**
      * How the view was dismissed
@@ -146,6 +141,11 @@ implements PlacementListener
     private ChildView<? extends View> childView;
 
     /**
+     * Allow views to control how wrapping frames are resized.
+     */
+    private FrameManager frameMgr = this;
+
+    /**
      * Simple constructor to use when creating a PlayHavenView from code.
      *
      * @param context The Context the view is running in, through which it can
@@ -182,7 +182,7 @@ implements PlacementListener
         TypedArray arr = compat.obtainStyledAttributes(context, attrs, VendorCompat.STYLEABLE.com_playhaven_android_view_PlayHavenView);
         try {
             int viewStyleIdTag = compat.getAttrId(context, com_playhaven_android_view_PlayHavenView_placementTag);
-            int displayOptsId = compat.getAttrId(context, com_playhaven_android_view_PlayHavenView_displayOptions);
+            int displayOptsId = compat.getAttrId(context, com_playhaven_android_view_PlayHavenView_cuDisplayOptions);
 
             setPlacementTag(arr.getString(viewStyleIdTag));
             setDisplayOptions(arr.getInteger(displayOptsId, AUTO_DISPLAY_OPTIONS));
@@ -493,75 +493,25 @@ implements PlacementListener
         this.phListener = listener;
     }
 
-    protected void setFrame()
+    /**
+     * Allow views to control how wrapping frames are resized.
+     *
+     * @param frameMgr to control the frame updates
+     */
+    protected void setFrameManager(FrameManager frameMgr)
     {
-        try{
-            JSONObject frame = JsonUtil.getPath(placement.getModel(), "$.response.frame");
-            if(frame != null)
-            {
-                Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-                boolean portrait = true;
+        this.frameMgr = frameMgr;
+    }
 
-                if(Build.VERSION.SDK_INT >= 11)
-                {
-                    // @playhaven.apihack This was always returning 0 on API10
-                    int rotation = display.getRotation();
-                    portrait = (rotation % 180) == 0;
-                }else{
-                    int realX = display.getWidth();
-                    int realY = display.getHeight();
-                    portrait = (realX < realY);
-                }
-
-                JSONObject ph = JsonUtil.getPath(frame, (portrait ? "$.PH_PORTRAIT" : "$.PH_LANDSCAPE"));
-
-
-                MarginLayoutParams params = (MarginLayoutParams) getLayoutParams();
-                int x = JsonUtil.asInt(ph, "$.x", 0);
-                int y = JsonUtil.asInt(ph, "$.y", 0);
-                int w = JsonUtil.asInt(ph, "$.w", 0);
-                int h = JsonUtil.asInt(ph, "$.h", 0);
-
-                if( (x == 0 && params.topMargin == 0) && (y == 0 && params.leftMargin == 0))
-                {
-                    // Nothing to do as we are already full screen and we want to be
-                }else{
-                    params.height = h;
-                    params.width = w;
-                    params.leftMargin = x;
-                    params.topMargin = y;
-
-                    if(Build.VERSION.SDK_INT == 10)
-                    {
-                        // @playhaven.apihack gingerbread was not centering
-
-                        if(params instanceof LinearLayout.LayoutParams)
-                        {
-                            ((LinearLayout.LayoutParams)params).gravity = Gravity.TOP;
-                        }else if(params instanceof FrameLayout.LayoutParams){
-                            ((FrameLayout.LayoutParams)params).gravity = Gravity.TOP;
-                        }
-                    }
-
-                    requestLayout();
-                }
-
-                if(orientation == null)
-                {
-                    orientation = new OrientationEventListener(getContext()) {
-                        @Override
-                        public void onOrientationChanged(int i) {
-                            setFrame();
-                        }
-                    };
-                    orientation.enable();
-                }
-            }
-        }catch(ClassCastException e){
-            // no-op, just won't use the frame
-        }catch(InvalidPathException e){
-            // no-op
-        }
+    @Override
+    public void updateFrame() {
+        /**
+         * Windowed and FullScreen have their own method for handling this functionality.
+         * Default behavior is for Embedded View (aka bare)
+         * In this state, the publisher is specifically (and manually) setting a size on us
+         * so we do not want to resize...  We can't even make assumptions about rotation since that might
+         * be a completely different layout file.
+         */
     }
 
     /**
@@ -574,7 +524,6 @@ implements PlacementListener
     @SuppressWarnings("unchecked")
     public void contentLoaded(final Placement placement) 
     {
-    	setFullscreen(placement);
         setAnimationVisible(false);
         setOverlayVisible(false);
 //      setExitVisible(false);
@@ -584,7 +533,7 @@ implements PlacementListener
             public void run() {
 
                 // If necessary, resize before giving the webview a chance to measure anything
-                setFrame();
+                if(frameMgr != null) frameMgr.updateFrame();
 
                 /**
                  * Do we load a native view or an html view?  Deciding factors:
@@ -596,6 +545,14 @@ implements PlacementListener
                  *
                  * Currently, native views are not enabled, so we will default to the HTMLView
                  */
+
+                /**
+                 * @playhaven.apihack if on KitKat+, enable Remote Webview Debugging via Chrome
+                 * https://developers.google.com/chrome-developer-tools/docs/remote-debugging
+                 */
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                    WebView.setWebContentsDebuggingEnabled(PlayHaven.isLoggable(Log.DEBUG));
+
                 childView = new HTMLView(getContext());
                 childView.setPlacement(placement);
 
@@ -612,22 +569,6 @@ implements PlacementListener
             }
         });
     }
-
-    private void setFullscreen(Placement pl) {
-		if (!pl.isFullscreenCompatible()) {
-			Object context = this.getContext();
-			if (context instanceof FullScreen) {
-				final FullScreen hostActivity = (FullScreen) context;
-				hostActivity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						hostActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-						PlayHaven.v("Placement should not be displayed fullscreen, clearing flag.");
-					}
-				});
-			}
-		}
-	}
 
 	/**
      * Content failed to load successfully
@@ -673,9 +614,6 @@ implements PlacementListener
      */
     @Override
     protected void onDetachedFromWindow() {
-        if(orientation != null)
-            orientation.disable();
-
         MemoryReporter.report();
         super.onDetachedFromWindow();
     }

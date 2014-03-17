@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Medium Entertainment, Inc.
+ * Copyright 2014 Medium Entertainment, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.playhaven.android.diagnostic;
+package com.playhaven.android.view;
 
-import android.content.res.Resources;
-
-public enum RequestType
+/**
+ * Allow views to control how wrapping frames are resized.
+ */
+public interface FrameManager
 {
-    Open(R.string.req_open),
-    Preload(R.string.req_preload),
-    Content(R.string.req_content),
-    Metadata(R.string.req_meta),
-    CustomEvent(R.string.req_custom_event),
-    GcmReg(R.string.req_push_reg),
-    GcmDereg(R.string.req_push_dereg);
-
-    RequestType(int id)
-    {
-        this.id = id;
-    }
-    private int id;
-    public String toString(Resources resources){return resources.getString(id);}
+    public void updateFrame();
 }

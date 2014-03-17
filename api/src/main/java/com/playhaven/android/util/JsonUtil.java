@@ -37,6 +37,8 @@ public class JsonUtil
             return null;
         }catch(InvalidPathException e){
             return null;
+        }catch(NullPointerException e){
+            return null;
         }
     }
 

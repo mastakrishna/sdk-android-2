@@ -8,12 +8,12 @@
     <name>${artifactId}</name>
 
     <properties>
-        <maven.min-version>3.0.3</maven.min-version>
+        <maven.min-version>3.1.1</maven.min-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <android.sdk.path>${env.ANDROID_HOME}</android.sdk.path>
-        <android.dependency.version>4.2_r1</android.dependency.version>
-        <android.maven.version>3.6.0</android.maven.version>
-        <android.api>17</android.api>
+        <android.dependency.version>4.4_r1</android.dependency.version>
+        <android.maven.version>3.9.0-rc.1</android.maven.version>
+        <android.api>19</android.api>
     </properties>
 
     <repositories>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.playhaven.android</groupId>
             <artifactId>playhaven-api</artifactId>
-            <version>2.1.0</version>
+            <version>${version}</version>
             <type>apklib</type>
         </dependency>
     </dependencies>
@@ -67,7 +67,7 @@
                                     <version>[${maven.min-version},)</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
-                                    <version>[1.6,1.7)</version>
+                                    <version>[1.7,)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -79,36 +79,12 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                     <!--<compilerArgument>-Xlint:all</compilerArgument>-->
                     <!--<showWarnings>true</showWarnings>-->
                     <!--<showDeprecation>true</showDeprecation>-->
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.github.goldin</groupId>
-                <artifactId>copy-maven-plugin</artifactId>
-                <version>0.2.5</version>
-                <executions>
-                    <execution>
-                        <!-- Currently, there is a bug where mergeManifests is modifying the src/main/android/AndroidManifest.xml
-                        Source files should never be altered. Bug report: http://code.google.com/p/maven-android-plugin/issues/detail?id=343 -->
-                        <id>copy-AndroidManifest</id>
-                        <phase>validate</phase>
-                        <goals><goal>copy</goal></goals>
-                        <configuration>
-                            <failIfNotFound>false</failIfNotFound>
-                            <resource>
-                                <targetPath>${project.build.directory}</targetPath>
-                                <directory>${project.basedir}/src/main/android</directory>
-                                <include>AndroidManifest.xml</include>
-                                <mkdir>true</mkdir>
-                            </resource>
-                            <verbose>true</verbose>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
@@ -116,7 +92,8 @@
                 <version>${android.maven.version}</version>
                 <configuration>
                     <extractDuplicates>true</extractDuplicates>
-                    <androidManifestFile>${project.build.directory}/AndroidManifest.xml</androidManifestFile>
+					<sourceManifestFile>${project.basedir}/src/main/AndroidManifest.xml</sourceManifestFile>
+					<androidManifestFile>${project.build.directory}/AndroidManifest.xml</androidManifestFile>                        
                     <assetsDirectory>${project.basedir}/src/main/assets</assetsDirectory>
                     <resourceDirectory>${project.basedir}/src/main/android/res</resourceDirectory>
                     <nativeLibrariesDirectory>${project.basedir}/src/main/native</nativeLibrariesDirectory>
@@ -124,8 +101,6 @@
                         <platform>${android.api}</platform>
                     </sdk>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
-                    <!-- Currently, there is a bug where mergeManifests is modifying the src/main/AndroidManifest.xml
-                    Source files should never be altered. Bug report: http://code.google.com/p/maven-android-plugin/issues/detail?id=343 -->
                     <mergeManifests>true</mergeManifests>
                     <proguard>
                         <skip>true</skip>
@@ -144,8 +119,7 @@
                             <goal>undeploy</goal>
                         </goals>
                         <configuration>
-                            <!-- Due to our copy workaround for http://code.google.com/p/maven-android-plugin/issues/detail?id=343
-                            the copy may not yet exist at this stage...  -->
+                            <!-- the copy may not yet exist at this stage...  -->
                             <androidManifestFile>${project.basedir}/src/main/android/AndroidManifest.xml</androidManifestFile>
                         </configuration>
                     </execution>

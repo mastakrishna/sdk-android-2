@@ -23,4 +23,5 @@ limitations under the License.
     <string name="playhaven_request_subcontent">v3/publisher/content/</string>
     <string name="playhaven_request_iap_tracking">v3/publisher/iap</string>
     <string name="playhaven_request_push">v3/publisher/push/</string>
+    <string name="playhaven_request_event">v4/publisher/event/</string>
 </resources>

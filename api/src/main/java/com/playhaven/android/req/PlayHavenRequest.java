@@ -32,6 +32,7 @@ import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.Version;
 import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.util.JsonUtil;
+import com.playhaven.android.util.KontagentUtil;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.springframework.http.*;
@@ -47,10 +48,7 @@ import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.Formatter;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.playhaven.android.PlayHaven.Config.*;
 
@@ -64,11 +62,6 @@ public abstract class PlayHavenRequest
     private String lastUrl;
 
     /**
-     * REST handler
-     */
-    protected RestTemplate rest;
-
-    /**
      * Handler for server response
      */
     private RequestListener handler;
@@ -78,30 +71,35 @@ public abstract class PlayHavenRequest
      */
     private Mac sigMac;
 
+    /**
+     * Kontagent senderId
+     */
+    private String ktsid;
+
+    /**
+     * HTTP Method to use
+     */
+    private HttpMethod restMethod = HttpMethod.GET;
+
     protected PlayHavenRequest()
     {
-        // Add the gzip Accept-Encoding header
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
-        requestHeaders.setAccept(Collections.singletonList(new MediaType("application","json")));
-        HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
-
-        // Create our REST handler
-        rest = new RestTemplate();
-        rest.setErrorHandler(new ServerErrorHandler());
-
-        // Capture the JSON for signature verification
-        rest.getMessageConverters().add(new StringHttpMessageConverter(Charset.forName(UTF8)));
     }
 
     /**
      * Set the REST method to use
      *
+     * @param method to use
+     */
+    protected void setMethod(HttpMethod method){this.restMethod = method;}
+
+    /**
+     * Return the REST method to use
+     *
      * @return method to use
      */
     protected HttpMethod getMethod()
     {
-        return HttpMethod.GET;
+        return restMethod;
     }
 
     protected HttpHeaders getHeaders()
@@ -187,7 +185,9 @@ public abstract class PlayHavenRequest
 
 
             builder.queryParam("plugin", getString(pref, PluginIdentifer));
-            builder.queryParam("languages", context.getResources().getConfiguration().locale.getLanguage());
+
+            Locale locale = context.getResources().getConfiguration().locale;
+            builder.queryParam("languages", String.format("%s,%s", locale.toString(), locale.getLanguage()));
             builder.queryParam("token", getString(pref, Token));
 
             builder.queryParam("device", getString(pref, DeviceId));
@@ -198,6 +198,10 @@ public abstract class PlayHavenRequest
             String uuid = UUID.randomUUID().toString();
             String nonce = base64Digest(uuid);
             builder.queryParam("nonce", nonce);
+
+            ktsid = KontagentUtil.getSenderId(context);
+            if(ktsid != null)
+                builder.queryParam("sid", ktsid);
 
             addSignature(builder, pref, nonce);
 
@@ -220,21 +224,33 @@ public abstract class PlayHavenRequest
 
     protected void addV3Signature(UriComponentsBuilder builder, SharedPreferences pref, String nonce) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         builder.queryParam("signature", hexDigest(
-            concat(":",
-                getString(pref, Token),
-                getString(pref, DeviceId),
-                nonce,
-                getString(pref, Secret)
-            )
+                concat(":",
+                        getString(pref, Token),
+                        getString(pref, DeviceId),
+                        nonce,
+                        getString(pref, Secret)
+                )
         ));
     }
 
     protected void addV4Signature(UriComponentsBuilder builder, SharedPreferences pref, String nonce) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
-        String ids = concat(":",
-            getString(pref, DeviceId),
-            getString(pref, Token),
-            nonce
-        );
+        String ids = null;
+        if(ktsid == null)
+        {
+            ids = concat(":",
+                getString(pref, DeviceId),
+                getString(pref, Token),
+                nonce
+            );
+        }else{
+            ids = concat(":",
+                getString(pref, DeviceId),
+                ktsid,
+                getString(pref, Token),
+                nonce
+            );
+
+        }
         builder.queryParam("sig4", createHmac(pref, ids, true));
     }
 
@@ -348,6 +364,10 @@ public abstract class PlayHavenRequest
         if(xPhDigest == null)
             throw new SignatureException(SignatureException.Type.Digest, "No digest found");
 
+        // If json is null, there is nothing to validate against
+        if(json == null)
+            throw new SignatureException(SignatureException.Type.Digest, "No JSON found");
+
         // Valid X-PH-DIGEST against sigMac
         try {
             sigMac.update(json.getBytes(UTF8));
@@ -445,9 +465,39 @@ public abstract class PlayHavenRequest
                      * Not mocking the response. Do an actual server call.
                      */
                     String url = getUrl(context);
-                    PlayHaven.v("Request(%s): %s", PlayHavenRequest.this.getClass().getSimpleName(), url);
+                    PlayHaven.v("Request(%s) %s: %s", PlayHavenRequest.this.getClass().getSimpleName(), restMethod, url);
 
-                    ResponseEntity<String> entity = rest.getForEntity(url, String.class);
+                    // Add the gzip Accept-Encoding header
+                    HttpHeaders requestHeaders = new HttpHeaders();
+                    requestHeaders.setAcceptEncoding(ContentCodingType.GZIP);
+                    requestHeaders.setAccept(Collections.singletonList(new MediaType("application","json")));
+
+                    // Create our REST handler
+                    RestTemplate rest = new RestTemplate();
+                    rest.setErrorHandler(new ServerErrorHandler());
+
+                    // Capture the JSON for signature verification
+                    rest.getMessageConverters().add(new StringHttpMessageConverter(Charset.forName(UTF8)));
+
+                    ResponseEntity<String> entity = null;
+
+                    switch(restMethod)
+                    {
+                        case POST:
+                            SharedPreferences pref = PlayHaven.getPreferences(context);
+                            String apiServer = getString(pref, APIServer) + context.getResources().getString(getApiPath(context));
+                            url = url.replace(apiServer, "");
+                            if(url.startsWith("?") && url.length() > 1)
+                                url = url.substring(1);
+
+                            requestHeaders.setContentType(new MediaType("application","x-www-form-urlencoded"));
+                            entity = rest.exchange(apiServer, restMethod, new HttpEntity<>(url, requestHeaders), String.class);
+                            break;
+                        default:
+                            entity = rest.exchange(url, restMethod, new HttpEntity<>(requestHeaders), String.class);
+                            break;
+                    }
+
                     String json = entity.getBody();
 
                     List<String> digests = entity.getHeaders().get("X-PH-DIGEST");

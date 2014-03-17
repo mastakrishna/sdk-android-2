@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -33,19 +34,21 @@ import com.playhaven.android.Placement;
 import com.playhaven.android.PlacementListener;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
+import com.playhaven.android.data.CustomEvent;
 import com.playhaven.android.data.DataCollectionField;
 import com.playhaven.android.data.Purchase;
 import com.playhaven.android.data.Reward;
 import com.playhaven.android.push.GCMRegistrationRequest;
 import com.playhaven.android.push.NotificationBuilder;
 import com.playhaven.android.push.PushReceiver;
-import com.playhaven.android.req.MetadataRequest;
-import com.playhaven.android.req.OpenRequest;
-import com.playhaven.android.req.PlayHavenRequest;
-import com.playhaven.android.req.RequestListener;
+import com.playhaven.android.req.*;
 import com.playhaven.android.view.*;
 import com.playhaven.android.diagnostic.OutputBox.OutputType;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Launcher extends Activity implements PlacementListener, AdapterView.OnItemSelectedListener, RequestListener, DialogInterface.OnDismissListener, PlayHavenListener {
@@ -367,6 +370,9 @@ public class Launcher extends Activity implements PlacementListener, AdapterView
                     mOutputBox.updateRequest("De-registration request sent.");
                     ((RequestTypeAdapter)reqSpinner.getAdapter()).setGCM(this, false);
                     return;
+                case CustomEvent:
+                    doCustomEvent();
+                    return;
                 default:
                     break;
             }
@@ -453,6 +459,28 @@ public class Launcher extends Activity implements PlacementListener, AdapterView
         }
     }
 
+    private void doCustomEvent()
+    {
+        EditText fileEditor = (EditText) findViewById(R.id.eventFile);
+        final String fileName =  fileEditor.getText().toString();
+        if(TextUtils.isEmpty(fileName))
+            return;
+
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    CustomEvent event = new CustomEvent(new FileReader(new File(fileName)));
+                    request = new CustomEventRequest(event);
+                    request.setResponseHandler(Launcher.this);
+                    request.send(Launcher.this);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error sending custom event", e);
+                }
+            }
+        }).start();
+    }
+
     private String getPlacementTag()
     {
         String placementId = ((EditText)findViewById(R.id.placementTag)).getText().toString();
@@ -523,27 +551,45 @@ public class Launcher extends Activity implements PlacementListener, AdapterView
             {
                 case Open:
                     findViewById(R.id.placementTag).setEnabled(false);
+                    findViewById(R.id.eventFile).setEnabled(false);
+                    findViewById(R.id.auto).setEnabled(false);
                     findViewById(R.id.overlay).setEnabled(false);
                     findViewById(R.id.animation).setEnabled(false);
                     findViewById(R.id.viewtype_spinner).setEnabled(false);
                     break;
                 case Preload:
                     findViewById(R.id.placementTag).setEnabled(true);
+                    findViewById(R.id.eventFile).setEnabled(false);
+                    findViewById(R.id.auto).setEnabled(false);
                     findViewById(R.id.overlay).setEnabled(false);
                     findViewById(R.id.animation).setEnabled(false);
                     findViewById(R.id.viewtype_spinner).setEnabled(false);
                     break;
                 case Content:
                     findViewById(R.id.placementTag).setEnabled(true);
+                    findViewById(R.id.eventFile).setEnabled(false);
+                    findViewById(R.id.auto).setEnabled(true);
                     findViewById(R.id.overlay).setEnabled(true);
                     findViewById(R.id.animation).setEnabled(true);
                     findViewById(R.id.viewtype_spinner).setEnabled(true);
                     break;
                 case Metadata:
                     findViewById(R.id.placementTag).setEnabled(true);
+                    findViewById(R.id.eventFile).setEnabled(false);
+                    findViewById(R.id.auto).setEnabled(false);
                     findViewById(R.id.overlay).setEnabled(false);
                     findViewById(R.id.animation).setEnabled(false);
                     findViewById(R.id.viewtype_spinner).setEnabled(false);
+                    break;
+                case CustomEvent:
+                    findViewById(R.id.placementTag).setEnabled(false);
+                    findViewById(R.id.eventFile).setEnabled(true);
+                    findViewById(R.id.auto).setEnabled(false);
+                    findViewById(R.id.overlay).setEnabled(false);
+                    findViewById(R.id.animation).setEnabled(false);
+                    findViewById(R.id.viewtype_spinner).setEnabled(false);
+                    break;
+                default:
                     break;
             }
             findViewById(R.id.go).setEnabled(true);
@@ -559,6 +605,7 @@ public class Launcher extends Activity implements PlacementListener, AdapterView
     public void onNothingSelected(AdapterView<?> parent) {
         findViewById(R.id.go).setEnabled(false);
         findViewById(R.id.placementTag).setEnabled(false);
+        findViewById(R.id.eventFile).setEnabled(false);
         findViewById(R.id.overlay).setEnabled(false);
         findViewById(R.id.animation).setEnabled(false);
         findViewById(R.id.viewtype_spinner).setEnabled(false);

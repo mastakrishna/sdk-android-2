@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.playhaven.android.Version;
@@ -117,7 +118,7 @@ public class DiagnosticPreferences extends PreferenceActivity implements SharedP
                     setSummary(pref_key, null);
                     break;
                 }
-                if(!value.endsWith(".com"))
+                if(!value.endsWith(".com/"))
                 {
                     value = null;
                     altered = true;

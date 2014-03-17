@@ -22,15 +22,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.*;
 
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import com.playhaven.android.Placement;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.compat.VendorCompat;
 import com.playhaven.android.push.NotificationBuilder;
+import com.playhaven.android.util.DisplayUtil;
+import com.playhaven.android.util.JsonUtil;
+import net.minidev.json.JSONObject;
 
 import java.util.List;
 
@@ -39,8 +44,7 @@ import static com.playhaven.android.compat.VendorCompat.LAYOUT.playhaven_activit
 
 public class FullScreen
 extends Activity
-implements PlayHavenListener
-{
+implements PlayHavenListener, FrameManager {
     private static final String TIMESTAMP = "closed.timestamp";
 
     /**
@@ -52,6 +56,16 @@ implements PlayHavenListener
      * Vendor compat lib for wrappers
      */
     private VendorCompat compat;
+
+    /**
+     * Resize the frame on orientation changes
+     */
+    private OrientationEventListener orientation;
+
+    /**
+     * No need to clear the flag every time the orientation sensor updates
+     */
+    private boolean fullscreenFlagCleared = false;
 
     /**
      * Construct an Intent, used to display a PlayHaven FullScreen ad using the default display options
@@ -189,6 +203,7 @@ implements PlayHavenListener
         int activityViewId = compat.getId(getApplicationContext(), VendorCompat.ID.playhaven_activity_view);
         PlayHavenView playHavenView = (PlayHavenView) findViewById(activityViewId);
         playHavenView.setPlayHavenListener(this);
+        playHavenView.setFrameManager(this);
 
         // If launched via Uri.parse, grab the parameters from the Uri
         Uri dataUri = getIntent().getData();
@@ -230,7 +245,81 @@ implements PlayHavenListener
                 }
             }
         }
+
+        if(orientation == null)
+        {
+            orientation = new OrientationEventListener(this) {
+                @Override
+                public void onOrientationChanged(int i) {
+                    updateFrame();
+                }
+            };
+            orientation.enable();
+        }
     }
+
+    @Override
+    public void updateFrame() {
+        if(compat == null) return; // not ready up
+
+        int activityViewId = compat.getId(this, VendorCompat.ID.playhaven_activity_view);
+        PlayHavenView playHavenView = (PlayHavenView) findViewById(activityViewId);
+        if(playHavenView == null) return; // not ready yet
+
+        Placement placement = playHavenView.getPlacement();
+        if(placement == null) return; // not ready yet
+
+        String json = placement.getModel();
+        if(json == null) return; // not ready yet
+
+        if(placement.isFullscreenCompatible() && !fullscreenFlagCleared) // relies on the model
+        {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            PlayHaven.v("Placement should not be displayed fullscreen, clearing flag.");
+            fullscreenFlagCleared = true;
+        }
+
+        /**
+         * If the server didn't provide a frame element, we never adjust anything
+         */
+        JSONObject frame = JsonUtil.getPath(json, "$.response.frame");
+        if(frame == null) return;
+
+        boolean portrait = DisplayUtil.isPortrait(this);
+
+        JSONObject ph = JsonUtil.getPath(frame, (portrait ? "$.PH_PORTRAIT" : "$.PH_LANDSCAPE"));
+        int jsonX = JsonUtil.asInt(ph, "$.x", 0);
+        int jsonY = JsonUtil.asInt(ph, "$.y", 0);
+        if(jsonX == 0 && jsonY == 0)
+            return; // they are requesting full screen; nothing to do
+
+        /**
+         * If we got this far, we need to set some margins
+         */
+        int jsonW = JsonUtil.asInt(ph, "$.w", 0);
+        int jsonH = JsonUtil.asInt(ph, "$.h", 0);
+
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) playHavenView.getLayoutParams();
+        params.height = jsonH;
+        params.width = jsonW;
+        params.leftMargin = jsonX;
+        params.topMargin = jsonY;
+
+        if(Build.VERSION.SDK_INT == 10)
+        {
+            // @playhaven.apihack gingerbread was not centering
+
+            if(params instanceof LinearLayout.LayoutParams)
+            {
+                ((LinearLayout.LayoutParams)params).gravity = Gravity.TOP;
+            }else if(params instanceof FrameLayout.LayoutParams){
+                ((FrameLayout.LayoutParams)params).gravity = Gravity.TOP;
+            }
+        }
+
+        playHavenView.requestLayout();
+    }
+
 
     /**
      * Close this ad
@@ -238,6 +327,9 @@ implements PlayHavenListener
     @Override
     public void finish() 
     {
+        if(orientation != null)
+            orientation.disable();
+
         if(result == null && compat != null)
         {
             // Default result...

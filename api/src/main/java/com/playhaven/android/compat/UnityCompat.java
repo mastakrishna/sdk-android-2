@@ -74,7 +74,7 @@ public class UnityCompat
         {
             return new int[]{
                 getAttrId(context, ATTR.com_playhaven_android_view_PlayHavenView_placementTag),
-                getAttrId(context, ATTR.com_playhaven_android_view_PlayHavenView_displayOptions)
+                getAttrId(context, ATTR.com_playhaven_android_view_PlayHavenView_cuDisplayOptions)
             };
         }
 
@@ -82,7 +82,7 @@ public class UnityCompat
         {
             return new int[]{
                 getAttrId(context, ATTR.com_playhaven_android_view_Badge_placementTag),
-                getAttrId(context, ATTR.com_playhaven_android_view_Badge_textColor)
+                getAttrId(context, ATTR.com_playhaven_android_view_Badge_badgeTextColor)
             };
         }
 

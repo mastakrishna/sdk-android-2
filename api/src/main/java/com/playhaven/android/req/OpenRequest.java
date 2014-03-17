@@ -17,13 +17,17 @@ package com.playhaven.android.req;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.jayway.jsonpath.InvalidPathException;
 import com.playhaven.android.PlayHaven;
 import com.playhaven.android.PlayHavenException;
 import com.playhaven.android.cache.Cache;
 import com.playhaven.android.cache.CacheResponseHandler;
 import com.playhaven.android.cache.CachedInfo;
 import com.playhaven.android.data.JsonUrlExtractor;
+import com.playhaven.android.util.JsonUtil;
+import com.playhaven.android.util.KontagentUtil;
 import com.playhaven.android.util.TimeZoneFormatter;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
@@ -44,16 +48,26 @@ extends PlayHavenRequest
     private static final String STIME = "stime";
     private static final String SSTART = "sstart";
     private Cache cache;
+    private Context ktContext;
 
     public OpenRequest()
     {
         super();
+        setMethod(HttpMethod.POST);
     }
 
     @Override
     protected UriComponentsBuilder createUrl(android.content.Context context) throws PlayHavenException {
         UriComponentsBuilder builder = super.createUrl(context);
         builder.queryParam("tz", TimeZoneFormatter.getDefaultTimezone());
+
+        String ktsid = KontagentUtil.getSenderId(context);
+        if(ktsid == null)
+        {
+            ktsid = KontagentUtil.getSenderIdsAsJson(context);
+            if(ktsid != null)
+                builder.queryParam("ktsids", ktsid);
+        }// else base request will add it in, don't duplicate
 
         SharedPreferences pref = PlayHaven.getPreferences(context);
         int scount = pref.getInt(SCOUNT, 0);
@@ -91,14 +105,10 @@ extends PlayHavenRequest
         edit.putLong(SSUM, 0);
         // Commit changes
         edit.commit();
+
+        // Temporarily hold onto this for updating Kontagent preferences from the Json response...
+        ktContext = context;
     }
-
-    // v4 support not yet enabled -- leaving here commented out so easy to switch
-
-//    @Override
-//    protected void addSignature(UriComponentsBuilder builder, SharedPreferences pref, String nonce) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-//        addV4Signature(builder, pref, nonce);
-//    }
 
     protected void handleResponse(String json)
     {
@@ -120,6 +130,18 @@ extends PlayHavenRequest
             /* no-op, just don't precache */
         }
 
+        /**
+         * Setup Kontagent information, if available
+         */
+        try{
+            String ktapi = JsonUtil.asString(json, "$.response.ktapi");
+            String ktsid = JsonUtil.asString(json, "$.response.ktsid");
+            KontagentUtil.setSenderId(ktContext, ktapi, ktsid);
+        }catch(InvalidPathException e){
+            // no-op
+        }
+        // And remove it to prevent any leak...
+        ktContext = null;
 
         RequestListener handler = getResponseHandler();
         if(handler != null)

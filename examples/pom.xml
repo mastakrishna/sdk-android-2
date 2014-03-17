@@ -19,7 +19,7 @@ limitations under the License.
     <parent>
         <groupId>com.playhaven.android</groupId>
         <artifactId>sdk</artifactId>
-        <version>2.1.4</version>
+        <version>2.2.0</version>
     </parent>
     <artifactId>examples</artifactId>
     <packaging>apk</packaging>
@@ -42,8 +42,7 @@ limitations under the License.
                                     <goal>undeploy</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- Due to our copy workaround for http://code.google.com/p/maven-android-plugin/issues/detail?id=343
-                                    the copy may not yet exist at this stage...  -->
+                                    <!-- the copy may not yet exist at this stage...  -->
                                     <androidManifestFile>${project.basedir}/src/AndroidManifest.xml</androidManifestFile>
                                 </configuration>
                             </execution>
@@ -57,6 +56,7 @@ limitations under the License.
                                         <versionName>${project.version}</versionName>
                                         <versionCodeUpdateFromVersion>true</versionCodeUpdateFromVersion>
                                     </manifest>
+                                    <updatedManifestFile>${project.build.directory}/AndroidManifest.xml</updatedManifestFile>
                                 </configuration>
                             </execution>
                             <execution>
@@ -104,6 +104,7 @@ limitations under the License.
                                         <versionName>${project.version}</versionName>
                                         <versionCodeUpdateFromVersion>true</versionCodeUpdateFromVersion>
                                     </manifest>
+                                    <updatedManifestFile>${project.build.directory}/AndroidManifest.xml</updatedManifestFile>
                                 </configuration>
                             </execution>
                         </executions>

@@ -23,6 +23,42 @@ limitations under the License.
     </properties>
 
     <body>
+<release version="2.2.0" description="Release 2.2.0" date="2014-03-14">
+</release>
+
+<release version="2.1.6" description="Release 2.1.6" date="2014-03-07">
+  <action dev="Malachi de AElfweald">[PH-AND] As QA, I want to test custom events on Android in the Diagnostics app</action>
+  <action dev="Malachi de AElfweald">[PH-AND] As a publisher, I want to send custom events via the PH Android SDK so I can analyze them in my KT dashboard.</action>
+</release>
+
+
+<release version="2.1.5" description="Release 2.1.5" date="2014-03-05">
+  <action type="fix" dev="Malachi de AElfweald">[PH-Android-Svalue]Crash on Gingerbread when trying to make open request</action>
+  <action dev="Malachi de AElfweald">[PH-AND] Update android maven plugin to non-SNAPSHOT</action>
+  <action dev="Malachi de AElfweald">[PD-AND] update PH Android SDK to quicktag 2.1.4</action>
+  <action dev="Malachi de AElfweald">[PH-AND] update for maven-android-plugin 441 fix</action>
+  <action dev="Malachi de AElfweald">[PH-AND] As QA, I want to test S-value on Android when both PH and KT SDKs are integrated</action>
+  <action type="fix" dev="Malachi de AElfweald">[PH-AND] PH Android embedded views respecting framed sizes too much</action>
+  <action dev="Malachi de AElfweald">[PH-AND] Support S-value as additional identifier in PH Android SDK</action>
+  <action dev="Malachi de AElfweald">Build signoff</action>
+  <action dev="Malachi de AElfweald">Enable debugging of KitKat webviews</action>
+  <action type="fix" dev="Malachi de AElfweald">Android MGW is getting stuck in infinite loading state</action>
+  <action type="fix" dev="Malachi de AElfweald">Diagnostic App ignores APIServer</action>
+  <action dev="Malachi de AElfweald">Upgrade android-maven-plugin to 3.8.2</action>
+  <action dev="Malachi de AElfweald">Upgrade build to API 19 / 4.4_r1</action>
+  <action dev="Malachi de AElfweald">Upgrade to Maven 3.1.1</action>
+  <action dev="Malachi de AElfweald">Chinese Language Calls are same for zh-hans and zh-hant</action>
+</release>
+
+<release version="2.1.4" description="Release 2.1.4" date="2013-12-06">
+  <action dev="Scott Bigelow">Create Release Candidate 2.1.4</action>
+  <action dev="Malachi de AElfweald">Improve createLayer error logging</action>
+  <action dev="Malachi de AElfweald">Pass Context to VendorCompat</action>
+  <action dev="Scott Bigelow">Release Android SDK 2.1.4</action>
+  <action type="fix" dev="Malachi de AElfweald">The Playhaven.configure() method in Android is dumping the user's secret value to the logs</action>
+  <action type="fix" dev="Malachi de AElfweald">previously pre-loaded content unit continues to be used after changing placement field text</action>
+</release>
+
 <release version="2.1.3" description="Release 2.1.3" date="2013-11-18">
   <action type="fix" dev="Malachi de Ælfweald">Emergency "X" button (image only) does not show on Android 2.1.X</action>
   <action type="update" dev="Malachi de Ælfweald">Glu feedback on Android SDK 2.1.1: they want .jar files; use getIdentifier()</action>

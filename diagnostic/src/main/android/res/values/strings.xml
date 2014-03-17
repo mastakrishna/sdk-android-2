@@ -71,4 +71,6 @@ limitations under the License.
     <string name="go_btn">Start</string>
     <string name="go_hint">placement_tag (More Games to test all)</string>
     <string name="go_error">You must enter a More Games placement tag.</string>
+    <string name="req_custom_event">Custom Event</string>
+    <string name="eventFile">/sdcard/event1.json</string>
 </resources>

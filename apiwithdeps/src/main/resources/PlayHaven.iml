@@ -71,7 +71,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/support-v4-r7.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/compatibility-v4-19.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

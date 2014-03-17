@@ -176,4 +176,70 @@ extends PHTestCase<Launcher>
 
         launcher.finish();
     }
+
+    class MockKTOpenRequest
+            extends OpenRequest
+    {
+        /**
+         * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
+         * Save the model for later processing.
+         */
+        private String returnedModel;
+
+        /**
+         * ActivityInstrumentationTestCase2/JUnit doesn't work with assertions run in a background thread.
+         * Save the exception for later processing.
+         */
+        private Exception returnedException;
+
+        public MockKTOpenRequest() {
+            super();
+        }
+
+        @Override
+        protected void handleResponse(String json) {
+            Log.d(TAG, "handleResponse: model");
+            super.handleResponse(json);
+            this.returnedModel = json;
+            markReadyForTesting(this);
+        }
+
+        @Override
+        protected void handleResponse(PlayHavenException e) {
+            Log.d(TAG, "handleResponse: exception");
+            super.handleResponse(e);
+            this.returnedException = e;
+            markReadyForTesting(this);
+        }
+
+        @Override
+        protected String getMockJsonResponse() {
+            return "{\"errobj\":null,\"response\":{\"session\":\"4153yzjRuyIBKTpYwbAu\",\"precache\":[],\"ktapi\":\"895467583e494dbea9c81553c7b6b5ad\",\"ktsid\":\"5611190844015425273\"},\"error\":null}";
+        }
+    }
+
+    @SmallTest
+    public void testKTMockOpen() throws Exception
+    {
+        Instrumentation instrumentation = getInstrumentation();
+        Launcher launcher = startActivitySync(Launcher.class);
+        sleep(250);
+
+        MockKTOpenRequest req = new MockKTOpenRequest();
+        enableThreadedTesting(req);
+        req.send(instrumentation.getTargetContext());
+        waitForReady(req);
+
+        if(req.returnedException != null)
+            fail(req.returnedException.getMessage());
+
+        String model = req.returnedModel;
+
+        assertNotNull(model);
+        assertFalse(JsonUtil.hasPath(model, "$.error"));
+        assertFalse(JsonUtil.hasPath(model, "$.response.context.content"));
+        assertTrue(JsonUtil.hasPath(model, "$.response.ktapi"));
+        assertTrue(JsonUtil.hasPath(model, "$.response.ktsid"));
+        launcher.finish();
+    }
 }

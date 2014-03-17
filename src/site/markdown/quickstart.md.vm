@@ -238,7 +238,7 @@ You can define the button in XML like so (notice the two PlayHaven-specific attr
         android:text="@string/moregames.text"
         android:onClick="moreGamesClicked"
         playhaven:placementTag="@string/moregames.tag"
-        playhaven:textColor="@color/cornsilk"
+        playhaven:badgeTextColor="@color/cornsilk"
         />
 
 To load the button: 

@@ -32,7 +32,7 @@ In this example, we'll focus on specifying the MoreGames button in XML.  As it i
         android:text="@string/moregames.text"
         android:onClick="moreGamesClicked"
         playhaven:placementTag="@string/moregames.tag"
-        playhaven:textColor="@color/cornsilk"
+        playhaven:badgeTextColor="@color/cornsilk"
         />
 ```
 

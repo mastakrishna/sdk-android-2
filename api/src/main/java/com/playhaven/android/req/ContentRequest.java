@@ -50,6 +50,12 @@ public class ContentRequest extends PlayHavenRequest
         this.placementResId = placementResId;
     }
 
+    // for overriding without a placement
+    protected ContentRequest()
+    {
+        super();
+    }
+
     @Override
     protected UriComponentsBuilder createUrl(Context context) throws PlayHavenException {
         UriComponentsBuilder builder = super.createUrl(context);

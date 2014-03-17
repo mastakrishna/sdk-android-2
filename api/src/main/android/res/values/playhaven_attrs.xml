@@ -23,7 +23,7 @@ limitations under the License.
         <!--
         Show something immediately. ORable options.
         -->
-        <attr name="displayOptions">
+        <attr name="cuDisplayOptions">
             <!-- Show an overlay over the content -->
             <flag name="auto" value="0x00"/>
 
@@ -43,6 +43,6 @@ limitations under the License.
         <attr name="placementTag"/>
 
         <!-- Numeric text color -->
-        <attr name="textColor" format="color"/>
+        <attr name="badgeTextColor" format="color"/>
     </declare-styleable>
 </resources>

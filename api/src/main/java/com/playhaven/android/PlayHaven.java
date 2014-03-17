@@ -172,7 +172,12 @@ public class PlayHaven
         /**
          * Opt-in or opt-out of targeted behaviors
          */
-        OptOut, 
+        OptOut,
+
+        /**
+         * Kontagent API Key
+         */
+        KontagentAPI
     }
 
     /**
@@ -805,21 +810,57 @@ public class PlayHaven
 
         String pluginType = pref.getString(Config.PluginType.toString(), VendorCompat.class.getCanonicalName());
         String pluginId = pref.getString(Config.PluginIdentifer.toString(), "android");
+
+        if(pluginId == null || pluginType == null)
+        {
+            d("getVendorCompat: using default");
+            return createDefaultVendorCompat(context);
+        }
+
         VendorCompat compat = null;
-        if(pluginId != null && pluginType != null)
+        Class cls = null;
+
+        // Class to load
+        try{
+            cls = Class.forName(pluginType);
+        } catch (ClassNotFoundException e) {
+            d(e, "getVendorCompat: failed to find: %s/%s", pluginType, pluginId);
+            compat = createDefaultVendorCompat(context);
+        }
+
+        // Attempt two-argument constructor
+        if(compat == null)
         {
             try{
-                Class cls = Class.forName(pluginType);
                 @SuppressWarnings("unchecked") Constructor con = cls.getConstructor(Context.class, String.class);
                 compat = (VendorCompat) con.newInstance(context, pluginId);
+                d("getVendorCompat: instantiated #1: %s/%s", pluginType, pluginId);
             } catch (Exception e) {
-                compat = new VendorCompat("android");
+                d(e, "getVendorCompat: failed to instantiate #1: %s/%s", pluginType, pluginId);
             }
-        }else{
-            compat = new VendorCompat("android");
         }
+
+        // Attempt one-argument constructor
+        if(compat == null)
+        {
+            try{
+                @SuppressWarnings("unchecked") Constructor con = cls.getConstructor(String.class);
+                compat = (VendorCompat) con.newInstance(pluginId);
+                d("getVendorCompat: instantiated #2: %s/%s", pluginType, pluginId);
+            } catch (Exception e) {
+                d(e, "getVendorCompat: failed to instantiate #2: %s/%s", pluginType, pluginId);
+            }
+        }
+
+        if(compat == null)
+            compat = createDefaultVendorCompat(context);
 
         setVendorCompat(context, compat);
         return compat;
+    }
+
+    private static VendorCompat createDefaultVendorCompat(Context context)
+    {
+        return new VendorCompat("android");
     }
 }
