@@ -443,6 +443,19 @@ public abstract class PlayHavenRequest
 
     public void send(final Context context)
     {
+        final Charset charsetUTF8;
+        
+        try{
+          /**
+          * Charset class seems not to be multi-thread safe, so getting the Charset object on the main thread
+          * See: https://code.google.com/p/android/issues/detail?id=42769
+          */
+          charsetUTF8 = Charset.forName(UTF8);
+        }catch(Exception e){
+          handleResponse(new PlayHavenException(e.getMessage()));
+          return;
+        }
+        
         new Thread(new Runnable(){
             @Override
             public void run() {
@@ -477,7 +490,7 @@ public abstract class PlayHavenRequest
                     rest.setErrorHandler(new ServerErrorHandler());
 
                     // Capture the JSON for signature verification
-                    rest.getMessageConverters().add(new StringHttpMessageConverter(Charset.forName(UTF8)));
+                    rest.getMessageConverters().add(new StringHttpMessageConverter(charsetUTF8));
 
                     ResponseEntity<String> entity = null;
 
